@@ -1,4 +1,4 @@
-import log
+from . import log
 
 app_name = 'TornadoBoiler'
 author = 'Cristóbal Ganter'
