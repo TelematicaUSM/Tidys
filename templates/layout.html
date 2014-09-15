@@ -1,0 +1,30 @@
+{% from collections import ChainMap %}
+{% from conf import app_name %}
+
+{% extends "base.html" %}
+
+{% block body %}
+    {{ add_ext_file('css/layout.css') }}
+    
+    <header id="app-header">
+        {% block header %}
+            {% if 'header_title' in ChainMap(globals(), locals()) %}
+                <h1>{{ header_title }}</h1>
+            {% else %}
+                <h1>{{ app_name }}</h1>
+            {% end %}
+        {% end %}
+    </header>
+
+    <section id="content">
+        {% block content %}
+            {% if 'content' in ChainMap(globals(), locals()) %}
+                {% if raw_content %}
+                    {% raw content %}
+                {% else %}
+                    {{ content }}
+                {% end %}
+            {% end %}
+        {% end %}
+    </section>
+{% end %}

@@ -1,0 +1,38 @@
+{% from collections import ChainMap %}
+{% from conf import app_name, author, user_scalable_viewport %}
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        {% block window_title %}
+            {% if 'window_title' in ChainMap(globals(), locals()) %}
+                <title>{{ window_title }}</title>
+            {% else %}
+                <title>{{ app_name }}</title>
+            {% end %}
+        {% end %}
+        
+        <meta name="author" content="{{ author }}">
+        <meta http-equiv="content-type"
+              content="text/html; charset=UTF-8">
+        <meta name="viewport"
+              content="width=device-width, height=device-height,
+                       user-scalable={{ user_scalable_viewport }}">
+        {{ add_ext_file('css/base.css') }}
+    </head>
+    
+    <body>
+        {% block body %}
+            {% if 'content' in ChainMap(globals(), locals()) %}
+                {% if raw_content %}
+                    {% raw content %}
+                {% else %}
+                    {{ content }}
+                {% end %}
+            {% end %}
+        {% end %}
+        
+        {% module IncludeExtFiles() %}
+    </body>
+</html>

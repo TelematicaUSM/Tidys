@@ -1,0 +1,15 @@
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  margin: 0rem;
+  padding: 0rem; }
+
+html, body {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  margin: 0px;
+  font-family: Verdana, Geneva, sans-serif; }
