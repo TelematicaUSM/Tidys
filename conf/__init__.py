@@ -1,3 +1,5 @@
+import log
+
 app_name = 'TornadoBoiler'
 author = 'Cristóbal Ganter'
 port = 8888
