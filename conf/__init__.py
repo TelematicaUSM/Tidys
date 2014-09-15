@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 from . import log
 
 app_name = 'TornadoBoiler'
