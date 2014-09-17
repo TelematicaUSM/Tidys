@@ -4,7 +4,7 @@
 #main-menu {
     @include size($header-height $header-height);
     border: none;
-    background-color: $c-control-face;
+    @include background($c-control-face);
 
     img {
         @include size(rem(30) rem(30));
