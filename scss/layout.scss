@@ -1,8 +1,5 @@
 @import "bourbon/bourbon";
-@import "colors";
-
-$em-base: 10px;
-$header-height: rem(50);
+@import "constants";
 
 #app-header {
     box-shadow: 0px 0px rem(2) #000;
