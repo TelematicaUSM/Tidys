@@ -8,6 +8,5 @@
 
 html, body {
     @include position(fixed, 0px 0px 0px 0px);
-    margin: 0px;
     font-family: $verdana;
 }
