@@ -2,7 +2,7 @@
 
 from . import log
 
-app_name = 'TornadoBoiler'
+app_name = 'Tornado Boxes'
 author = 'Cristóbal Ganter'
 port = 8888
 debug = True
