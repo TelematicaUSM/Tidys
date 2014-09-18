@@ -12,8 +12,8 @@
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
-  height: 5rem;
   width: 100vw;
+  height: 5rem;
   background-color: #dfdfdf;
   -webkit-box-align: center;
   -moz-box-align: center;
