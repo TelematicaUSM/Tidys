@@ -1,10 +1,10 @@
 #app-header {
-  box-shadow: 0px 0px 0.2rem black;
   position: fixed;
   top: 0px;
   right: 0px;
   bottom: auto;
   left: 0px;
+  z-index: zi-header;
   display: -webkit-box;
   display: -moz-box;
   display: box;
@@ -12,9 +12,12 @@
   display: -moz-flex;
   display: -ms-flexbox;
   display: flex;
+  height: 3rem;
   width: 100vw;
-  height: 5rem;
-  background-color: #dfdfdf;
+  border-bottom: 1px solid #c6c6c6;
+  background-color: white;
+  background-image: -webkit-linear-gradient(white, #ececec);
+  background-image: linear-gradient(white, #ececec);
   -webkit-box-align: center;
   -moz-box-align: center;
   box-align: center;
@@ -34,7 +37,9 @@
 
 #content {
   position: fixed;
-  top: 5rem;
+  top: 3rem;
   right: 0px;
   bottom: 0px;
-  left: 0px; }
+  left: 0px;
+  z-index: zi-content;
+  background-color: #f9f9f9; }

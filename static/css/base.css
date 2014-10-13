@@ -11,4 +11,6 @@ html, body {
   right: 0px;
   bottom: 0px;
   left: 0px;
-  font-family: Verdana, Geneva, sans-serif; }
+  background-color: #f9f9f9;
+  font-family: Verdana, Geneva, sans-serif;
+  color: rgba(0, 0, 0, 0.7); }

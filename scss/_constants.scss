@@ -1,6 +1,15 @@
 //SIZES
 $em-base: 10px;
-$header-height: rem(50);
+$header-height: rem(30);
 
 //COLORS
-$c-control-face: #dfdfdf;
+$c-control-face: lighten(#dfdfdf, 10%);
+$c-control-font: rgba(black, 0.7);
+
+$c-control-face-light: lighten($c-control-face, 5%);
+$c-control-face-dark: darken($c-control-face, 5%);
+$c-control-border: darken($c-control-face, 20%);
+
+//Z INDEXES
+$zi-header: 5000;
+$zi-content: 4000;
