@@ -2,11 +2,12 @@
 @import "constants";
 
 #app-header {
-    box-shadow: 0px 0px rem(2) #000;
     @include position(fixed, 0px 0px auto 0px);
+    z-index: zi-header;
     @include display(flex);
     @include size(100vw $header-height);
-    background-color: $c-control-face;
+    border-bottom: 1px solid $c-control-border;
+    @include linear-gradient($c-control-face-light, $c-control-face-dark);
     @include align-items(center);
     
     h1 {
@@ -18,4 +19,6 @@
 
 #content {
     @include position(fixed, $header-height 0px 0px 0px);
+    z-index: zi-content;
+    background-color: $c-control-face;
 }
