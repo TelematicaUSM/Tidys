@@ -17,8 +17,19 @@
     }
 }
 
+#main-menu {
+    display: block;
+    @include position(fixed, $header-height null 0px -200vw/3);
+    z-index: $zi-main-menu;
+    width: (200vw/3);
+    background-color: $c-main-menu;
+    color: $c-main-menu-font;
+    @include transition(left 0.2s);
+}
+
 #content {
-    @include position(fixed, $header-height 0px 0px 0px);
+    @include position(fixed, $header-height null 0px null);
+    width: 100vw;
     z-index: zi-content;
     background-color: $c-control-face;
 }

@@ -1,9 +1,23 @@
-#main-menu {
-  height: 5rem;
-  width: 5rem;
+#main-menu-button {
+  height: 3rem;
+  width: 3rem;
   border: none;
-  background: #dfdfdf;
-  background: #dfdfdf; }
-  #main-menu img {
-    height: 3rem;
-    width: 3rem; }
+  background-color: rgba(249, 249, 249, 0);
+  background-image: none; }
+  #main-menu-button img {
+    height: 2.1rem;
+    width: 2.1rem;
+    vertical-align: middle; }
+
+#content-shade {
+  display: block;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  z-index: 2999;
+  background-color: transparent;
+  -webkit-transition: background-color 0.2s;
+  -moz-transition: background-color 0.2s;
+  transition: background-color 0.2s; }

@@ -1,12 +1,22 @@
 @import "bourbon/bourbon";
 @import "constants";
 
-#main-menu {
-    @include size($header-height $header-height);
+#main-menu-button {
+    @include size($header-height);
     border: none;
-    @include background($c-control-face);
+    background-color: rgba($c-control-face, 0);
+    background-image: none;
 
     img {
-        @include size(rem(30) rem(30));
+        @include size($header-height*0.7);
+        vertical-align: middle;
     }
+}
+
+#content-shade {
+    display: block;
+    @include position(absolute, 0px 0px 0px 0px);
+    z-index: $zi-content - 1;
+    background-color: transparent;
+    @include transition(background-color 0.2s);
 }

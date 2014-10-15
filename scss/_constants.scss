@@ -10,6 +10,12 @@ $c-control-face-light: lighten($c-control-face, 5%);
 $c-control-face-dark: darken($c-control-face, 5%);
 $c-control-border: darken($c-control-face, 20%);
 
+$c-main-menu: darken($c-control-face, 80%);
+$c-main-menu-font: rgba(white, 0.7);
+
+$c-shade: rgba(black, 0.6);
+
 //Z INDEXES
 $zi-header: 5000;
-$zi-content: 4000;
+$zi-main-menu: 4000;
+$zi-content: 3000;
