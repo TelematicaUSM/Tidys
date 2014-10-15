@@ -2,11 +2,10 @@
 @import "constants";
 
 #app-header {
+    @include display(flex);
     @include position(fixed, 0px 0px auto 0px);
     z-index: zi-header;
-    @include display(flex);
     @include size(100vw $header-height);
-    border-bottom: 1px solid $c-control-border;
     @include linear-gradient($c-control-face-light, $c-control-face-dark);
     @include align-items(center);
     
