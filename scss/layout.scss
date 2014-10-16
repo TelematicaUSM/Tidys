@@ -17,9 +17,9 @@
     }
 }
 
-#content {
+.panel {
     @include position(fixed, $header-height 0px 0px 0px);
-    z-index: $zi-content;
+    z-index: $zi-panels;
     background-color: $c-control-face;
-    overflow: scroll;
+    overflow: auto;
 }

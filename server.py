@@ -19,7 +19,8 @@ class AppHandler(RequestHandler):
                       'TornadoBoiler is a set of files which serve ' \
                       'me as a base to start new Tornado projects.' \
                   '</span>'
-        self.render('layout.html', raw_content=True, content=content)
+        self.render('layout.html', raw_content=True,
+                    content=content)
 
 
 app = Application(

@@ -16,15 +16,17 @@
         {% end %}
     </header>
 
-    <section id="content">
-        {% block content %}
-            {% if 'content' in ChainMap(globals(), locals()) %}
-                {% if raw_content %}
-                    {% raw content %}
-                {% else %}
-                    {{ content }}
+    {% block free_content %}
+        <section id="content" class="panel">
+            {% block content %}
+                {% if 'content' in ChainMap(globals(), locals()) %}
+                    {% if raw_content %}
+                        {% raw content %}
+                    {% else %}
+                        {{ content }}
+                    {% end %}
                 {% end %}
             {% end %}
-        {% end %}
-    </section>
+        </section>
+    {% end %}
 {% end %}
