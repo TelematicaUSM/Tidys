@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import conf
+import panels
 
 from signal import signal, SIGINT
 from sys import exit
