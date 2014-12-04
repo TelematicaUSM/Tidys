@@ -26,7 +26,14 @@
 #content-shade {
     display: block;
     @include position(absolute, 0px 0px 0px 0px);
-    z-index: $zi-content - 1;
+    z-index: $zi-panels - 1;
     background-color: transparent;
     @include transition(background-color 0.2s);
+}
+
+.window {
+    display: block;
+    margin: 1rem 1rem 0rem 1rem;
+    border-radius: 0.2rem;
+    background-color: white;
 }

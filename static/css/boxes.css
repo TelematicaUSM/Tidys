@@ -1,3 +1,17 @@
+#main-menu {
+  display: block;
+  position: fixed;
+  top: 3rem;
+  bottom: 0px;
+  left: -66.66667vw;
+  z-index: 4000;
+  width: 66.66667vw;
+  background-color: #2d2d2d;
+  color: rgba(255, 255, 255, 0.7);
+  -webkit-transition: left 0.2s;
+  -moz-transition: left 0.2s;
+  transition: left 0.2s; }
+
 #main-menu-button {
   height: 3rem;
   width: 3rem;
@@ -21,3 +35,9 @@
   -webkit-transition: background-color 0.2s;
   -moz-transition: background-color 0.2s;
   transition: background-color 0.2s; }
+
+.window {
+  display: block;
+  margin: 1rem 1rem 0rem 1rem;
+  border-radius: 0.2rem;
+  background-color: white; }

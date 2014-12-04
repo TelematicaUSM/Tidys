@@ -15,7 +15,7 @@ from src import ui_modules, ui_methods
 
 class AppHandler(RequestHandler):
     def get(self):
-        self.render('boxes.html')
+        self.render('boxes.html', panels=panels.modules)
 
 
 app = Application(
@@ -23,7 +23,7 @@ app = Application(
     debug = conf.debug,
     static_path = './static',
     template_path = './templates',
-    ui_modules = [ui_modules],
+    ui_modules = [ui_modules, panels.modules],
     ui_methods = [ui_methods],
 )
    
