@@ -1,24 +1,24 @@
 runenv = . env/bin/activate
-screename = tornadoBoxes
+program = server.py
 
 env:
-	virtualenv --python=/usr/bin/python3 env
+	virtualenv --system-site-packages --python=/usr/bin/python3 env
 
-install: env
+install: env requirements.txt
 	$(runenv); pip install -r requirements.txt
 	touch install
 
 run: install
-	$(runenv); python server.py
+	$(runenv); python $(program)
 
 runs:
-	screen -S $(screename) make run
+	screen -S $${PWD##*/} make run
 
 rund:
-	screen -d -m -S $(screename) make run
+	screen -d -m -S $${PWD##*/} make run
 
 testenv: env
 	$(runenv); python -V
 
 attach:
-	screen -r $(screename)
+	screen -r $${PWD##*/}
