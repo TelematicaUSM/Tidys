@@ -22,3 +22,7 @@ testenv: env
 
 attach:
 	screen -r $${PWD##*/}
+
+#Upstream Merge
+upsm:
+	git pull --no-commit cganterh.net:git/tornadoBoiler.git
