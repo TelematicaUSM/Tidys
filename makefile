@@ -1,5 +1,5 @@
 runenv = . env/bin/activate
-program = server.py
+program = __init__.py
 
 env:
 	virtualenv --system-site-packages --python=/usr/bin/python3 env
