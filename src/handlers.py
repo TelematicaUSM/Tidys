@@ -5,7 +5,7 @@ import re
 from os.path import abspath, join as joinpath, \
                     sep as pathsep, isdir, \
                     exists as pathexists, isfile
-from tornado.web import StaticFileHandler
+from tornado.web import StaticFileHandler, HTTPError
 
 class FileGoupsHandler(StaticFileHandler):
     groups = {}
