@@ -34,12 +34,12 @@ class FileGoupsHandler(StaticFileHandler):
         # to root/
         abspath_sw = (absolute_path + pathsep).startswith
         sw_root = abspath_sw(root)
-        sw_any = any(abspath_sw(group_root)
+        sw_any = any(abspath_sw(abspath(group_root))
                      for group_root in self.groups.values())
         if not sw_root and not sw_any:
             raise HTTPError(403,
-                '%s is not in root static directory or' \
-                'any group root.', self.path)
+                '%s is not in root static directory or ' \
+                'any group root', self.path)
                 
         if (isdir(absolute_path) and
                 self.default_filename is not None):
@@ -56,7 +56,8 @@ class FileGoupsHandler(StaticFileHandler):
         if not pathexists(absolute_path):
             raise HTTPError(404)
             
-        if not os.path.isfile(absolute_path):
-            raise HTTPError(403, "%s is not a file", self.path)
+        if not isfile(absolute_path):
+            raise HTTPError(403, "%s is not a file",
+                            self.path)
             
         return absolute_path
