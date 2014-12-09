@@ -10,14 +10,17 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
 from src import ui_modules, ui_methods
+from src.handlers import FileGoupsHandler
 
 
 class AppHandler(RequestHandler):
     def get(self):
-        content = '<span style="margin:3rem; display:block;' \
+        content = '<span style="margin:3rem; ' \
+                               'display:block;' \
                                'text-align:center;">' \
-                      'TornadoBoiler is a set of files which serve ' \
-                      'me as a base to start new Tornado projects.' \
+                      'TornadoBoiler is a set of files' \
+                      'which serve me as a base to start' \
+                      'new Tornado projects.' \
                   '</span>'
         self.render('layout.html', raw_content=True,
                     content=content)
@@ -26,6 +29,7 @@ class AppHandler(RequestHandler):
 app = Application(
     [('/$', AppHandler)],
     debug = conf.debug,
+    static_handler_class = FileGoupsHandler,
     static_path = './static',
     template_path = './templates',
     ui_modules = [ui_modules],
