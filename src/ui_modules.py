@@ -1,7 +1,7 @@
-from tornado.web import UIModule
+import tornado
 
 
-class IncludeExtFiles(UIModule):
+class IncludeExtFiles(tornado.web.UIModule):
     def render(self):
         return ''
     
@@ -30,3 +30,23 @@ class IncludeExtFiles(UIModule):
         
     def javascript_files(self):
         return self.get_urls('js')
+        
+
+class UIModule(tornado.web.UIModule):
+    def __init__(self):
+        super().__init__(self, handler)
+        self.css_files = []
+        self.js_files = []
+        
+    def render(self, set_resources=None):
+        if set_resources:
+            set_resource(javascript_files=self.js_files,
+                         css_files=self.css_files)
+    
+    def javascript_files(self):
+        """Returns a list of JavaScript files required by this module."""
+        return self.js_files
+
+    def css_files(self):
+        """Returns a list of CSS files required by this module."""
+        return self.css_files
