@@ -13,7 +13,7 @@ install: env requirements.txt
 css: scss
 	sass --update static/scss:static/css
 
-.PHONY: run srun drun testenv attach
+.PHONY: run srun drun testenv attach show
 
 run: install css
 	$(runenv); python $(program)

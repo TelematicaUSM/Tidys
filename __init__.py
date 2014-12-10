@@ -10,7 +10,6 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 
 from src import ui_modules, ui_methods
-from src.handlers import FileGoupsHandler
 
 
 class AppHandler(RequestHandler):
@@ -29,7 +28,6 @@ class AppHandler(RequestHandler):
 app = Application(
     [('/$', AppHandler)],
     debug = conf.debug,
-    static_handler_class = FileGoupsHandler,
     static_path = './static',
     template_path = './templates',
     ui_modules = [ui_modules],
