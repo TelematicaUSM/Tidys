@@ -1,5 +1,7 @@
 import tornado
 
+from tornado.web import StaticFileHandler
+
 
 class IncludeExtFiles(tornado.web.UIModule):
     def render(self):
@@ -30,11 +32,22 @@ class IncludeExtFiles(tornado.web.UIModule):
         
     def javascript_files(self):
         return self.get_urls('js')
-        
+
 
 class UIModule(tornado.web.UIModule):
-    def __init__(self):
+    def __init__(self, handler):
         super().__init__(self, handler)
+        self.application = handler.application
+        self.config()
+        if self.static_root:
+            self.application.add_handlers('.*$',
+                [(self.static_url_prefix + '(.*)',
+                  StaticFileHandler,
+                  {'path': self.static_root})])
+    
+    def config(self):
+        self.static_url_prefix = '/static/'
+        self.static_root = ''
         self.css_files = []
         self.js_files = []
         
