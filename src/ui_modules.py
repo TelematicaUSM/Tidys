@@ -65,8 +65,7 @@ class UIModule(tornado.web.UIModule):
         """Returns a list of JavaScript files required by
         this module."""
         return [
-            StaticFileHandler.make_static_url(self.conf,
-                                              path)
+            self.make_static_url(path)
             for path in self.conf['js_files']
         ]
 
@@ -74,7 +73,15 @@ class UIModule(tornado.web.UIModule):
         """Returns a list of CSS files required by this
         module."""
         return [
-            StaticFileHandler.make_static_url(self.conf,
-                                              path)
+            self.make_static_url(path)
             for path in self.conf['css_files']
         ]
+
+    def make_static_url(self, path):
+        return StaticFileHandler.make_static_url(self.conf,
+                                                 path)
+
+    def render_string(self, path, **kwargs):
+        """Renders a template and returns it as a string."""
+        return self.handler.render_string(path,
+            make_static_url=self.make_static_url, **kwargs)
