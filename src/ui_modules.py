@@ -37,7 +37,7 @@ class IncludeExtFiles(tornado.web.UIModule):
 class UIModule(tornado.web.UIModule):
     conf = {
         'static_url_prefix': '/static/',
-        'static_root': '',
+        'static_path': '',
         'css_files': [],
         'js_files': [],
     }
@@ -45,13 +45,13 @@ class UIModule(tornado.web.UIModule):
     def __init__(self, handler):
         super().__init__(handler)
         self.application = handler.application
-        if self.conf['static_root']:
+        if self.conf['static_path']:
             self.application.add_handlers(
                 '.*$',
                 [(
                     self.conf['static_url_prefix'] + '(.*)',
                     StaticFileHandler,
-                    {'path': self.conf['static_root']}
+                    {'path': self.conf['static_path']}
                 )]
             )
         
@@ -65,7 +65,8 @@ class UIModule(tornado.web.UIModule):
         """Returns a list of JavaScript files required by
         this module."""
         return [
-            self.handler.static_url(path)
+            StaticFileHandler.make_static_url(self.conf,
+                                              path)
             for path in self.conf['js_files']
         ]
 
@@ -73,6 +74,7 @@ class UIModule(tornado.web.UIModule):
         """Returns a list of CSS files required by this
         module."""
         return [
-            self.handler.static_url(path)
+            StaticFileHandler.make_static_url(self.conf,
+                                              path)
             for path in self.conf['css_files']
         ]
