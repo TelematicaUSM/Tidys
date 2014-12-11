@@ -15,13 +15,13 @@ class IncludeExtFiles(tornado.web.UIModule):
         else:
             ext_files = []
             
-        #Para incluir archivos de un modulo, el handler tiene que
-        #heredar de src.handlers.ModuleHandler.
+        # Para incluir archivos de un modulo, el handler
+        # tiene que heredar de src.handlers.ModuleHandler.
         if hasattr(self.handler, 'module_files') and \
            hasattr(self.handler, 'module_url'):
             module_files = [self.handler.module_url(fn)
-                            for fn in self.handler.module_files
-                            if '.'+file_extension in fn]
+                for fn in self.handler.module_files
+                if '.'+file_extension in fn]
         else:
             module_files = []
         
@@ -39,27 +39,30 @@ class UIModule(tornado.web.UIModule):
         super().__init__(handler)
         self.application = handler.application
         self.config()
-        if self.static_root:
+        if self.config.static_root:
             self.application.add_handlers('.*$',
-                [(self.static_url_prefix + '(.*)',
+                [(self.config.static_url_prefix + '(.*)',
                   StaticFileHandler,
-                  {'path': self.static_root})])
+                  {'path': self.config.static_root})])
     
     def config(self):
-        self.static_url_prefix = '/static/'
-        self.static_root = ''
-        self.css_files = []
-        self.js_files = []
+        self.config.static_url_prefix = '/static/'
+        self.config.static_root = ''
+        self.config.css_files = []
+        self.config.js_files = []
         
     def render(self, set_resources=None):
         if set_resources:
-            set_resources(javascript_files=self.js_files,
-                         css_files=self.css_files)
+            set_resources(
+                javascript_files=self.config.js_files,
+                css_files=self.config.css_files)
     
     def javascript_files(self):
-        """Returns a list of JavaScript files required by this module."""
-        return self.js_files
+        """Returns a list of JavaScript files required by
+        this module."""
+        return self.config.js_files
 
     def css_files(self):
-        """Returns a list of CSS files required by this module."""
-        return self.css_files
+        """Returns a list of CSS files required by this
+        module."""
+        return self.config.css_files
