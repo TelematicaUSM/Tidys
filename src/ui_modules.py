@@ -1,6 +1,7 @@
 import tornado
 
 from tornado.web import StaticFileHandler
+from controller import app
 
 
 class IncludeExtFiles(tornado.web.UIModule):
@@ -36,22 +37,22 @@ class IncludeExtFiles(tornado.web.UIModule):
 
 class UIModule(tornado.web.UIModule):
     conf = {
-        'static_url_prefix': '/static/',
+        'static_url_prefix': '',
         'static_path': '',
         'css_files': [],
         'js_files': [],
     }
-        
-    def __init__(self, handler):
-        super().__init__(handler)
-        self.application = handler.application
-        if self.conf['static_path']:
-            self.application.add_handlers(
+    
+    @classmethod
+    def add_handler(cls):
+        if cls.conf['static_path'] and
+           cls.conf['static_url_prefix']:
+            app.add_handlers(
                 '.*$',
                 [(
-                    self.conf['static_url_prefix'] + '(.*)',
+                    cls.conf['static_url_prefix'] + '(.*)',
                     StaticFileHandler,
-                    {'path': self.conf['static_path']}
+                    {'path': cls.conf['static_path']}
                 )]
             )
         
