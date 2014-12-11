@@ -36,7 +36,7 @@ class IncludeExtFiles(tornado.web.UIModule):
 
 class UIModule(tornado.web.UIModule):
     def __init__(self, handler):
-        super().__init__(self, handler)
+        super().__init__(handler)
         self.application = handler.application
         self.config()
         if self.static_root:
