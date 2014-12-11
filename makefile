@@ -1,5 +1,5 @@
 runenv = . env/bin/activate
-program = __init__.py
+program = run.py
 VPATH = static
 .DEFAULT_GOAL = run
 
