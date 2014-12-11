@@ -38,31 +38,36 @@ class UIModule(tornado.web.UIModule):
     def __init__(self, handler):
         super().__init__(handler)
         self.application = handler.application
-        self.config()
-        if self.config.static_root:
-            self.application.add_handlers('.*$',
-                [(self.config.static_url_prefix + '(.*)',
-                  StaticFileHandler,
-                  {'path': self.config.static_root})])
+        self.conf = {}
+        self.configure()
+        if self.conf['static_root']:
+            self.application.add_handlers(
+                '.*$',
+                [(
+                    self.conf['static_url_prefix'] + '(.*)',
+                    StaticFileHandler,
+                    {'path': self.conf['static_root']}
+                )]
+            )
     
-    def config(self):
-        self.config.static_url_prefix = '/static/'
-        self.config.static_root = ''
-        self.config.css_files = []
-        self.config.js_files = []
+    def configure(self):
+        self.conf['static_url_prefix'] = '/static/'
+        self.conf['static_root'] = ''
+        self.conf['css_files'] = []
+        self.conf['js_files'] = []
         
     def render(self, set_resources=None):
         if set_resources:
             set_resources(
-                javascript_files=self.config.js_files,
-                css_files=self.config.css_files)
+                javascript_files=self.conf['js_files'],
+                css_files=self.conf['css_files'])
     
     def javascript_files(self):
         """Returns a list of JavaScript files required by
         this module."""
-        return self.config.js_files
+        return self.conf['js_files']
 
     def css_files(self):
         """Returns a list of CSS files required by this
         module."""
-        return self.config.css_files
+        return self.conf['css_files']
