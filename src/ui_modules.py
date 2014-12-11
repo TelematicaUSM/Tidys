@@ -45,7 +45,7 @@ class UIModule(tornado.web.UIModule):
     
     @classmethod
     def add_handler(cls):
-        if cls.conf['static_path'] and
+        if cls.conf['static_path'] and \
            cls.conf['static_url_prefix']:
             app.add_handlers(
                 '.*$',
