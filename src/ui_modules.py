@@ -53,7 +53,7 @@ class UIModule(tornado.web.UIModule):
         
     def render(self, set_resources=None):
         if set_resources:
-            set_resource(javascript_files=self.js_files,
+            set_resources(javascript_files=self.js_files,
                          css_files=self.css_files)
     
     def javascript_files(self):
