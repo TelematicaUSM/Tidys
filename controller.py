@@ -29,5 +29,5 @@ app = Application(
 )
 
 for module in app.ui_modules.values():
-    if issubclass(module, BoilerUIModule)
+    if issubclass(module, BoilerUIModule):
         module.add_handler(app)
