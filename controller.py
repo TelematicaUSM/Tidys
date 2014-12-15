@@ -3,7 +3,7 @@
 import conf
 
 from tornado.web import Application, RequestHandler
-from src import ui_modules, ui_methods
+from src import ui_modules, ui_methods, BoilerUIModule
 
 
 class AppHandler(RequestHandler):
@@ -27,3 +27,7 @@ app = Application(
     ui_modules = [ui_modules],
     ui_methods = [ui_methods],
 )
+
+for module in app.ui_modules.values():
+    if issubclass(module, BoilerUIModule)
+        module.add_handler(app)
