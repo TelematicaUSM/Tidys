@@ -23,12 +23,6 @@ class BoilerUIModule(tornado.web.UIModule):
                     {'path': cls.conf['static_path']}
                 )]
             )
-        
-    def render(self, set_resources=None):
-        if set_resources:
-            set_resources(
-                javascript_files=self.conf['js_files'],
-                css_files=self.conf['css_files'])
     
     def javascript_files(self):
         """Returns a list of JavaScript files required by

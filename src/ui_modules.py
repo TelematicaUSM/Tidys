@@ -30,3 +30,72 @@ class IncludeExtFiles(tornado.web.UIModule):
         
     def javascript_files(self):
         return self.get_urls('js')
+        
+
+class UIModuleLoader(tornado.web.UIModule):
+    def __init__(self, handler):
+        super().__init__(handler)
+        # keep resources in both a list and a dict to preserve order
+        self._resource_list = []
+        self.modules = {}
+
+    def render(self, module_class, **kwargs):
+        if module_class not in self.modules:
+            module_instance = module_class(self.handler)
+            self.modules[module_class] = module_instance
+            
+            resources = {
+                'embedded_javascript':
+                    module_instance.embedded_javascript(),
+                'javascript_files':
+                    module_instance.javascript_files(),
+                'embedded_css':
+                    module_instance.embedded_css(),
+                'css_files':
+                    module_instance.css_files(),
+                'html_head':
+                    module_instance.html_head(),
+                'html_body':
+                    module_instance.html_body(),
+            }
+            
+            self._resource_list.append(resources)
+            
+        return self.modules[module_class].render_string(
+            **kwargs)
+
+    def _get_resources(self, key):
+        return (r[key] for r in self._resource_list
+                       if key in r)
+
+    def embedded_javascript(self):
+        return "\n".join(self._get_resources(
+            "embedded_javascript"))
+
+    def javascript_files(self):
+        result = []
+        for f in self._get_resources("javascript_files"):
+            if isinstance(f, (unicode_type, bytes_type)):
+                result.append(f)
+            else:
+                result.extend(f)
+        return result
+
+    def embedded_css(self):
+        return "\n".join(self._get_resources(
+            "embedded_css"))
+
+    def css_files(self):
+        result = []
+        for f in self._get_resources("css_files"):
+            if isinstance(f, (unicode_type, bytes_type)):
+                result.append(f)
+            else:
+                result.extend(f)
+        return result
+
+    def html_head(self):
+        return "".join(self._get_resources("html_head"))
+
+    def html_body(self):
+        return "".join(self._get_resources("html_body"))
