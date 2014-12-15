@@ -1,7 +1,9 @@
-from tornado.web import StaticFileHandler, UIModule
+import tornado
+
+from tornado.web import StaticFileHandler
 
 
-class BoilerUIModule(UIModule):
+class BoilerUIModule(tornado.web.UIModule):
     conf = {
         'static_url_prefix': '',
         'static_path': '',

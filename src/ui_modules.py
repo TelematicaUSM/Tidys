@@ -1,7 +1,7 @@
-from tornado.web import UIModule
+import tornado
 
 
-class IncludeExtFiles(UIModule):
+class IncludeExtFiles(tornado.web.UIModule):
     def render(self):
         return ''
     
