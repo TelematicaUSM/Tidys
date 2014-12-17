@@ -3,7 +3,8 @@
 import conf
 
 from tornado.web import Application, RequestHandler
-from src import ui_modules, ui_methods, BoilerUIModule
+from src import ui_modules, ui_methods
+from src.boiler_ui_module import BoilerUIModule
 
 
 class AppHandler(RequestHandler):
