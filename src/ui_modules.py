@@ -1,5 +1,7 @@
 import tornado
 
+from tornado.util import bytes_type, unicode_type
+
 
 class IncludeExtFiles(tornado.web.UIModule):
     def render(self):
