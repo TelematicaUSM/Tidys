@@ -66,7 +66,8 @@ class UIModuleLoader(tornado.web.UIModule):
 
     def _get_resources(self, key):
         return (r[key] for r in self._resource_list
-                       if key in r)
+                       if key in r
+                       if r[key])
 
     def embedded_javascript(self):
         return "\n".join(self._get_resources(
