@@ -1,4 +1,4 @@
-from ..common import modules
+from ..panel import Panel
 from tornado.web import UIModule
 
 
@@ -7,6 +7,7 @@ class Demo(UIModule):
     name = 'Demo'
     
     def render(self):
-        return self.render_string('./panels/demo/demo.html', _id=_id)
+        return self.render_string('./panels/demo/demo.html',
+                                  _id=_id)
 
-modules['demo'] = Demo
+Panel.register_panel(Demo)

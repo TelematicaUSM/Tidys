@@ -1,7 +1,10 @@
 runenv = . env/bin/activate
-program = __init__.py
-VPATH = static
+program = run.py
 .DEFAULT_GOAL = run
+VPATH = static
+
+scssin = static/scss
+cssout = static/css
 
 env:
 	virtualenv --system-site-packages --python=/usr/bin/python3 env
@@ -11,9 +14,9 @@ install: env requirements.txt
 	touch install
 
 css: scss
-	sass --update static/scss:static/css
+	sass --update $(scssin):$(cssout)
 
-.PHONY: run srun drun testenv attach show
+.PHONY: run srun drun testenv attach
 
 run: install css
 	$(runenv); python $(program)
