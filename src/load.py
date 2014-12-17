@@ -3,7 +3,7 @@ import sys
 from importlib import import_module
 from os.path import dirname
 from pkgutil import iter_modules
-from types import ModuleType
+from inspect import isclass
 from .boiler_ui_module import BoilerUIModule
 
 
@@ -26,6 +26,7 @@ def load_boiler_ui_modules(package, app):
     package.boiler_ui_modules = [member
         for module in python_modules
         for member in module.__dict__.values()
+        if isclass(member)
         if issubclass(member, BoilerUIModule)]
     
     for module in package.boiler_ui_modules:
