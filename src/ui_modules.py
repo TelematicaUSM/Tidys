@@ -39,7 +39,7 @@ class UIModuleLoader(tornado.web.UIModule):
         self._resource_list = []
         self.modules = {}
 
-    def render(self, module_class, **kwargs):
+    def render(self, module_class, *args, **kwargs):
         if module_class not in self.modules:
             module_instance = module_class(self.handler)
             self.modules[module_class] = module_instance
@@ -62,7 +62,7 @@ class UIModuleLoader(tornado.web.UIModule):
             self._resource_list.append(resources)
             
         return self.modules[module_class].render_string(
-            **kwargs)
+            *args, **kwargs)
 
     def _get_resources(self, key):
         return (r[key] for r in self._resource_list
