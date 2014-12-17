@@ -1,7 +1,11 @@
-env
-.sass-cache
 log.log
+install
+
 *~
 *.pyc
+*.orig
+
+env
+.sass-cache
 static/css
-install
+*__pycache__*
