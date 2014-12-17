@@ -61,8 +61,8 @@ class UIModuleLoader(tornado.web.UIModule):
             
             self._resource_list.append(resources)
             
-        return self.modules[module_class].render_string(
-            *args, **kwargs)
+        return self.modules[module_class].render(*args,
+                                                 **kwargs)
 
     def _get_resources(self, key):
         return (r[key] for r in self._resource_list
