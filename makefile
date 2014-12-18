@@ -16,7 +16,7 @@ install: env requirements.txt
 css: scss
 	sass --update $(scssin):$(cssout)
 
-.PHONY: run srun drun testenv attach
+.PHONY: run srun drun testenv attach csswatch dcsswatch
 
 run: install css
 	$(runenv); python $(program)
@@ -32,3 +32,9 @@ testenv: env
 
 attach:
 	screen -r $${PWD##*/}
+
+csswatch:
+	sass --watch $(scssin):$(cssout)
+
+dcsswatch:
+	screen -d -m -S $${PWD##*/}_sass $(MAKE) csswatch
