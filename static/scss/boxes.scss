@@ -1,0 +1,39 @@
+@import "bourbon/bourbon";
+@import "constants";
+
+#main-menu {
+    display: block;
+    @include position(fixed, $header-height null 0px -200vw/3);
+    z-index: $zi-main-menu;
+    width: (200vw/3);
+    background-color: $c-main-menu;
+    color: $c-main-menu-font;
+    @include transition(left 0.2s);
+}
+
+#main-menu-button {
+    @include size($header-height);
+    border: none;
+    background-color: rgba($c-control-face, 0);
+    background-image: none;
+
+    img {
+        @include size($header-height*0.7);
+        vertical-align: middle;
+    }
+}
+
+#content-shade {
+    display: block;
+    @include position(absolute, 0px 0px 0px 0px);
+    z-index: $zi-panels - 1;
+    background-color: transparent;
+    @include transition(background-color 0.2s);
+}
+
+.window {
+    display: block;
+    margin: 1rem 1rem 0rem 1rem;
+    border-radius: 0.2rem;
+    background-color: white;
+}
