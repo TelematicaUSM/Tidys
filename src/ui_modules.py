@@ -37,7 +37,6 @@ class IncludeExtFiles(tornado.web.UIModule):
 class UIModuleLoader(tornado.web.UIModule):
     def __init__(self, handler):
         super().__init__(handler)
-        # keep resources in both a list and a dict to preserve order
         self._resource_list = []
         self.modules = {}
 

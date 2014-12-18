@@ -11,20 +11,24 @@
 {% end %}
 
 {% block free_content %}
-    <div id="content-shade" onClick="close_main_menu()"></div>
+    {% from panels import boiler_ui_modules as panels %}
+    
+    <div id="content-shade" onClick="close_main_menu()">
+    </div>
     
     <nav id="main-menu">
-        {% for panel in panels.values() %}
+        {% for panel in panels %}
             <button type="button" class="main-menu-button"
-                    onClick="switchToPanel({{ panel._id }})">
+                    onClick="switchToPanel({{ panel._id }})"
+                    >
                 {{ panel.name }}
             </button>
         {% end %}
     </nav>
 
-    {% for panel in panels.items() %}
-        <section class="panel" id="{{ panel[1]._id }}">
-            {% module panel[0]() %}
+    {% for panel in panels %}
+        <section class="panel" id="{{ panel._id }}">
+            {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
 {% end %}

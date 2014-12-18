@@ -1,13 +1,10 @@
-from ..panel import Panel
-from tornado.web import UIModule
+import src
 
 
-class Demo(UIModule):
+class Demo(src.boiler_ui_module.BoilerUIModule):
     _id = 'demo'
     name = 'Demo'
     
     def render(self):
-        return self.render_string('./panels/demo/demo.html',
-                                  _id=_id)
-
-Panel.register_panel(Demo)
+        return self.render_string(
+            '../panels/demo/demo.html', _id=self._id)
