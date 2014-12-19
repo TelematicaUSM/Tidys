@@ -8,8 +8,7 @@
 }
 
 html, body {
-    @include position(fixed, 0px 0px 0px 0px);
-    background-color: $c-control-face;
+    background-color: $c-background;
     font-family: $verdana;
     color: $c-control-font;
 }
