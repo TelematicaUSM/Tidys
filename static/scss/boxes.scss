@@ -3,12 +3,14 @@
 
 #main-menu {
     display: block;
-    @include position(fixed, $header-height null 0px -200vw/3);
+    @include position(fixed, 0px null 0px
+                      -200vw/3);
     z-index: $zi-main-menu;
+    padding-top: $header-height;
     width: (200vw/3);
     background-color: $c-main-menu;
     color: $c-main-menu-font;
-    @include transition(left 0.2s);
+/*    @include transition(left 0.2s);*/
 }
 
 #main-menu-button {
@@ -25,15 +27,29 @@
 
 #content-shade {
     display: block;
-    @include position(absolute, 0px 0px 0px 0px);
+    @include position(fixed, 0px 0px 0px 0px);
     z-index: $zi-panels - 1;
     background-color: transparent;
-    @include transition(background-color 0.2s);
+/*    @include transition(background-color 0.2s);*/
 }
 
-.window {
+.main-menu-item {
     display: block;
-    margin: 1rem 1rem 0rem 1rem;
-    border-radius: 0.2rem;
+    border: none;
+    padding: 1rem;
+    width: 100%;
+    background-color: $c-main-menu;
+    text-align: left;
+    font-size: 1rem;
+    color: $c-main-menu-font;
+    border-bottom: 1px solid $c-main-menu-font;
+}
+
+.box {
+    display: block;
+    margin: 1rem;
+    border-radius: 0.1rem;
+    box-shadow: 0rem 0.1rem 0rem 0rem $c-panel-shadow;
     background-color: white;
+    padding: 1rem;
 }

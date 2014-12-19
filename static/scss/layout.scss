@@ -7,19 +7,36 @@
     z-index: $zi-header;
     @include size(100vw $header-height);
     border-bottom: 1px solid $c-control-border;
-    @include linear-gradient($c-control-face-light, $c-control-face-dark);
+    @include linear-gradient($c-control-face-light,
+                             $c-control-face-dark);
     @include align-items(center);
+    box-shadow: 0rem -0.9rem 0.3rem 1rem #4B4B4B;
     
     h1 {
         @include flex-grow(1);
-        font-size: 1rem;
         text-align: center;
+        font-size: 1rem;
     }
 }
 
 .panel {
-    @include position(fixed, $header-height 0px 0px 0px);
+    @include position(absolute, $header-height 0px null 0px);
     z-index: $zi-panels;
-    background-color: $c-control-face;
-    overflow: auto;
+    background-color: transparent;
+/*    @include position(fixed, $header-height 0px 0px 0px);*/
+/*    z-index: $zi-panels;*/
+/*    background-color: $c-panel;*/
+/*    overflow: auto;*/
+}
+
+.panel:not(:first-of-type) {
+    display: none;
+}
+
+.panel-title {
+    width: 100%;
+    background-color: $c-panel-title;
+    padding: 0.7rem;
+    font-size: 1.3rem;
+    color: $c-white-font;
 }

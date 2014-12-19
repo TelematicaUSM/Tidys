@@ -30,3 +30,17 @@ function switch_main_menu() {
     else
         open_main_menu();
 }
+
+function switchToPanel(panel_id) {
+    var panels = document.querySelectorAll(".panel")
+    var i;
+    for (i=0; i<panels.length; i++)
+        panels[i].style.display = "none";
+    
+    document.getElementById(panel_id).style.display =
+        "block";
+    
+    close_main_menu();
+    document.body.scrollTop = 0;
+    document.documentElement.scrollTop = 0;
+}

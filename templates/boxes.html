@@ -18,9 +18,9 @@
     
     <nav id="main-menu">
         {% for panel in panels %}
-            <button type="button" class="main-menu-button"
-                    onClick="switchToPanel({{ panel._id }})"
-                    >
+            <button type="button" class="main-menu-item"
+                  onClick="switchToPanel('{{ panel._id }}')"
+                  >
                 {{ panel.name }}
             </button>
         {% end %}
@@ -28,6 +28,7 @@
 
     {% for panel in panels %}
         <section class="panel" id="{{ panel._id }}">
+            <h1 class="panel-title">{{ panel.name }}</h1>
             {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
