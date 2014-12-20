@@ -6,14 +6,17 @@ $em-base: 10px;
 $header-height: rem(30);
 
 //COLORS
+$c-background: #EDECEA;
 $c-control-face: lighten(#dfdfdf, 10%);
 $c-control-font: rgba(black, $font-alpha);
 $c-white-font: rgba(white, $font-alpha);
+$c-shade: rgba(black, 0.6);
 
     //app-header
     $c-control-face-light: lighten($c-control-face, 5%);
     $c-control-face-dark: darken($c-control-face, 5%);
     $c-control-border: darken($c-control-face, 20%);
+    $c-header-shadow: #4B4B4B;
 
     //main-menu
     $c-main-menu: darken($c-control-face, 80%);
@@ -21,10 +24,11 @@ $c-white-font: rgba(white, $font-alpha);
     
     //panels
     $c-panel: #EDECEA;
-    $c-panel-shadow: #c9c9c9;
     $c-panel-title: #78a4d7;
-
-$c-shade: rgba(black, 0.6);
+    
+    //boxes
+    $c-box: white;
+    $c-box-shadow: #c9c9c9;
 
 //Z INDEXES
 $zi-header: 5000;

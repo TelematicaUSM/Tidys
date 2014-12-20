@@ -49,7 +49,7 @@
     display: block;
     margin: 1rem;
     border-radius: 0.1rem;
-    box-shadow: 0rem 0.1rem 0rem 0rem $c-panel-shadow;
-    background-color: white;
+    box-shadow: 0rem 0.1rem 0rem 0rem $c-box-shadow;
+    background-color: $c-box;
     padding: 1rem;
 }

@@ -10,7 +10,7 @@
     @include linear-gradient($c-control-face-light,
                              $c-control-face-dark);
     @include align-items(center);
-    box-shadow: 0rem -0.9rem 0.3rem 1rem #4B4B4B;
+    box-shadow: 0rem -0.9rem 0.3rem 1rem $c-header-shadow;
     
     h1 {
         @include flex-grow(1);
@@ -23,10 +23,6 @@
     @include position(absolute, $header-height 0px null 0px);
     z-index: $zi-panels;
     background-color: transparent;
-/*    @include position(fixed, $header-height 0px 0px 0px);*/
-/*    z-index: $zi-panels;*/
-/*    background-color: $c-panel;*/
-/*    overflow: auto;*/
 }
 
 .panel:not(:first-of-type) {
