@@ -22,7 +22,7 @@ make_empty_targets:
 	mkdir make_empty_targets
 
 dependencies: make_empty_targets
-	sudo apt-get update && sudo apt-get install rubygems virtualenv python3
+	sudo apt-get update && sudo apt-get install python3 python3-dev virtualenv build-essential ruby
 	touch make_empty_targets/dependencies
 
 env: dependencies
@@ -43,7 +43,7 @@ pypackgs: env requirements.txt make_empty_targets
 	touch make_empty_targets/pypackgs
 
 css: scss $(bbfoldername) sass
-	$(gembin)/sass --update $(sasspaths)
+	$(use_gempath); $(gembin)/sass --update $(sasspaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch
 
@@ -63,7 +63,7 @@ attach:
 	screen -r $(dir_name)
 
 csswatch: scss $(bbfoldername) sass
-	$(gembin)/sass --watch $(sasspaths)
+	$(use_gempath); $(gembin)/sass --watch $(sasspaths)
 
 dcsswatch:
 	screen -d -m -S $(dir_name)_sass $(MAKE) csswatch
