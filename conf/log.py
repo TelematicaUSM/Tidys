@@ -4,7 +4,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 streamHandler = logging.StreamHandler()
-streamHandler.setLevel(logging.DEBUG)
+streamHandler.setLevel(logging.INFO)
 
 fileHandler = logging.FileHandler('log.log')
 fileHandler.setLevel(logging.DEBUG)

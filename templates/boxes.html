@@ -2,10 +2,8 @@
 
 {% block header %}
     {{ add_ext_file('css/boxes.css') }}
-    {{ add_ext_file('js/boxes.js') }}
     
-    <button type="button" id="main-menu-button"
-            onClick="switch_main_menu()">
+    <button type="button" id="main-menu-button">
         <img src="{{ static_url('images/main-menu.svg') }}">
     </button>
 {% end %}
@@ -19,8 +17,7 @@
     <nav id="main-menu">
         {% for panel in panels %}
             <button type="button" class="main-menu-item"
-                  onClick="switchToPanel('{{ panel._id }}')"
-                  >
+                    data-panel-id="{{ panel._id }}">
                 {{ panel.name }}
             </button>
         {% end %}
@@ -32,4 +29,13 @@
             {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
+    
+    <script
+      src="{{ static_url('js/reconnecting-websocket.js') }}"
+      type="text/javascript">
+    </script>
+    
+    <script src="{{ static_url('js/boxes.js') }}"
+            type="text/javascript">
+    </script>
 {% end %}

@@ -5,6 +5,7 @@ from os.path import dirname
 from pkgutil import iter_modules
 from inspect import isclass
 from .boiler_ui_module import BoilerUIModule
+from . wsclass import WSClass
 
 
 def get_module(module_name):
@@ -31,3 +32,13 @@ def load_boiler_ui_modules(package, app):
     
     for module in package.boiler_ui_modules:
         module.add_handler(app)
+
+def load_wsclasses(package, handler):
+    package = get_module(package)
+    python_modules = load_python_modules(package)
+    
+    for module in python_modules:
+        for member in module.__dict__.values():
+            if isclass(member) and issubclass(member,
+                                              WSClass):
+                handler.add_class(member)

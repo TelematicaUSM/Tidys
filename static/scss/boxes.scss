@@ -1,4 +1,4 @@
-@import "bourbon/bourbon";
+@import "bourbon_files/bourbon";
 @import "constants";
 
 #content-shade {
@@ -52,6 +52,7 @@
 .box {
     display: block;
     margin: 1rem;
+    border: none;
     border-radius: 0.1rem;
     box-shadow: 0rem 0.1rem 0rem 0rem $c-box-shadow;
     background-color: $c-box;

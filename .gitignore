@@ -1,11 +1,19 @@
 log.log
-install
 
 *~
 *.pyc
 *.orig
+*.map
+*.js
+*.css
 
+make_empty_targets
 env
-.sass-cache
+gems
+node_modules
+bower_components
 static/css
+static/scss/bourbon_files
+
+*.sass-cache*
 *__pycache__*
