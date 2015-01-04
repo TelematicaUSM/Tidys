@@ -1,11 +1,13 @@
 log.log
-install
 
 *~
 *.pyc
 *.orig
 
 env
-.sass-cache
+gems
 static/css
+static/scss/bourbon_files
+make_empty_targets
+*.sass-cache*
 *__pycache__*
