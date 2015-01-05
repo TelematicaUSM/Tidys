@@ -33,6 +33,7 @@ make_empty_targets:
 dependencies: make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev virtualenv build-essential ruby npm
+	-sudo ln -s /usr/bin/env/node /usr/bin/nodejs
 	touch make_empty_targets/dependencies
 
 env: dependencies
