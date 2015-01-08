@@ -1,6 +1,6 @@
+.DEFAULT_GOAL = run
 runenv = . env/bin/activate
 program = run.py
-.DEFAULT_GOAL = run
 
 dir_name = $${PWD\#\#*/}
 
@@ -11,18 +11,18 @@ use_gempath = export GEM_HOME=$(gempath)
 csspath = static/css
 scsspath = static/scss
 sasspaths = $(scsspath):$(csspath)
-sasscmd = sass
+sasscmd = $(gembin)/sass
 
 bbfoldername = bourbon_files
 bbpath = $(scsspath)/$(bbfoldername)
 
 VPATH = static $(gembin) make_empty_targets $(scsspath)
 
-make_empty_targets:
-	mkdir make_empty_targets
 
-dependencies: make_empty_targets
-	sudo apt-get update && sudo apt-get install python3 python3-dev virtualenv build-essential ruby
+dependencies:
+	-mkdir make_empty_targets
+	sudo apt-get update
+	sudo apt-get install python3 python3-dev virtualenv build-essential ruby
 	touch make_empty_targets/dependencies
 
 env: dependencies
@@ -38,17 +38,18 @@ $(bbfoldername): bourbon
 	$(use_gempath); $(gembin)/bourbon install --path=$(scsspath)
 	mv $(scsspath)/bourbon $(bbpath)
 
-pypackgs: env requirements.txt make_empty_targets
+pypkgs: env requirements.txt
+	-mkdir make_empty_targets
 	$(runenv); pip install -r requirements.txt
-	touch make_empty_targets/pypackgs
+	touch make_empty_targets/pypkgs
 
 css: scss $(bbfoldername) sass
-	$(use_gempath); $(gembin)/sass --update $(sasspaths)
+	$(use_gempath); $(sasscmd) --update $(sasspaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch
 
-run: pypackgs css
-	-$(runenv); python $(program)
+run: pypkgs css
+	-$(runenv) && python $(program)
 
 srun:
 	screen -S $(dir_name) $(MAKE) run
@@ -57,13 +58,13 @@ drun:
 	screen -d -m -S $(dir_name) $(MAKE) run
 
 testenv: env
-	$(runenv); python -V
+	$(runenv) && python -V
 
 attach:
 	screen -r $(dir_name)
 
 csswatch: scss $(bbfoldername) sass
-	$(use_gempath); $(gembin)/sass --watch $(sasspaths)
+	$(use_gempath); $(sasscmd) --watch $(sasspaths)
 
 dcsswatch:
 	screen -d -m -S $(dir_name)_sass $(MAKE) csswatch
