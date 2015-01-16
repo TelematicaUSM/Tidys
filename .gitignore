@@ -6,8 +6,8 @@ log.log
 
 env
 gems
+dependencies
 static/css
 static/scss/bourbon_files
-make_empty_targets
 *.sass-cache*
 *__pycache__*
