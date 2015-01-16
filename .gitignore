@@ -10,6 +10,7 @@ log.log
 make_empty_targets
 env
 gems
+dependencies
 node_modules
 bower_components
 static/css
