@@ -25,7 +25,9 @@ coffeepaths = $(jspath) static/coffee
 coffeeoptions = --map --compile --output
 coffeecmd = $(nmodulespath)/coffee-script/bin/coffee
 
-VPATH = static $(gembin) $(scsspath) $(nmodulesfolder) $(jspath) env/lib/python3.4/site-packages
+VPATH = static $(gembin) $(scsspath) $(nmodulesfolder) \
+        $(jspath) env/lib/python3.4/site-packages \
+        make_empty_targets
 
 make_empty_targets:
 	mkdir make_empty_targets
@@ -64,14 +66,20 @@ reconnecting-websocket.js: bower | js
 js: coffee-script coffee
 	$(nmodulespath)/coffee-script/bin/coffee $(coffeeoptions) $(coffeepaths)
 
-panels: | make_empty_targets
-	-export coffeecmd="$$(readlink -e $(coffeecmd))"; export sasscmd="$$(readlink -e $(sasscmd))"; export GEM_HOME="$$(readlink -e $(gempath))"; cd panels && for d in */ ; do $(MAKE) -C "$$d"; done
-	touch make_empty_targets/panels
+make-panels: | make_empty_targets
+	-export coffeecmd="$$(readlink -e $(coffeecmd))" && \
+	 export sasscmd="$$(readlink -e $(sasscmd))" && \
+	 export GEM_HOME="$$(readlink -e $(gempath))" && \
+	 cd panels && \
+	 for d in */ ; \
+	     do $(MAKE) -C "$$d"; \
+     done
+	touch make_empty_targets/make-panels
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean
 
-run: tornado css js reconnecting-websocket.js panels dependencies
+run: tornado css js reconnecting-websocket.js make-panels dependencies
 	$(python) $(program)
 
 srun:
@@ -103,4 +111,6 @@ djswatch:
 	screen -d -m -S $(dir_name)_coffee $(MAKE) jswatch
 
 clean:
-	rm -rf $(bowerfolder) env $(nmodulesfolder) __pycache__ $(csspath) $(jspath) $(gempath) log.log $(bbpath)
+	rm -rf $(bowerfolder) env $(nmodulesfolder) \
+	       __pycache__ $(csspath) $(jspath) $(gempath) \
+	       log.log $(bbpath) make_empty_targets/make-panels
