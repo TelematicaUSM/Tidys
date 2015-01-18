@@ -1,7 +1,3 @@
-@ws = new ReconnectingWebSocket "ws://" + 
-                                document.location["host"] +
-                                "/ws"
-
 main_menu_active = false;
 main_menu = document.getElementById "main-menu"
 content_shade = document.getElementById "content-shade"

@@ -16,10 +16,17 @@ class GUIHandler(RequestHandler):
 
 class MSGHandler(WebSocketHandler):
     wsclasses = []
+    clients = set()
+    client_count = 0
 
     @classmethod
     def add_class(cls, wsclass):
         cls.wsclasses.append(wsclass)
+    
+    @classmethod
+    def broadcast(cls, message):
+        for client in cls.clients:
+            client.write_message(message)
     
     def register_action(self, msg_type, action):
         if msg_type in self.actions:
@@ -33,7 +40,9 @@ class MSGHandler(WebSocketHandler):
         self.actions = {}
         self.wsobjects = [wsclass(self)
                           for wsclass in self.wsclasses]
-        
+        MSGHandler.clients.add(self)
+        MSGHandler.client_count += 1
+
     def on_message(self, message):
         debug('controller.MSGHandler.on_message: '
               'Message arrived: %r.' % message)
@@ -42,6 +51,9 @@ class MSGHandler(WebSocketHandler):
         
         for action in self.actions[message['type']]:
             action(message)
+    
+    def on_close(self):
+        MSGHandler.clients.remove(self)
 
 
 app = Application(
@@ -54,6 +66,7 @@ app = Application(
     ui_methods = [ui_methods],
 )
 
+import panels
 for module in app.ui_modules.values():
     if issubclass(module, BoilerUIModule):
         module.add_handler(app)

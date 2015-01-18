@@ -30,12 +30,16 @@
         </section>
     {% end %}
     
+    <script src="{{ static_url('js/main_menu.js') }}"
+            type="text/javascript">
+    </script>
+    
     <script
       src="{{ static_url('js/reconnecting-websocket.js') }}"
       type="text/javascript">
     </script>
     
-    <script src="{{ static_url('js/boxes.js') }}"
+    <script src="{{ static_url('js/ws.js') }}"
             type="text/javascript">
     </script>
 {% end %}

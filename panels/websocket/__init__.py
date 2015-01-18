@@ -19,10 +19,14 @@ class Websocket(src.boiler_ui_module.BoilerUIModule):
 class RedBlackEcho(src.wsclass.WSClass):
     @src.wsclass.WSClass.subscribe('red')
     def return_red(self, message):
-        self.handler.write_message('Red said: "%s"' %
-                                   message['string'])
+        self.handler.write_message({
+            'type': 'white',
+            'string': 'Red said: "%s"' % message['string']
+        })
     
     @src.wsclass.WSClass.subscribe('black')
     def return_black(self, message):
-        self.handler.write_message('Black said: "%s"' %
-                                   message['string'])
+        self.handler.write_message({
+            'type': 'white',
+            'string': 'Black said: "%s"' % message['string']
+        })
