@@ -10,6 +10,7 @@
     @include linear-gradient($c-control-face-light,
                              $c-control-face-dark);
     @include align-items(center);
+    @include justify-content(space-between);
     
     h1 {
         @include flex-grow(1);
