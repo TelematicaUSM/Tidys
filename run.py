@@ -7,6 +7,7 @@ from conf import app_name, port
 from controller import app
 from src import cli
 
+
 info('%s: Starting on port %d ...', app_name, port)
 app.listen(port)
 
