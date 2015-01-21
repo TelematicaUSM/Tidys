@@ -2,8 +2,8 @@
 
 from . import log
 
-app_name = 'TornadoBoxes'
+app_name = 'artificialAlan'
 author = 'Cristóbal Ganter'
-port = 52001
+port = 52002
 debug = True
 user_scalable_viewport = 'no'   #accepted values are 'yes' and 'no'
