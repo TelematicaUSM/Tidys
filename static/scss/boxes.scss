@@ -9,13 +9,19 @@
 /*    @include transition(background-color 0.2s);*/
 }
 
-#main-menu-button {
+#notifications {
+    @include display(flex);
+    @include size(auto $header-height);
+    @include align-items(center);
+}
+
+#main-menu-button, .notification {
     @include size($header-height);
     border: none;
     background-color: transparent;
     background-image: none;
 
-    img {
+    img, svg {
         @include size($header-height*0.7);
         vertical-align: middle;
     }
@@ -57,4 +63,5 @@
     box-shadow: 0rem 0.1rem 0rem 0rem $c-box-shadow;
     background-color: $c-box;
     padding: 1rem;
+    text-align: justify;
 }

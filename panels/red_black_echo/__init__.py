@@ -1,22 +1,22 @@
 import src
 
 
-class Websocket(src.boiler_ui_module.BoilerUIModule):
-    _id = 'Websocket'
-    name = 'Websocket Demo'
+class UI(src.boiler_ui_module.BoilerUIModule):
+    _id = 'red_black_echo'
+    name = 'Red-Black Echo'
     conf = {
-        'static_url_prefix': '/wspanel/',
-        'static_path': './panels/websocket/static',
+        'static_url_prefix': '/rbe/',
+        'static_path': './panels/red_black_echo/static',
         'css_files': [],
-        'js_files': ['ws.js'],
+        'js_files': ['rbe.js'],
     }
     
     def render(self):
         return self.render_string(
-            '../panels/websocket/demo.html', _id=self._id)
+            '../panels/red_black_echo/demo.html')
 
 
-class RedBlackEcho(src.wsclass.WSClass):
+class WS(src.wsclass.WSClass):
     @src.wsclass.WSClass.subscribe('red')
     def return_red(self, message):
         self.handler.write_message({

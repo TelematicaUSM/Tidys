@@ -1,11 +1,19 @@
 {% extends "layout.html" %}
 
 {% block header %}
+    {% from notifications import boiler_ui_modules as \
+        notifications %}
     {{ add_ext_file('css/boxes.css') }}
     
     <button type="button" id="main-menu-button">
         <img src="{{ static_url('images/main-menu.svg') }}">
     </button>
+    
+    <div id="notifications">
+        {% for notification in notifications %}
+            {% module UIModuleLoader(notification) %}
+        {% end %}
+    </div>
 {% end %}
 
 {% block free_content %}

@@ -25,6 +25,17 @@ coffeepaths = $(jspath) static/coffee
 coffeeoptions = --map --compile --output
 coffeecmd = $(nmodulespath)/coffee-script/bin/coffee
 
+sub_target =
+sub_make_resources = export coffeecmd="$$(readlink -e $(coffeecmd))" && \
+                     export sasscmd="$$(readlink -e $(sasscmd))" && \
+                     export GEM_HOME="$$(readlink -e $(gempath))"
+make_iterate_over_d = for d in */ ; \
+                          do if [ -f "$$d/makefile" ]; then \
+                              $(MAKE) -C "$$d" --no-print-directory $(sub_target); \
+                          fi \
+                      done
+clean: sub_target = clean
+
 VPATH = static $(gembin) $(scsspath) $(nmodulesfolder) \
         $(jspath) env/lib/python3.4/site-packages \
         make_empty_targets
@@ -35,7 +46,7 @@ make_empty_targets:
 dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev virtualenv \
-	                     build-essential ruby npm
+	                     build-essential ruby npm coreutils
 	-sudo ln -s /usr/bin/nodejs /usr/bin/node
 	touch make_empty_targets/dependencies
 
@@ -61,25 +72,16 @@ coffee-script bower: dependencies
 
 reconnecting-websocket.js: bower | js
 	$(nmodulespath)/bower/bin/bower install reconnectingWebsocket
-	cd $(jspath) && ln -s ../../$(bowerfolder)/reconnectingWebsocket/reconnecting-websocket.js reconnecting-websocket.js
+	cd $(jspath) && ln -s ../../$(bowerfolder)/reconnectingWebsocket/reconnecting-websocket.js \
+	                      reconnecting-websocket.js
 
 js: coffee-script coffee
 	$(nmodulespath)/coffee-script/bin/coffee $(coffeeoptions) $(coffeepaths)
 
-make-panels: | make_empty_targets
-	-export coffeecmd="$$(readlink -e $(coffeecmd))" && \
-	 export sasscmd="$$(readlink -e $(sasscmd))" && \
-	 export GEM_HOME="$$(readlink -e $(gempath))" && \
-	 cd panels && \
-	 for d in */ ; \
-	     do $(MAKE) -C "$$d"; \
-     done
-	touch make_empty_targets/make-panels
-
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
-	jswatch djswatch clean
+	jswatch djswatch clean panels
 
-run: tornado css js reconnecting-websocket.js make-panels dependencies
+run: tornado css js reconnecting-websocket.js panels notifications dependencies
 	$(python) $(program)
 
 srun:
@@ -87,6 +89,11 @@ srun:
 
 drun:
 	screen -d -m -S $(dir_name) $(MAKE) run
+
+panels notifications: coffee-script sass
+	-$(sub_make_resources) && \
+	 cd $@ && \
+	 $(make_iterate_over_d)
 
 testenv: env
 	$(python) -V
@@ -113,4 +120,6 @@ djswatch:
 clean:
 	rm -rf $(bowerfolder) env $(nmodulesfolder) \
 	       __pycache__ $(csspath) $(jspath) $(gempath) \
-	       log.log $(bbpath) make_empty_targets/make-panels
+	       log.log $(bbpath)
+	-cd panels && $(make_iterate_over_d)
+	-cd notifications && $(make_iterate_over_d)
