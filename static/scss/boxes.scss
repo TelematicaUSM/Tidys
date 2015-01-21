@@ -65,3 +65,15 @@
     padding: 1rem;
     text-align: justify;
 }
+
+#message-bubble {
+    @include position(fixed, $header-height 0px auto auto);
+    z-index: $zi-panels - 1;
+    margin: 0.5rem;
+    border-radius: 0.2rem;
+    max-width: (100vw/3);
+    background-color: rgba($c-main-menu, 0.8);
+    padding: 0.5rem;
+    color: $c-white-font;
+    opacity: 0;
+}

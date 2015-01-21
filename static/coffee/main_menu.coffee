@@ -8,7 +8,7 @@ content_shade.origZIndex = parseInt(
 
 @open_main_menu = () ->
     content_shade.style.zIndex =
-        content_shade.origZIndex + 2
+        content_shade.origZIndex + 3
         
     content_shade.style.backgroundColor =
         "rgba(0, 0, 0, 0.6)"
@@ -41,6 +41,8 @@ content_shade.origZIndex = parseInt(
 
 document.getElementById("main-menu-button"). \
     addEventListener "click", @switch_main_menu
+
+content_shade.addEventListener "click", @close_main_menu
 
 for button in document.querySelectorAll ".main-menu-item"
     button.addEventListener("click",

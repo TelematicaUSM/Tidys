@@ -4,6 +4,8 @@
     {% from notifications import boiler_ui_modules as \
         notifications %}
     {{ add_ext_file('css/boxes.css') }}
+    {{ add_ext_file('js/boxes.js') }}
+    {{ add_ext_file('js/main_menu.js') }}
     
     <button type="button" id="main-menu-button">
         <img src="{{ static_url('images/main-menu.svg') }}">
@@ -19,8 +21,8 @@
 {% block free_content %}
     {% from panels import boiler_ui_modules as panels %}
     
-    <div id="content-shade" onClick="close_main_menu()">
-    </div>
+    <div id="message-bubble">Message Bubble</div>
+    <div id="content-shade"></div>
     
     <nav id="main-menu">
         {% for panel in panels %}
@@ -37,10 +39,6 @@
             {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
-    
-    <script src="{{ static_url('js/main_menu.js') }}"
-            type="text/javascript">
-    </script>
     
     <script
       src="{{ static_url('js/reconnecting-websocket.js') }}"
