@@ -126,4 +126,4 @@ clean:
 	-cd notifications && $(make_iterate_over_d)
 
 publish:
-	git push $(prod)
+	git push $(pub_remote)
