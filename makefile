@@ -1,5 +1,6 @@
 .DEFAULT_GOAL = run
 program = run.py
+pub_remote = prod
 runenv = . env/bin/activate
 python = $(runenv) && python
 dir_name = $${PWD\#\#*/}
@@ -79,7 +80,7 @@ js: coffee-script coffee
 	$(nmodulespath)/coffee-script/bin/coffee $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
-	jswatch djswatch clean panels
+	jswatch djswatch clean panels publish
 
 run: tornado css js reconnecting-websocket.js panels notifications dependencies
 	$(python) $(program)
@@ -123,3 +124,6 @@ clean:
 	       log.log $(bbpath)
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
+
+publish:
+	git push $(prod)
