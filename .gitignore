@@ -7,14 +7,14 @@ log.log
 *.js
 *.css
 
-make_empty_targets
 env
 gems
-dependencies
+make_empty_targets
 node_modules
 bower_components
 static/css
 static/scss/bourbon_files
 
+virtualenv*
 *.sass-cache*
 *__pycache__*
