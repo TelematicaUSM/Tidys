@@ -17,7 +17,7 @@
     </header>
 
     {% block free_content %}
-        <section id="content" class="panel">
+        <section id="content" class="scrolling-panel">
             {% block content %}
                 {% if 'content' in ChainMap(globals(), locals()) %}
                     {% if raw_content %}

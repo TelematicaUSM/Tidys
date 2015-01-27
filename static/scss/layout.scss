@@ -19,8 +19,18 @@
     }
 }
 
-.panel {
-    @include position(absolute, $header-height 0px null 0px);
+%panel {
     z-index: $zi-panels;
     background-color: transparent;
+}
+
+.scrolling-panel {
+    @extend %panel;
+    @include position(absolute, $header-height 0px null 0px);
+
+}
+
+.fixed-panel {
+    @extend %panel;
+    @include position(fixed, $header-height 0px 0px 0px);
 }
