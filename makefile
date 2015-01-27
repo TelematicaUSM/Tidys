@@ -51,7 +51,6 @@ dependencies: | make_empty_targets
 	                     build-essential ruby npm curl
 	-sudo ln -s /usr/bin/nodejs /usr/bin/node
 	touch make_empty_targets/dependencies
-	touch make_empty_targets/dependencies
 
 virtualenv-$(venv_v): | dependencies
 	curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-$(venv_v).tar.gz

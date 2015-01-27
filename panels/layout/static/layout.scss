@@ -1,0 +1,16 @@
+@import "../../../static/scss/constants";
+@import "../../../static/scss/bourbon_files/bourbon";
+
+#panel-layout-container {
+    @include position(absolute,
+                      $panel-title-height 0px 0px 0px);
+    @include display(flex);
+    @include flex-wrap(wrap);
+    padding: 0.5rem;
+}
+
+#panel-layout-container > * {
+    @include flex-grow(1);
+    @include flex-basis(1rem);
+    margin: 0.5rem;
+}

@@ -3,11 +3,11 @@ VPATH = static
 static_path = static
 name = conn-ind
 
-scss_file = $(name).scss
+coffee_file = $(name).coffee
 js_file = $(name).js
 js_path = $(static_path)/$(js_file)
 
-coffee_file = $(name).coffee
+scss_file = $(name).scss
 css_file = $(name).css
 css_path = $(static_path)/$(css_file)
 

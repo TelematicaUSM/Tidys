@@ -21,7 +21,6 @@
 }
 
 .panel {
-    @include position(absolute, $header-height 0px null 0px);
     z-index: $zi-panels;
     background-color: transparent;
 }
@@ -33,7 +32,19 @@
 .panel-title {
     width: 100%;
     background-color: $c-panel-title;
-    padding: 0.7rem;
-    font-size: 1.3rem;
+    padding: $panel-title-padding;
+    font-size: $panel-title-font-size;
     color: $c-white-font;
+}
+
+.scrolling-panel {
+    @extend .panel;
+    @include position(absolute, $header-height 0px null
+                      0px);
+
+}
+
+.fixed-panel {
+    @extend .panel;
+    @include position(fixed, $header-height 0px 0px 0px);
 }
