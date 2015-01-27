@@ -104,7 +104,7 @@ attach:
 
 #Upstream Merge
 upsm:
-	git pull --no-commit cganterh.net:git/tornadoBoiler.git
+	git pull --no-commit cganterh.net:git/tornadoBoxes.git
 
 csswatch: scss $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --watch $(sasspaths)
