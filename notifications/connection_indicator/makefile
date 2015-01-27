@@ -1,15 +1,26 @@
 VPATH = static
 .PHONY = install clean
+static_path = static
+name = conn-ind
 
-install: conn-ind.js conn-ind.css
+scss_file = $(name).scss
+js_file = $(name).js
+js_path = $(static_path)/$(js_file)
 
-conn-ind.js: conn-ind.coffee
-	$(coffeecmd) --map --compile static/conn-ind.coffee
+coffee_file = $(name).coffee
+css_file = $(name).css
+css_path = $(static_path)/$(css_file)
 
-conn-ind.css: conn-ind.scss
-	export GEM_HOME=$(gempath) && $(sasscmd) --update \
-	                              static/conn-ind.scss
+
+install: $(js_file) $(css_file)
+
+$(js_file): $(coffee_file)
+	$(coffeecmd) --map --compile \
+	    $(static_path)/$(coffee_file)
+
+$(css_file): $(scss_file)
+	$(sasscmd) --update $(static_path)/$(scss_file)
 
 clean:
-	rm -f static/conn-ind.js static/conn-ind.js.map \
-	      static/conn-ind.css static/conn-ind.css.map
+	rm -f $(js_path)  $(js_path).map \
+	      $(css_path) $(css_path).map
