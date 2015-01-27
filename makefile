@@ -1,8 +1,10 @@
 .DEFAULT_GOAL = run
 program = run.py
+dir_name = $${PWD\#\#*/}
+
+venv_v = 12.0.5
 runenv = . env/bin/activate
 python = $(runenv) && python
-dir_name = $${PWD\#\#*/}
 
 gempath = ./gems
 gembin = $(gempath)/bin
@@ -17,19 +19,28 @@ bbfoldername = bourbon_files
 bbpath = $(scsspath)/$(bbfoldername)
 
 VPATH = static $(gembin) $(scsspath) \
-        env/lib/python3.4/site-packages
+        env/lib/python3.4/site-packages make_empty_targets
 
 
-dependencies:
+make_empty_targets:
+	mkdir make_empty_targets
+
+dependencies: | make_empty_targets
 	sudo apt-get update
-	sudo apt-get install python3 python3-dev virtualenv \
-	                     build-essential ruby
-	touch dependencies
+	sudo apt-get install python3 python3-dev \
+	                     build-essential ruby curl
+	touch make_empty_targets/dependencies
 
-env: dependencies
-	virtualenv --python=python3 env
+virtualenv-$(venv_v): | dependencies
+	curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-$(venv_v).tar.gz
+	tar xvfz virtualenv-$(venv_v).tar.gz
+	rm virtualenv-$(venv_v).tar.gz
 
-sass bourbon: dependencies
+env: | dependencies virtualenv-$(venv_v)
+	cd virtualenv-$(venv_v) && \
+	python3 virtualenv.py --python=python3 ../env
+
+sass bourbon: | dependencies
 	$(use_gempath) && gem install $@
 
 $(bbfoldername): bourbon
@@ -68,4 +79,4 @@ dcsswatch:
 
 clean:
 	rm -rf env __pycache__ $(csspath) \
-	       $(gempath) log.log $(bbpath)
+	       $(gempath) log.log $(bbpath) virtualenv-$(venv_v)
