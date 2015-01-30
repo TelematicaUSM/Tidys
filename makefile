@@ -28,7 +28,7 @@ make_empty_targets:
 dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
-	                     build-essential ruby curl
+	                     build-essential ruby curl screen
 	touch make_empty_targets/dependencies
 
 virtualenv-$(venv_v): | dependencies
@@ -41,7 +41,7 @@ env: | dependencies virtualenv-$(venv_v)
 	python3 virtualenv.py --python=python3 ../env
 
 sass bourbon: | dependencies
-	$(use_gempath) && gem install $@
+	$(use_gempath) && gem install --no-ri --no-rdoc $@
 
 $(bbfoldername): bourbon
 	$(use_gempath) && $(gembin)/bourbon install \
