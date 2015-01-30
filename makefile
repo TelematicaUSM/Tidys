@@ -2,7 +2,6 @@
 program = run.py
 dir_name = $${PWD\#\#*/}
 
-venv_v = 12.0.5
 runenv = . env/bin/activate
 python = $(runenv) && python
 
@@ -52,13 +51,13 @@ dependencies: | make_empty_targets
 	-sudo ln -s /usr/bin/nodejs /usr/bin/node
 	touch make_empty_targets/dependencies
 
-virtualenv-$(venv_v): | dependencies
-	curl -O https://pypi.python.org/packages/source/v/virtualenv/virtualenv-$(venv_v).tar.gz
-	tar xvfz virtualenv-$(venv_v).tar.gz
-	rm virtualenv-$(venv_v).tar.gz
+virtualenv: | dependencies
+	mkdir virtualenv && \
+	curl $$(./get_venv_url.py) | tar xvfz - -C $@ \
+	                                 --strip-components=1
 
-env: | dependencies virtualenv-$(venv_v)
-	cd virtualenv-$(venv_v) && \
+env: | dependencies virtualenv
+	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
 sass bourbon: | dependencies
@@ -128,6 +127,6 @@ djswatch:
 clean:
 	rm -rf $(bowerfolder) env $(nmodulesfolder) \
 	       __pycache__ $(csspath) $(jspath) $(gempath) \
-	       log.log $(bbpath) virtualenv-$(venv_v)
+	       log.log $(bbpath) virtualenv
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
