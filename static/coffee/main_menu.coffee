@@ -29,7 +29,8 @@ content_shade.origZIndex = parseInt(
         open_main_menu()
 
 @switchToPanel = (panel_id) -> ->
-    for panel in document.querySelectorAll ".panel"
+    for panel in document.querySelectorAll(
+            ".panel, .scrolling-panel, .fixed-panel")
         panel.style.display = "none"
     
     document.getElementById(panel_id).style.display =

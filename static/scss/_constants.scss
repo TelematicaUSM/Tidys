@@ -5,6 +5,11 @@ $font-alpha: 0.7;
 $em-base: 10px;
 $header-height: rem(30);
 
+$panel-title-padding: 0.7rem;
+$panel-title-font-size: 1.3rem;
+$panel-title-height: 2*$panel-title-padding +
+                     $panel-title-font-size;
+
 //COLORS
 $c-background: #EDECEA;
 $c-control-face: lighten(#dfdfdf, 10%);

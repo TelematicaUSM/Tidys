@@ -34,7 +34,8 @@
     </nav>
 
     {% for panel in panels %}
-        <section class="panel" id="{{ panel._id }}">
+        <section class="{{ panel._class }}"
+                 id="{{ panel._id }}">
             <h1 class="panel-title">{{ panel.name }}</h1>
             {% module UIModuleLoader(panel) %}
         </section>
