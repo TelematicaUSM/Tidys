@@ -1,5 +1,6 @@
 @ws = new ReconnectingWebSocket(
-    "ws://" + document.location["host"] + "/ws")
+    "#{conf.ws_scheme}://#{document.location['host']}/ws",
+    null, {debug: conf.debug})
 
 ws.to_event_name = (msg_type) ->
     "msg_" + msg_type
