@@ -1,6 +1,3 @@
-{% from collections import ChainMap %}
-{% from conf import app_name %}
-
 {% extends "base.html" %}
 
 {% block body %}
@@ -8,10 +5,11 @@
     
     <header id="app-header">
         {% block header %}
-            {% if 'header_title' in ChainMap(globals(), locals()) %}
+            {% if 'header_title' in ChainMap(globals(),
+                                             locals()) %}
                 <h1>{{ header_title }}</h1>
             {% else %}
-                <h1>{{ app_name }}</h1>
+                <h1>{{ conf.app_name }}</h1>
             {% end %}
         {% end %}
     </header>
@@ -19,7 +17,8 @@
     {% block free_content %}
         <section id="content" class="scrolling-panel">
             {% block content %}
-                {% if 'content' in ChainMap(globals(), locals()) %}
+                {% if 'content' in ChainMap(globals(),
+                                            locals()) %}
                     {% if raw_content %}
                         {% raw content %}
                     {% else %}
