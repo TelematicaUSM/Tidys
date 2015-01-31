@@ -5,8 +5,7 @@
 import readline
 
 from sys import modules
-from logging import info
-from conf import app_name
+from src import messages
 
 
 commands = {
@@ -19,7 +18,7 @@ commands = {
 }
 
 def start():
-    print('Type h for help or any python command.')
+    messages.wellcome()
 
     while True:
         i = input('>>> ')
@@ -27,7 +26,7 @@ def start():
         if not i:
             pass
         elif i in commands['close']['syns']:
-            info('%s: Closing ...', app_name)
+            messages.closing()
             return
         elif i in commands['help']['syns']:
             help(modules[__name__])

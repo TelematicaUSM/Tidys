@@ -1,14 +1,13 @@
 # -*- coding: UTF-8 -*-
 
 from threading import Thread
-from logging import info
 from tornado.ioloop import IOLoop
-from conf import app_name, port
+from conf import port
 from controller import app
-from src import cli
+from src import cli, messages
 
 
-info('%s: Starting on port %d ...', app_name, port)
+messages.starting()
 app.listen(port)
 
 ioloop = IOLoop.instance()
