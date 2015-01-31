@@ -2,16 +2,58 @@
 
 import conf, json
 
-from tornado.web import Application, RequestHandler
+from urllib.parse import urljoin
+from tornado.gen import coroutine
+from tornado.web import Application, RequestHandler, \
+                        authenticated
 from tornado.websocket import WebSocketHandler
+from tornado.auth import GoogleOAuth2Mixin
 from src import ui_modules, ui_methods
 from src.boiler_ui_module import BoilerUIModule
 from logging import debug
 
 
 class GUIHandler(RequestHandler):
+    @authenticated
     def get(self):
         self.render('boxes.html')
+    
+    @coroutine
+    def get_current_user(self):
+        uid = self.get_cookie('uid', default=None)
+        if not uid:
+            return None
+        
+        return (yield src.db.user(uid))
+
+
+class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
+    @coroutine
+    def get(self):
+        redirect_uri = urljoin(self.get_scheme() + '://' +
+                               self.request.host, 'login')
+        debug('LoginHandler.get:'
+                  'redirect_uri = %s', redirect_uri)
+                       
+        if self.get_argument('code', False):
+            user = yield self.get_authenticated_user(
+                redirect_uri=redirect_uri,
+                code=self.get_argument('code'))
+            debug(user)
+        else:
+            yield self.authorize_redirect(
+                redirect_uri=redirect_uri,
+                client_id=
+                    self.settings['google_oauth']['key'],
+                scope=['profile', 'email'],
+                response_type='code',
+                extra_params={'approval_prompt': 'auto'})
+    
+    def get_scheme(self):
+        if 'Scheme' in self.request.headers:
+            return self.request.headers['Scheme']
+        else:
+            return self.request.protocol
 
 
 class MSGHandler(WebSocketHandler):
@@ -56,14 +98,22 @@ class MSGHandler(WebSocketHandler):
         MSGHandler.clients.remove(self)
 
 
+with open('secrets.json', 'r') as f:
+    file_content = f.read()
+secrets = json.loads(file_content)
+google_oauth = secrets['google']
+
 app = Application(
     [('/$', GUIHandler),
-     ('/ws$', MSGHandler)],
+     ('/ws$', MSGHandler),
+     ('/login$', LoginHandler),],
     debug = conf.debug,
     static_path = './static',
     template_path = './templates',
     ui_modules = [ui_modules,],
     ui_methods = [ui_methods],
+    login_url = 'login',
+    google_oauth = google_oauth,
 )
 
 import panels
