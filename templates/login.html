@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <script>
+        localStorage.setItem('sessionToken', '{{ token }}');
+        document.location.replace('/');
+    </script>
+{% end %}

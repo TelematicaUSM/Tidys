@@ -5,6 +5,7 @@ dir_name = $${PWD\#\#*/}
 
 runenv = . env/bin/activate
 python = $(runenv) && python
+pip_install = $(runenv) && pip install
 
 gempath = ./gems
 gembin = $(gempath)/bin
@@ -61,6 +62,12 @@ env: | dependencies virtualenv
 	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
+tornado motor: | env
+	$(pip_install) $@
+
+jwt: | env
+	$(pip_install) PyJWT
+
 sass bourbon: | dependencies
 	$(use_gempath) && gem install --no-ri --no-rdoc $@
 
@@ -68,9 +75,6 @@ $(bbfoldername): bourbon
 	$(use_gempath) && $(gembin)/bourbon install \
 	                                    --path=$(scsspath)
 	mv $(scsspath)/bourbon $(bbpath)
-
-tornado: | env
-	$(runenv) && pip install $@
 
 css: scss $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
@@ -89,8 +93,8 @@ js: coffee-script coffee
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean panels publish
 
-run: tornado css js reconnecting-websocket.js panels notifications dependencies
-	$(python) $(program)
+run: dependencies tornado motor jwt css js reconnecting-websocket.js panels notifications
+	$(python) -i $(program)
 
 srun:
 	screen -S $(dir_name) $(MAKE) run

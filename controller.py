@@ -1,30 +1,22 @@
 # -*- coding: UTF-8 -*-
 
-import conf, json
+import conf, json, jwt
 
+from sys import exit
+from logging import debug, critical
 from urllib.parse import urljoin
 from tornado.gen import coroutine
 from tornado.web import Application, RequestHandler, \
                         authenticated
 from tornado.websocket import WebSocketHandler
 from tornado.auth import GoogleOAuth2Mixin
-from src import ui_modules, ui_methods
+from src import ui_modules, ui_methods, messages, db
 from src.boiler_ui_module import BoilerUIModule
-from logging import debug
 
 
 class GUIHandler(RequestHandler):
-    @authenticated
     def get(self):
         self.render('boxes.html')
-    
-    @coroutine
-    def get_current_user(self):
-        uid = self.get_cookie('uid', default=None)
-        if not uid:
-            return None
-        
-        return (yield src.db.user(uid))
 
 
 class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
@@ -32,14 +24,19 @@ class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
     def get(self):
         redirect_uri = urljoin(self.get_scheme() + '://' +
                                self.request.host, 'login')
-        debug('LoginHandler.get:'
+        debug('LoginHandler.get: '
                   'redirect_uri = %s', redirect_uri)
                        
         if self.get_argument('code', False):
-            user = yield self.get_authenticated_user(
-                redirect_uri=redirect_uri,
-                code=self.get_argument('code'))
-            debug(user)
+            google_data = \
+                yield self.get_authenticated_user(
+                    redirect_uri=redirect_uri,
+                    code=self.get_argument('code'))
+            user = yield db.User.from_google_data(
+                google_data)
+            token = jwt.encode({'id': user.id},
+                               user.secret)
+            self.render('login.html', token=token)
         else:
             yield self.authorize_redirect(
                 redirect_uri=redirect_uri,
@@ -97,26 +94,37 @@ class MSGHandler(WebSocketHandler):
     def on_close(self):
         MSGHandler.clients.remove(self)
 
+try:
+    with open(conf.secrets_file, 'r') as f:
+        file_content = f.read()
+    secrets = json.loads(file_content)
+    google_oauth = secrets['google']
 
-with open('secrets.json', 'r') as f:
-    file_content = f.read()
-secrets = json.loads(file_content)
-google_oauth = secrets['google']
+    app = Application(
+        [('/$', GUIHandler),
+         ('/ws$', MSGHandler),
+         ('/login$', LoginHandler),],
+        debug = conf.debug,
+        static_path = './static',
+        template_path = './templates',
+        ui_modules = [ui_modules,],
+        ui_methods = [ui_methods],
+        login_url = 'login',
+        google_oauth = google_oauth,
+    )
+    
+    app.listen(conf.port)
 
-app = Application(
-    [('/$', GUIHandler),
-     ('/ws$', MSGHandler),
-     ('/login$', LoginHandler),],
-    debug = conf.debug,
-    static_path = './static',
-    template_path = './templates',
-    ui_modules = [ui_modules,],
-    ui_methods = [ui_methods],
-    login_url = 'login',
-    google_oauth = google_oauth,
-)
+    import panels
+    for module in app.ui_modules.values():
+        if issubclass(module, BoilerUIModule):
+            module.add_handler(app)
 
-import panels
-for module in app.ui_modules.values():
-    if issubclass(module, BoilerUIModule):
-        module.add_handler(app)
+except FileNotFoundError as error:
+    if error.filename == conf.secrets_file:
+        messages.file_not_found(critical, 'controller',
+                                error.filename)
+        messages.closing()
+        exit(1)
+    else:
+        raise
