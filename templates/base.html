@@ -22,14 +22,17 @@
                        height=device-height,
                        user-scalable={{
                            conf.user_scalable_viewport}}">
+        <link rel="shortcut icon"
+              href="{{ static_url('favicon.ico') }}" />
         <script>
             conf = {
                 "app_name": "{{ conf.app_name }}",
                 "author": "{{ conf.author }}",
-                "expected_scheme":
-                    "{{ conf.expected_scheme }}",
-                "expected_host":
-                    "{{ conf.expected_host }}",
+                "proxy_scheme": "{{ conf.proxy_scheme }}",
+                "proxy_host": "{{ conf.proxy_host }}",
+                "proxy_port": {{ conf.proxy_port \
+                                 if conf.proxy_port \
+                                 else 'null' }},
                 "debug": {{ str(conf.debug).lower() }},
                 "user_scalable_viewport":
                     "{{ conf.user_scalable_viewport }}",

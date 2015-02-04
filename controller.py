@@ -7,7 +7,7 @@ from src import ui_modules, ui_methods
 from src.boiler_ui_module import BoilerUIModule
 
 
-class AppHandler(RequestHandler):
+class GUIHandler(RequestHandler):
     def get(self):
         content = '<span style="margin:3rem; ' \
                                'display:block;' \
@@ -21,7 +21,7 @@ class AppHandler(RequestHandler):
 
 
 app = Application(
-    [('/$', AppHandler)],
+    [('/$', GUIHandler)],
     debug = conf.debug,
     static_path = './static',
     template_path = './templates',
@@ -29,6 +29,7 @@ app = Application(
     ui_methods = [ui_methods],
 )
 
+app.listen(conf.port)
 for module in app.ui_modules.values():
     if issubclass(module, BoilerUIModule):
         module.add_handler(app)

@@ -4,9 +4,12 @@ from . import log
 
 app_name = 'TornadoBoiler'
 author = 'Cristóbal Ganter'
-expected_scheme = 'http'
-expected_host = 'localhost'
-port = 52000
 debug = True
+port = 52000
+
+proxy_scheme = 'http'
+proxy_host = 'localhost'
+proxy_port = port
+
 user_scalable_viewport = 'no'    #accepted values are 'yes'
                                  #and 'no'

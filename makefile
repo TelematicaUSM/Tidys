@@ -1,9 +1,11 @@
 .DEFAULT_GOAL = run
 program = run.py
+pub_remote = prod
 dir_name = $${PWD\#\#*/}
 
 runenv = . env/bin/activate
 python = $(runenv) && python
+pip_install = $(runenv) && pip install
 
 gempath = ./gems
 gembin = $(gempath)/bin
@@ -39,6 +41,9 @@ env: | dependencies virtualenv
 	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
+tornado: | env
+	$(pip_install) $@
+
 sass bourbon: | dependencies
 	$(use_gempath) && gem install --no-ri --no-rdoc $@
 
@@ -47,16 +52,14 @@ $(bbfoldername): bourbon
 	                                    --path=$(scsspath)
 	mv $(scsspath)/bourbon $(bbpath)
 
-tornado: | env
-	$(runenv) && pip install $@
-
 css: scss $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
-.PHONY: run srun drun testenv attach csswatch dcsswatch
+.PHONY: run srun drun testenv attach csswatch dcsswatch \
+	clean publish
 
-run: tornado css
-	$(python) $(program)
+run: dependencies tornado css
+	$(python) -i $(program)
 
 srun:
 	screen -S $(dir_name) $(MAKE) run
@@ -77,5 +80,8 @@ dcsswatch:
 	screen -d -m -S $(dir_name)_sass $(MAKE) csswatch
 
 clean:
-	rm -rf env __pycache__ $(csspath) \
-	       $(gempath) log.log $(bbpath) virtualenv
+	rm -rf env __pycache__ $(csspath) $(gempath) \
+	       log.log $(bbpath) virtualenv
+
+publish:
+	git push $(pub_remote)
