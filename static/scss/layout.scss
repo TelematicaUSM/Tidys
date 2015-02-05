@@ -21,6 +21,7 @@
 }
 
 .panel {
+    display: none;
     z-index: $zi-panels;
     background-color: transparent;
 }

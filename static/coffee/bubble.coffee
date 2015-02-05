@@ -19,6 +19,6 @@ bubble.origZIndex = parseInt(
 @hide_bubble = ->
     bubble.style.transition = "opacity 5s"
     bubble.style.opacity = 0
-    hide_timeoutID = window.setTimeout(->
+    hide_timeoutID = window.setTimeout ->
         bubble.style.zIndex = bubble.origZIndex
-    , 5000)
+    , 5000

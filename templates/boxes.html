@@ -4,10 +4,8 @@
     {% from notifications import boiler_ui_modules as \
         notifications %}
     {{ add_ext_file('css/boxes.css') }}
-    {{ add_ext_file('js/bubble.js') }}
-    {{ add_ext_file('js/main_menu.js') }}
-    {{ add_ext_file('js/session.js') }}
     
+    {{ add_ext_file('js/main_menu.js') }}
     <button type="button" id="main-menu-button">
         <img src="{{ static_url('images/main-menu.svg') }}">
     </button>
@@ -22,7 +20,36 @@
 {% block free_content %}
     {% from panels import boiler_ui_modules as panels %}
     
+    {{ add_ext_file('css/status.css') }}
+    <div id="status-panel" class="fixed-panel">
+        <div class="box">
+            <img id='status-panel-image'
+                 src="{{
+                    static_url('images/spinner.svg') }}">
+            <span id='status-panel-text'>Cargando ...</span>
+        </div>
+    </div>
+    
+    <script
+      src="{{ static_url('js/reconnecting-websocket.js') }}"
+      type="text/javascript">
+    </script>
+    
+    <script src="{{ static_url('js/ws.js') }}"
+            type="text/javascript">
+    </script>
+    
+    <script src="{{ static_url('js/status.js') }}"
+            type="text/javascript">
+    </script>
+    
+    <script src="{{ static_url('js/session.js') }}"
+            type="text/javascript">
+    </script>
+    
+    {{ add_ext_file('js/bubble.js') }}
     <div id="message-bubble">Message Bubble</div>
+    
     <div id="content-shade"></div>
     
     <nav id="main-menu">
@@ -41,13 +68,4 @@
             {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
-    
-    <script
-      src="{{ static_url('js/reconnecting-websocket.js') }}"
-      type="text/javascript">
-    </script>
-    
-    <script src="{{ static_url('js/ws.js') }}"
-            type="text/javascript">
-    </script>
 {% end %}
