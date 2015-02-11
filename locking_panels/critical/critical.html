@@ -1,0 +1,17 @@
+{% from conf import author_email as email %}
+
+<div class="box">
+    <img id='critical-image'
+         src="{{ make_static_url('critical.svg') }}">
+    <p id="critical-text">Error!</p>
+    <p id="critical-instructions">
+        There's no way out of here DX. Please <b>reload the
+        page</b>. If the problem persists please contact
+        <a href="mailto:{{ email }}">{{ email }}</a>.
+    </p>
+</div>
+
+<script
+    src="{{ make_static_url('critical.js') }}"
+    type="text/javascript">
+</script>

@@ -1,24 +1,96 @@
-bubble = document.getElementById "message-bubble"
-show_timeoutID = 0
-hide_timeoutID = 0
+main_menu_active = false;
+lock_panels = false
 
-bubble.origZIndex = parseInt(
-    window.getComputedStyle(bubble)['zIndex']
-)
+main_menu = document.getElementById 'main-menu'
+content_shade = document.getElementById 'content-shade'
 
-@show_bubble = (message) ->
-    window.clearTimeout(show_timeoutID)
-    window.clearTimeout(hide_timeoutID)
+main_menu_button = document.getElementById(
+    'main-menu-button')
+
+main_menu_items = document.querySelectorAll(
+    '.main-menu-item')
+
+content_shade.origZIndex = parseInt(
+    window.getComputedStyle(content_shade)['zIndex'])
+
+#FUNCTIONS
+
+@activateMainMenu = ->
+    main_menu_button.style.display = 'block'
+
+@deactivateMainMenu = ->
+    main_menu_button.style.display = 'none'
+
+@openMainMenu = ->
+    content_shade.style.zIndex =
+        content_shade.origZIndex + 3
+        
+    content_shade.style.backgroundColor =
+        'rgba(0, 0, 0, 0.6)'
+        
+    main_menu.style.left = '0px'
+    main_menu_active = true
+
+@closeMainMenu = ->
+    content_shade.style.zIndex = content_shade.origZIndex
+    content_shade.style.backgroundColor = 'transparent'
+    main_menu.style.left = '-66.66666vw'
+    main_menu_active = false
+
+@switchMainMenu = ->
+    if main_menu_active
+        closeMainMenu()
+    else
+        openMainMenu()
+
+@lockPanels = ->
+    lock_panels = true
+
+@unlockPanels = ->
+    lock_panels = false
+
+@hideAllPanels = ->
+    return if lock_panels
     
-    bubble.style.transition = "none"
-    bubble.innerHTML = message
-    bubble.style.zIndex = bubble.origZIndex + 2
-    bubble.style.opacity = 1
-    show_timeoutID = window.setTimeout(hide_bubble, 5000)
+    for panel in document.querySelectorAll(
+            ".panel, .scrolling-panel, .fixed-panel")
+        panel.style.display = "none"
 
-@hide_bubble = ->
-    bubble.style.transition = "opacity 5s"
-    bubble.style.opacity = 0
-    hide_timeoutID = window.setTimeout(->
-        bubble.style.zIndex = bubble.origZIndex
-    , 5000)
+@switchToPanel = (panel_id) ->
+    return if lock_panels
+    
+    panel = document.getElementById(panel_id)
+    
+    if 'locking_panel' in panel.classList
+        deactivatePanels()
+    else
+        activateMainMenu()
+        hideAllPanels()
+        closeMainMenu()
+    
+    panel.style.display = "block"
+    document.body.scrollTop = 0
+    document.documentElement.scrollTop = 0
+
+@getPanelSwitch = (panel_id) -> ->
+    switchToPanel panel_id
+
+@activatePanels = ->
+    return if lock_panels
+    activateMainMenu()
+    switchToPanel main_menu_items[0].dataset.panelId
+
+@deactivatePanels = ->
+    return if lock_panels
+    deactivateMainMenu()
+    hideAllPanels()
+
+#SETUP
+
+document.getElementById('main-menu-button'). \
+    addEventListener 'click', switchMainMenu
+content_shade.addEventListener 'click', closeMainMenu
+
+for button in main_menu_items
+    button.addEventListener('click',
+        getPanelSwitch button.dataset.panelId)

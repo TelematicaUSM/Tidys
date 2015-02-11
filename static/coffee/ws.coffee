@@ -2,10 +2,25 @@
     "#{conf.ws_scheme}://#{document.location['host']}/ws",
     null, {debug: conf.debug})
 
-ws.to_event_name = (msg_type) ->
+showLoading('Connecting to WebSocket server ...',
+    new Promise (resolve, reject) ->
+        if ws.readyState == ReconnectingWebSocket.OPEN
+            resolve()
+        else
+            ws.addEventListener "open", resolve
+)
+
+#FUNCTIONS
+
+ws.toEventName = (msg_type) ->
     "msg_" + msg_type
 
-ws.addEventListener "message", (evt) ->
+ws.sendJSON = (json_message) ->
+    ws.send JSON.stringify json_message
+
+#SETUP
+
+ws.addEventListener("message", (evt) ->
     message = JSON.parse evt.data
     
     if "type" not of message
@@ -13,5 +28,6 @@ ws.addEventListener "message", (evt) ->
         return
         
     ws.dispatchEvent new CustomEvent(
-        ws.to_event_name(message.type),
+        ws.toEventName(message.type),
         {"detail": "message": message})
+)

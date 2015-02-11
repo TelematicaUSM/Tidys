@@ -4,10 +4,14 @@ from . import log
 
 app_name = 'TornadoBoxes'
 author = 'Cristóbal Ganter'
-expected_scheme = 'http'
-expected_host = 'localhost'
-port = 52001
+author_email = 'cganterh@gmail.com'
 debug = True
+port = 52001
+
+proxy_scheme = 'http'
+proxy_host = 'localhost'
+proxy_port = port
+
 user_scalable_viewport = 'no'    #accepted values are 'yes'
                                  #and 'no'
 ws_scheme = 'ws'

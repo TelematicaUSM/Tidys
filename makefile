@@ -1,9 +1,11 @@
 .DEFAULT_GOAL = run
 program = run.py
+pub_remote = prod
 dir_name = $${PWD\#\#*/}
 
 runenv = . env/bin/activate
 python = $(runenv) && python
+pip_install = $(runenv) && pip install
 
 gempath = ./gems
 gembin = $(gempath)/bin
@@ -60,6 +62,9 @@ env: | dependencies virtualenv
 	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
+tornado: | env
+	$(pip_install) $@
+
 sass bourbon: | dependencies
 	$(use_gempath) && gem install --no-ri --no-rdoc $@
 
@@ -67,9 +72,6 @@ $(bbfoldername): bourbon
 	$(use_gempath) && $(gembin)/bourbon install \
 	                                    --path=$(scsspath)
 	mv $(scsspath)/bourbon $(bbpath)
-
-tornado: | env
-	$(runenv) && pip install $@
 
 css: scss $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
@@ -86,10 +88,10 @@ js: coffee-script coffee
 	$(nmodulespath)/coffee-script/bin/coffee $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
-	jswatch djswatch clean panels
+	jswatch djswatch clean publish panels notifications locking_panels
 
-run: tornado css js reconnecting-websocket.js panels notifications dependencies
-	$(python) $(program)
+run: dependencies tornado css js reconnecting-websocket.js panels notifications locking_panels
+	$(python) -i $(program)
 
 srun:
 	screen -S $(dir_name) $(MAKE) run
@@ -97,8 +99,9 @@ srun:
 drun:
 	screen -d -m -S $(dir_name) $(MAKE) run
 
-panels notifications: coffee-script sass
-	-$(sub_make_resources) && \
+panels notifications locking_panels: coffee-script sass
+	@echo "Executing makefiles in $@ ..."
+	@$(sub_make_resources) && \
 	 cd $@ && \
 	 $(make_iterate_over_d)
 
@@ -130,3 +133,6 @@ clean:
 	       log.log $(bbpath) virtualenv
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
+
+publish:
+	git push $(pub_remote)

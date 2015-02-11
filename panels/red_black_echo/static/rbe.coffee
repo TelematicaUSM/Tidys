@@ -1,17 +1,17 @@
-@ws.addEventListener @ws.to_event_name("white"), (evt) ->
-    document.getElementById("result").value +=
+ws.addEventListener ws.toEventName('white'), (evt) ->
+    document.getElementById('result').value +=
         evt.detail.message.string + '\n'
 
-send = (color) =>
+send = (color) ->
     msg = {
-        "type": color,
-        "string": document.getElementById(color).value
+        'type': color,
+        'string': document.getElementById(color).value
     }
     
-    @ws.send JSON.stringify msg
+    ws.sendJSON msg
 
-document.getElementById("red-button").addEventListener(
-    "click", -> send "red")
+document.getElementById('red-button').addEventListener(
+    'click', -> send 'red')
 
-document.getElementById("black-button").addEventListener(
-    "click", -> send "black")
+document.getElementById('black-button').addEventListener(
+    'click', -> send 'black')

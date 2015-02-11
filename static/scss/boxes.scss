@@ -15,7 +15,7 @@
     @include align-items(center);
 }
 
-#main-menu-button, .notification {
+.header-button {
     @include size($header-height);
     border: none;
     background-color: transparent;
@@ -25,6 +25,15 @@
         @include size($header-height*0.7);
         vertical-align: middle;
     }
+}
+
+#main-menu-button {
+    @extend .header-button;
+    display: none;
+}
+
+.notification {
+    @extend .header-button
 }
 
 #main-menu {
@@ -57,12 +66,12 @@
 
 .box {
     display: block;
-    margin: 1rem;
+    margin: $box-margin;
     border: none;
-    border-radius: 0.1rem;
-    box-shadow: 0rem 0.1rem 0rem 0rem $c-box-shadow;
+    border-radius: $box-border-radius;
+    box-shadow: $box-shadow-dimensions $c-box-shadow;
     background-color: $c-box;
-    padding: 1rem;
+    padding: $box-padding;
     text-align: justify;
 }
 

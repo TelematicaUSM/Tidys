@@ -62,9 +62,11 @@ app = Application(
     debug = conf.debug,
     static_path = './static',
     template_path = './templates',
-    ui_modules = [ui_modules,],
+    ui_modules = [ui_modules],
     ui_methods = [ui_methods],
 )
+
+app.listen(conf.port)
 
 import panels
 for module in app.ui_modules.values():

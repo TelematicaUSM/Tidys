@@ -12,15 +12,16 @@
     @include align-items(center);
     @include justify-content(space-between);
     box-shadow: 0rem -0.9rem 0.3rem 1rem $c-header-shadow;
-    
-    h1 {
-        @include flex-grow(1);
-        text-align: center;
-        font-size: 1rem;
-    }
+}
+
+#header-title {
+    @include flex-grow(1);
+    text-align: center;
+    font-size: 1rem;
 }
 
 .panel {
+    display: none;
     z-index: $zi-panels;
     background-color: transparent;
 }
