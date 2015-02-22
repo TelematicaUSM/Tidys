@@ -10,6 +10,8 @@ showLoading('Connecting to WebSocket server ...',
             ws.addEventListener "open", resolve
 )
 
+ws.promises = {}
+
 #FUNCTIONS
 
 ws.toEventName = (msg_type) ->
@@ -17,6 +19,17 @@ ws.toEventName = (msg_type) ->
 
 ws.sendJSON = (json_message) ->
     ws.send JSON.stringify json_message
+
+ws.addMessageListener = (msg_type, func) ->
+    ws.addEventListener ws.toEventName(msg_type), (evt) ->
+        func evt.detail.message
+
+ws.getMessagePromise = (msg_type) ->
+    unless msg_type of ws.promises
+        ws.promises[msg_type] = \
+            new Promise (resolve, reject) ->
+                ws.addMessageListener msg_type, resolve
+    ws.promises[msg_type]
 
 #SETUP
 

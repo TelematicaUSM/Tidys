@@ -1,6 +1,6 @@
-ws.addEventListener ws.toEventName('white'), (evt) ->
+ws.addMessageListener 'white', (message) ->
     document.getElementById('result').value +=
-        evt.detail.message.string + '\n'
+        message.string + '\n'
 
 send = (color) ->
     msg = {

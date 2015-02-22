@@ -133,6 +133,7 @@ clean:
 	       log.log $(bbpath) virtualenv
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
+	-cd locking_panels && $(make_iterate_over_d)
 
 publish:
 	git push $(pub_remote)
