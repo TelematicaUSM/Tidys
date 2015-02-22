@@ -1,0 +1,28 @@
+#critical-panel {
+    display: block;
+    
+    .box {
+        text-align: center;
+    }
+}
+
+#critical-image {
+    display: block;
+    margin: auto;
+    height: 23vmin;
+    width: 23vmin;
+}
+
+%texts {
+    display: block;
+    margin: 1rem 0rem 0rem 0rem;
+}
+
+#critical-text {
+    @extend %texts;
+}
+
+#critical-instructions {
+    @extend %texts;
+    text-align: justify;
+}

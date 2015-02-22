@@ -91,9 +91,9 @@ js: coffee-script coffee
 	$(nmodulespath)/coffee-script/bin/coffee $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
-	jswatch djswatch clean panels publish
+	jswatch djswatch clean publish panels notifications locking_panels
 
-run: dependencies tornado motor jwt css js reconnecting-websocket.js panels notifications
+run: dependencies tornado motor jwt css js reconnecting-websocket.js panels notifications locking_panels
 	$(python) -i $(program)
 
 srun:
@@ -102,8 +102,9 @@ srun:
 drun:
 	screen -d -m -S $(dir_name) $(MAKE) run
 
-panels notifications: coffee-script sass
-	-$(sub_make_resources) && \
+panels notifications locking_panels: coffee-script sass
+	@echo "Executing makefiles in $@ ..."
+	@$(sub_make_resources) && \
 	 cd $@ && \
 	 $(make_iterate_over_d)
 

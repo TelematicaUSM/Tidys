@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="100"
+   height="100"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.5 r10040"
+   sodipodi:docname="4.svg"
+   inkscape:export-filename="/home/cristobal/Proyectos/artificialAlan/art/favicon/2logo.png"
+   inkscape:export-xdpi="675"
+   inkscape:export-ydpi="675">
+  <defs
+     id="defs4">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 50 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="100 : 50 : 1"
+       inkscape:persp3d-origin="50 : 33.333333 : 1"
+       id="perspective2999" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.03"
+     inkscape:cx="83.89662"
+     inkscape:cy="50"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:snap-global="true"
+     inkscape:snap-nodes="true"
+     inkscape:snap-bbox="false"
+     inkscape:window-width="1366"
+     inkscape:window-height="702"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1"
+     showguides="true"
+     inkscape:guide-bbox="true">
+    <inkscape:grid
+       type="xygrid"
+       id="grid2985"
+       empspacing="5"
+       visible="true"
+       enabled="true"
+       snapvisiblegridlinesonly="true" />
+    <sodipodi:guide
+       orientation="1,0"
+       position="50,45"
+       id="guide2997" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Capa 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-952.3622)">
+    <g
+       id="g3848"
+       transform="translate(-1.5,1.5)">
+      <g
+         style="fill:#7878d7;fill-opacity:0.6"
+         id="g3812-1">
+        <path
+           inkscape:connector-curvature="0"
+           d="m 10,962.3622 0,80 80,0 0,-80 -80,0 z m -5,-5 90,0 0,90 -90,0 0,-90 z"
+           style="fill:#7878d7;fill-opacity:0.6;stroke:none"
+           id="path8-5">
+          <animateTransform
+             attributeName="transform"
+             begin="0s"
+             dur="20s"
+             type="rotate"
+             from="0 75 75"
+             to="-360 75 75"
+             repeatCount="indefinite"
+             id="animateTransform10-6" />
+        </path>
+        <path
+           style="fill:#7878d7;fill-opacity:0.6;stroke:none"
+           d="m 45,15 10,0 0,50 -5,5 -5,-5 z"
+           id="path3000-7"
+           inkscape:connector-curvature="0"
+           transform="translate(0,952.3622)" />
+        <rect
+           y="1027.3622"
+           x="45"
+           height="10"
+           width="10"
+           id="rect3015-6-6-4"
+           style="fill:#7878d7;fill-opacity:0.6;stroke:none" />
+      </g>
+      <g
+         transform="translate(3,-3)"
+         id="g3812">
+        <path
+           inkscape:connector-curvature="0"
+           d="m 10,962.3622 0,80 80,0 0,-80 -80,0 z m -5,-5 90,0 0,90 -90,0 0,-90 z"
+           style="fill:#e21e3a;fill-opacity:0.8;stroke:none"
+           id="path8">
+          <animateTransform
+             attributeName="transform"
+             begin="0s"
+             dur="20s"
+             type="rotate"
+             from="0 75 75"
+             to="-360 75 75"
+             repeatCount="indefinite"
+             id="animateTransform10" />
+        </path>
+        <path
+           style="fill:#e21e3a;fill-opacity:0.8;stroke:none"
+           d="m 45,15 10,0 0,50 -5,5 -5,-5 z"
+           id="path3000"
+           inkscape:connector-curvature="0"
+           transform="translate(0,952.3622)" />
+        <rect
+           y="1027.3622"
+           x="45"
+           height="10"
+           width="10"
+           id="rect3015-6-6"
+           style="fill:#e21e3a;fill-opacity:0.8;stroke:none" />
+      </g>
+    </g>
+  </g>
+</svg>

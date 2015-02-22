@@ -120,7 +120,7 @@ try:
         debug = conf.debug,
         static_path = './static',
         template_path = './templates',
-        ui_modules = [ui_modules,],
+        ui_modules = [ui_modules],
         ui_methods = [ui_methods],
         login_url = 'login',
         google_oauth = google_oauth,

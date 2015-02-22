@@ -1,14 +1,23 @@
 {% extends "layout.html" %}
 
 {% block header %}
-    {% from notifications import boiler_ui_modules as \
-        notifications %}
     {{ add_ext_file('css/boxes.css') }}
     
-    {{ add_ext_file('js/main_menu.js') }}
+    {% from notifications import boiler_ui_modules as \
+       notifications %}
+    
     <button type="button" id="main-menu-button">
         <img src="{{ static_url('images/main-menu.svg') }}">
     </button>
+    
+    <h1 id="header-title">
+        {% if 'header_title' in ChainMap(globals(),
+           locals()) %}
+           
+            {{ header_title }}
+            
+        {% end %}
+    </h1>
     
     <div id="notifications">
         {% for notification in notifications %}
@@ -19,33 +28,16 @@
 
 {% block free_content %}
     {% from panels import boiler_ui_modules as panels %}
+    {% from locking_panels import boiler_ui_modules as \
+       locking_panels %}
     
-    {{ add_ext_file('css/status.css') }}
-    <div id="status-panel" class="fixed-panel">
-        <div class="box">
-            <img id='status-panel-image'
-                 src="{{
-                    static_url('images/spinner.svg') }}">
-            <span id='status-panel-text'>Cargando ...</span>
+    {% for locking_panel in locking_panels %}
+        <div class="{{ locking_panel._class }}
+                    locking_panel"
+             id="{{ locking_panel._id }}">
+            {% module UIModuleLoader(locking_panel) %}
         </div>
-    </div>
-    
-    <script
-      src="{{ static_url('js/reconnecting-websocket.js') }}"
-      type="text/javascript">
-    </script>
-    
-    <script src="{{ static_url('js/ws.js') }}"
-            type="text/javascript">
-    </script>
-    
-    <script src="{{ static_url('js/status.js') }}"
-            type="text/javascript">
-    </script>
-    
-    <script src="{{ static_url('js/session.js') }}"
-            type="text/javascript">
-    </script>
+    {% end %}
     
     {{ add_ext_file('js/bubble.js') }}
     <div id="message-bubble">Message Bubble</div>
@@ -68,4 +60,21 @@
             {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
+    
+    <script
+      src="{{ static_url('js/reconnecting-websocket.js') }}"
+      type="text/javascript">
+    </script>
+    
+    <script src="{{ static_url('js/ws.js') }}"
+            type="text/javascript">
+    </script>
+    
+    <script src="{{ static_url('js/boxes.js') }}"
+            type="text/javascript">
+    </script>
+    
+    <script src="{{ static_url('js/session.js') }}"
+            type="text/javascript">
+    </script>
 {% end %}

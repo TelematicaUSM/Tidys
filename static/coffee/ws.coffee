@@ -2,6 +2,14 @@
     "#{conf.ws_scheme}://#{document.location['host']}/ws",
     null, {debug: conf.debug})
 
+showLoading('Connecting to WebSocket server ...',
+    new Promise (resolve, reject) ->
+        if ws.readyState == ReconnectingWebSocket.OPEN
+            resolve()
+        else
+            ws.addEventListener "open", resolve
+)
+
 #FUNCTIONS
 
 ws.toEventName = (msg_type) ->
