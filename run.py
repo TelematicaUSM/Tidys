@@ -61,3 +61,19 @@ if __name__ == "__main__":
     def make(goal):
         from os import system
         system('make %s' % goal)
+    
+    @run_inside(ioloop.add_callback)
+    def clients():
+        from controller import MSGHandler
+        total = MSGHandler.client_count
+        current = len(MSGHandler.clients)
+        print('Connected clients: %d' % current)
+        print('Total connections opened: %d' % total)
+        print(
+            'Total connections closed: %d' % (total-current)
+        )
+
+    @run_inside(ioloop.add_callback)
+    def bcast(message):
+        from controller import MSGHandler
+        MSGHandler.broadcast(message)

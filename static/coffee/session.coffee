@@ -1,23 +1,20 @@
+#FUNCTIONS
+
 @logout = ->
     delete localStorage.sessionToken
-    document.location.replace('/login')
+    showHome()
 
-if not localStorage.sessionToken?
-    setStatus 'Redireccionando a login con google en 5
-                segundos ...'
-    setTimeout ->
-        document.location.replace('/login')
-    , 5000
-else
-    ws.addEventListener ws.toEventName('logout'),
-        (evt) ->
-            logout()
-            
-    ws.addEventListener ws.toEventName('tokenOk'),
-        (evt) ->
-            hideStatus()
+#SETUP
 
-    ws.addEventListener "open", (evt) ->
+ws.addMessageListener 'logout', logout
+
+if localStorage.sessionToken?
+    showLoading('Autenticando ...',
+                ws.getMessagePromise 'tokenOk')
+
+    ws.open_promise.then ->
         ws.sendJSON 
             'type': 'sessionToken'
             'token': localStorage.sessionToken
+else
+    showHome()

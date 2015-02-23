@@ -2,13 +2,13 @@
     "#{conf.ws_scheme}://#{document.location['host']}/ws",
     null, {debug: conf.debug})
 
-showLoading('Connecting to WebSocket server ...',
-    new Promise (resolve, reject) ->
-        if ws.readyState == ReconnectingWebSocket.OPEN
-            resolve()
-        else
-            ws.addEventListener "open", resolve
-)
+ws.open_promise = new Promise (resolve, reject) ->
+    if ws.readyState == ReconnectingWebSocket.OPEN
+        resolve()
+    else
+        ws.addEventListener "open", resolve
+
+ws.promises = {}
 
 #FUNCTIONS
 
@@ -18,7 +18,21 @@ ws.toEventName = (msg_type) ->
 ws.sendJSON = (json_message) ->
     ws.send JSON.stringify json_message
 
+ws.addMessageListener = (msg_type, func) ->
+    ws.addEventListener ws.toEventName(msg_type), (evt) ->
+        func evt.detail.message
+
+ws.getMessagePromise = (msg_type) ->
+    unless msg_type of ws.promises
+        ws.promises[msg_type] = \
+            new Promise (resolve, reject) ->
+                ws.addMessageListener msg_type, resolve
+    ws.promises[msg_type]
+
 #SETUP
+
+showLoading('Conectando con el servidor WebSocket ...',
+            ws.open_promise)
 
 ws.addEventListener("message", (evt) ->
     message = JSON.parse evt.data

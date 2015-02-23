@@ -1,1 +1,2 @@
 -   switch to ecmascript 6
+-   update session.coffee

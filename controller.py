@@ -4,8 +4,8 @@ import conf, json, jwt
 
 from sys import exit, exc_info
 from datetime import datetime, timedelta
-from logging import debug, critical
-from urllib.parse import urljoin
+from logging import debug, error, critical
+from urllib.parse import urlunparse
 from tornado.gen import coroutine
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
@@ -23,11 +23,13 @@ class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
     @coroutine
     def get(self):
         try:
-            redirect_uri = urljoin(
-                self.get_scheme() + '://' +
-                self.request.host, 'login')
+            redirect_uri = urlunparse(
+                (self.get_scheme(), self.request.host,
+                 'login', '', '', '')
+            )
+            
             debug('LoginHandler.get: '
-                      'redirect_uri = %s', redirect_uri)
+                  'redirect_uri = %s', redirect_uri)
                            
             if self.get_argument('code', False):
                 google_data = \
@@ -36,24 +38,27 @@ class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
                         code=self.get_argument('code'))
                 user = yield db.User.from_google_data(
                     google_data)
-                exp = datetime.utcnow() + \
-                      timedelta(days=30) \
-                      if not conf.debug else \
-                      datetime.utcnow() + \
-                      timedelta(minutes=5)
                 token = jwt.encode({'id': user.id,
-                                    'exp': exp},
+                                    'exp': self.get_exp()},
                                    user.secret)
                 self.render('login.html', token=token)
             else:
+                client_id = \
+                    self.settings['google_oauth']['key']
+                remember = self.get_argument('remember',
+                                             False)
+                state = jwt.encode({'remember': remember},
+                                   secrets['simple'])
+                extra_params = {
+                    'approval_prompt': 'auto',
+                    'state': state}
+                    
                 yield self.authorize_redirect(
-                    redirect_uri=redirect_uri,
-                    client_id=
-                       self.settings['google_oauth']['key'],
-                    scope=['profile', 'email'],
-                    response_type='code',
-                    extra_params=
-                        {'approval_prompt': 'auto'})
+                    redirect_uri = redirect_uri,
+                    client_id = client_id,
+                    scope = ['profile', 'email'],
+                    response_type = 'code',
+                    extra_params = extra_params)
         except:
             error('controller.LoginHandler.get: '
                   'Unexpected error: %s', exc_info()[0])
@@ -64,6 +69,19 @@ class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
             return self.request.headers['Scheme']
         else:
             return self.request.protocol
+    
+    def get_exp(self):
+        state = self.get_argument('state', None)
+        
+        if state:
+            state_dict = jwt.decode(state,
+                                    secrets['simple'])
+            delta = conf.long_account_exp \
+                    if state_dict['remember'] else \
+                    conf.short_account_exp
+            return datetime.utcnow() + timedelta(**delta)
+        else:
+            return conf.short_account_exp
 
 
 class MSGHandler(WebSocketHandler):

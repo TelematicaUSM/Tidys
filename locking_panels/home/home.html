@@ -1,0 +1,23 @@
+{% from conf import app_name%}
+
+<section class="box">
+    <h1 class="box-title">{{ app_name }}</h1>
+    <p>
+        Aqui va la descripción de la aplicación. Me dió lata
+        hacerla XD.
+    </p>
+    <form action="login" method="GET">
+        <div>
+            <input type="checkbox" id="remember"
+                   name="remember" value="True">
+            <label for="remember">Recordarme</label>
+        </div>
+        <input type="submit" id="google-login-button"
+               value="Login con Google">
+    </form>
+</section>
+
+<script
+    src="{{ make_static_url('home.js') }}"
+    type="text/javascript">
+</script>
