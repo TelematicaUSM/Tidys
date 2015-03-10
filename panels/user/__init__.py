@@ -1,8 +1,7 @@
 import src, jwt
 
-from sys import exc_info
-from logging import error
 from tornado.gen import coroutine
+from src import messages
 from src.db import User, NoObjectReturnedFromDB
 
 
@@ -25,7 +24,7 @@ class UserPanel(src.boiler_ui_module.BoilerUIModule):
 class UserWSC(src.wsclass.WSClass):
     @src.wsclass.WSClass.subscribe('sessionToken')
     @coroutine
-    def checkToken(self, message):
+    def check_token(self, message):
         try:
             uid = jwt.decode(message['token'],
                              verify=False)['id']
@@ -37,17 +36,14 @@ class UserWSC(src.wsclass.WSClass):
         except (jwt.ExpiredSignatureError, jwt.DecodeError,
                 NoObjectReturnedFromDB):
             self.handler.write_message({'type': 'logout'})
-        
-        except NameError as e:
-            error('#el error es %s', e)
             
         except:
-            error('panels.user.UserWSC.checkToken: '
-                  'Unexpected error: %s', exc_info()[0])
+            messages.unexpected_error(
+                'panels.user.UserWSC.check_token')
             raise
         
-    @src.wsclass.WSClass.subscribe('getUserEMail')
-    def getUserEMail(self, message):
-        email = self.handler.user.email
-        self.handler.write_message({'type': 'userEMail',
-                                    'email': email})
+    @src.wsclass.WSClass.subscribe('getUserName')
+    def get_user_name(self, message):
+        name = self.handler.user.name
+        self.handler.write_message({'type': 'userName',
+                                    'name': name})

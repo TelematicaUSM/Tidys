@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-from logging import info
+from logging import info, debug, error
 from conf import app_name, port, proxy_scheme, proxy_host, \
                  proxy_port
 
@@ -20,8 +20,20 @@ def wellcome():
          ':%d'%proxy_port if proxy_port else '')
     )
 
-def file_not_found(print_f, function_name, file_name):
+def code_related_message(code_path, message, print_f=print):
     print_f(
-        '%s: file "%s" could not be found!' %
-        (function_name, file_name)
+        '%s: %s' % (code_path, message)
     )
+
+def code_debug(code_path, message):
+    code_related_message(code_path, message, print_f=debug)
+
+def file_not_found(code_path, file_name, print_f=error):
+    code_related_message(code_path,
+        'file "%s" could not be found!'%file_name, print_f)
+
+def unexpected_error(code_path):
+    from sys import exc_info
+    code_related_message(code_path,
+        'Unexpected error: %s.'%exc_info()[0],
+        print_f=error)

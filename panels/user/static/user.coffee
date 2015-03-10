@@ -8,8 +8,8 @@ logout_button.addEventListener 'click', logout
 
 ws.getMessagePromise('tokenOk').then ->
     ws.sendJSON
-        'type': 'getUserEMail'
+        'type': 'getUserName'
 
-ws.getMessagePromise('userEMail').then (message) ->
-    document.getElementById('user-e-mail').innerHTML = \
-        message.email
+ws.getMessagePromise('userName').then (message) ->
+    document.getElementById('user-name').innerHTML = \
+        message.name

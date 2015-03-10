@@ -1,15 +1,19 @@
 # -*- coding: UTF-8 -*-
 
 import conf, json, jwt
-
-from sys import exit, exc_info
+from sys import exit
 from datetime import datetime, timedelta
 from logging import debug, error, critical
+from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlunparse
+
 from tornado.gen import coroutine
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
-from tornado.auth import GoogleOAuth2Mixin
+
+import httplib2
+from oauth2client import client as oa2_client
+
 from src import ui_modules, ui_methods, messages, db
 from src.boiler_ui_module import BoilerUIModule
 
@@ -19,7 +23,12 @@ class GUIHandler(RequestHandler):
         self.render('boxes.html')
 
 
-class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
+class LoginHandler(RequestHandler):
+    disc_doc = None     #google's discovery document
+    disc_doc_client = httplib2.Http('.disc_doc.cache')
+        #https://developers.google.com/api-client-library/
+        #python/guide/thread_safety
+    
     @coroutine
     def get(self):
         try:
@@ -27,41 +36,57 @@ class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
                 (self.get_scheme(), self.request.host,
                  'login', '', '', '')
             )
+            #remember the user for a longer period of time
+            remember = self.get_argument('remember',
+                                         False)
+            state = jwt.encode({'remember': remember},
+                               secrets['simple'])
+            flow = oa2_client.OAuth2WebServerFlow(
+                google_secrets['web']['client_id'],
+                google_secrets['web']['client_secret'],
+                scope = 'openid profile',
+                redirect_uri = redirect_uri,
+                state = state)
             
-            debug('LoginHandler.get: '
-                  'redirect_uri = %s', redirect_uri)
-                           
-            if self.get_argument('code', False):
-                google_data = \
-                    yield self.get_authenticated_user(
-                        redirect_uri=redirect_uri,
-                        code=self.get_argument('code'))
-                user = yield db.User.from_google_data(
-                    google_data)
+            auth_code = self.get_argument('code', False)
+            
+            if not auth_code:
+                auth_uri = flow.step1_get_authorize_url()
+                self.redirect(auth_uri)
+
+            else:
+                with ThreadPoolExecutor(1) as thread:
+                    credentials = yield thread.submit(
+                        flow.step2_exchange, auth_code)
+                #Intercambiar el codigo antes que nada para
+                #evitar ataques
+                
+                yield self.request_disc_doc()
+                
+                userinfo_endpoint = \
+                    self.disc_doc['userinfo_endpoint']
+                    
+                http_auth = credentials.authorize(
+                    httplib2.Http())
+                    
+                with ThreadPoolExecutor(1) as thread:
+                    userinfo = yield thread.submit(
+                        http_auth.request,
+                        userinfo_endpoint)
+                userinfo = self.decode_httplib2_json(
+                    userinfo)
+                #https://developers.google.com/+/api/
+                #openidconnect/getOpenIdConnect
+                
+                user = yield db.User.from_google_userinfo(
+                    userinfo)
                 token = jwt.encode({'id': user.id,
                                     'exp': self.get_exp()},
                                    user.secret)
                 self.render('login.html', token=token)
-            else:
-                client_id = \
-                    self.settings['google_oauth']['key']
-                remember = self.get_argument('remember',
-                                             False)
-                state = jwt.encode({'remember': remember},
-                                   secrets['simple'])
-                extra_params = {
-                    'approval_prompt': 'auto',
-                    'state': state}
-                    
-                yield self.authorize_redirect(
-                    redirect_uri = redirect_uri,
-                    client_id = client_id,
-                    scope = ['profile', 'email'],
-                    response_type = 'code',
-                    extra_params = extra_params)
         except:
-            error('controller.LoginHandler.get: '
-                  'Unexpected error: %s', exc_info()[0])
+            messages.unexpected_error(
+                'controller.LoginHandler.get')
             raise
     
     def get_scheme(self):
@@ -82,6 +107,59 @@ class LoginHandler(RequestHandler, GoogleOAuth2Mixin):
             return datetime.utcnow() + timedelta(**delta)
         else:
             return conf.short_account_exp
+    
+    @coroutine
+    def request_disc_doc(self):
+        code_path = \
+            'controller.LoginHandler.request_disc_doc'
+        
+        def _req_disc_doc():
+            dd = self.disc_doc_client.request(
+                'https://accounts.google.com/.well-known/'
+                'openid-configuration', 'GET')
+            return self.decode_httplib2_json(dd)
+            
+        try:
+            if self.disc_doc == None:
+                messages.code_debug(code_path,
+                    'Requesting discovery document ...')
+                    
+                with ThreadPoolExecutor(1) as thread:
+                    self.__class__.disc_doc = thread.submit(
+                        _req_disc_doc)
+                    self.disc_doc = \
+                        yield self.__class__.disc_doc
+                    #Este yield tiene que ir dentro, ya que
+                    #el thread no se comenzará a ejecutar si
+                    #no se yieldea y no se puede comenzar a
+                    #ejecutar fuera del with ya que ahí no
+                    #existe ... o algo asi XD :C
+                    
+                messages.code_debug(code_path,
+                    'Discovery document arrived!')
+                
+            else:
+                messages.code_debug(code_path,
+                    'Waiting for discovery document ...')
+                self.disc_doc = \
+                    yield self.__class__.disc_doc
+                messages.code_debug(code_path,
+                    'Got the discovery document!')
+
+            if self.__class__.disc_doc:
+                self.__class__.disc_doc = None
+                messages.code_debug(code_path,
+                    'self.__class__.disc_doc = None')
+            
+        except:
+            messages.unexpected_error(
+                'controller.LoginHandler.request_disc_doc')
+            raise
+
+    def decode_httplib2_json(self, response):
+        return json.loads(
+            response[1].decode('utf-8')
+        )
 
 
 class MSGHandler(WebSocketHandler):
@@ -105,17 +183,17 @@ class MSGHandler(WebSocketHandler):
             self.actions[msg_type] = {action}
     
     def open(self):
-        debug('controller.MSGHandler.open: '
-              'New connection established!')
+        messages.code_debug('controller.MSGHandler.open',
+                   'New connection established!')
         self.actions = {}
         self.wsobjects = [wsclass(self)
                           for wsclass in self.wsclasses]
-        MSGHandler.clients.add(self)
-        MSGHandler.client_count += 1
+        self.__class__.clients.add(self)
+        self.__class__.client_count += 1
 
     def on_message(self, message):
-        debug('controller.MSGHandler.on_message: '
-              'Message arrived: %r.' % message)
+        messages.code_debug('controller.MSGHandler.on_message',
+                   'Message arrived: %r.' % message)
               
         message = json.loads(message)
         
@@ -125,11 +203,13 @@ class MSGHandler(WebSocketHandler):
     def on_close(self):
         MSGHandler.clients.remove(self)
 
+
 try:
     with open(conf.secrets_file, 'r') as f:
-        file_content = f.read()
-    secrets = json.loads(file_content)
-    google_oauth = secrets['google']
+        secrets = json.load(f)
+        
+    with open(conf.google_secrets_file, 'r') as f:
+        google_secrets = json.load(f)
 
     app = Application(
         [('/$', GUIHandler),
@@ -140,8 +220,6 @@ try:
         template_path = './templates',
         ui_modules = [ui_modules],
         ui_methods = [ui_methods],
-        login_url = 'login',
-        google_oauth = google_oauth,
     )
     
     app.listen(conf.port)
@@ -153,8 +231,9 @@ try:
 
 except FileNotFoundError as error:
     if error.filename == conf.secrets_file:
-        messages.file_not_found(critical, 'controller',
-                                error.filename)
+        messages.file_not_found(code_path='controller',
+                                file_name=error.filename,
+                                print_f=critical)
         messages.closing()
         exit(1)
     else:

@@ -15,9 +15,9 @@ class run_inside(object):
     def __call__(self, inner_function):
         from functools import update_wrapper
     
-        def run(*args):
-            self.outher_function(
-                lambda: inner_function(*args)
+        def run(*args, **kwargs):
+            return self.outher_function(
+                lambda: inner_function(*args, **kwargs)
             )
             
         update_wrapper(run, inner_function)

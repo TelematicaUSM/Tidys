@@ -2,6 +2,9 @@
     -   pip
         -   tornado
         -   motor
+        -   oauth2client
+        -   PyJWT
+        -   httplib2
     -   gem
         -   sass
         -   bourbon

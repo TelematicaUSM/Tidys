@@ -1,6 +1,6 @@
 @ws = new ReconnectingWebSocket(
     "#{conf.ws_scheme}://#{document.location['host']}/ws",
-    null, {debug: conf.debug})
+    null, {debug: conf.debug, timeoutInterval: 10000})
 
 ws.open_promise = new Promise (resolve, reject) ->
     if ws.readyState == ReconnectingWebSocket.OPEN

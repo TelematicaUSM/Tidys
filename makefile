@@ -49,7 +49,8 @@ make_empty_targets:
 dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
-	                     build-essential ruby npm curl screen
+	                     build-essential ruby npm curl \
+	                     screen mongodb
 	-sudo ln -s /usr/bin/nodejs /usr/bin/node
 	touch make_empty_targets/dependencies
 
@@ -62,11 +63,14 @@ env: | dependencies virtualenv
 	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
-tornado motor: | env
+tornado motor oauth2client: | env
 	$(pip_install) $@
 
 jwt: | env
 	$(pip_install) PyJWT
+
+httplib2: | env
+	$(pip_install) git+https://github.com/jcgregorio/httplib2.git
 
 sass bourbon: | dependencies
 	$(use_gempath) && gem install --no-ri --no-rdoc $@
@@ -93,7 +97,7 @@ js: coffee-script coffee
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean publish panels notifications locking_panels
 
-run: dependencies tornado motor jwt css js reconnecting-websocket.js panels notifications locking_panels
+run: dependencies tornado motor jwt httplib2 oauth2client css js reconnecting-websocket.js panels notifications locking_panels
 	$(python) -i $(program)
 
 srun:

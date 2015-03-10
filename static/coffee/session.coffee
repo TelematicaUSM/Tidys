@@ -13,7 +13,7 @@ if localStorage.sessionToken?
                 ws.getMessagePromise 'tokenOk')
 
     ws.open_promise.then ->
-        ws.sendJSON 
+        ws.sendJSON
             'type': 'sessionToken'
             'token': localStorage.sessionToken
 else

@@ -1,9 +1,7 @@
 # -*- coding: UTF-8 -*-
 
-import jwt
-
-from sys import exc_info
 from tornado.gen import coroutine
+from src import messages
 from src.utils import random_word
 from .common import db
 from .db_object import DBObject
@@ -13,27 +11,39 @@ class User(DBObject):
     
     @classmethod
     @coroutine
-    def from_google_data(cls, g_data):
+    def from_google_userinfo(cls, userinfo):
+        """Creates a User object from google's userinfo.
+           Sample userinfo data:
+            {'family_name': 'Ganter',
+             'given_name': 'Cristóbal',
+             'kind': 'plus#personOpenIdConnect',
+             'locale': 'es',
+             'name': 'Cristóbal Ganter',
+             'picture': 'https://lh4.googleusercontent.com/
+                         -draGfxB6y6U/AAAAAAAAAAI/
+                         AAAAAAAAC3I/-N8omtu2PN4/photo.jpg?
+                         sz=50',
+             'profile': 'https://plus.google.com/
+                         117984339433749478236',
+             'sub': '117984339433749478236'}"""
+             
         try:
-            _id = jwt.decode(g_data['id_token'],
-                             verify=False)['id']
             yield cls.coll.update(
-                {'_id': _id},
+                {'_id': userinfo['sub']},
                 {
-                    '$set': {'google_data': g_data}
+                    '$set': {'google_userinfo': userinfo}
                 },
-                upsert = True
-            )
-            self = yield cls(_id)
+                upsert = True)
+            self = yield cls(userinfo['sub'])
             return self
-            
+        
         except:
-            error('src.db.user.User.from_google_data: '
-                  'Unexpected error: %s', exc_info()[0])
+            messages.unexpected_error(
+                'src.db.user.User.from_google_userinfo')
             raise
     
     def __str__(self):
-        return self.email
+        return self.name
     
     def __repr__(self):
         return "User('%s')" % self.id
@@ -48,6 +58,5 @@ class User(DBObject):
             return secret
     
     @property
-    def email(self):
-        return jwt.decode(self.google_data['id_token'],
-                          verify=False)['email']
+    def name(self):
+        return self.google_userinfo['name']

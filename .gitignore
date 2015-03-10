@@ -7,9 +7,11 @@ secrets.json
 *.map
 *.js
 *.css
+*.cache
 
 env
 gems
+secrets
 make_empty_targets
 node_modules
 bower_components
