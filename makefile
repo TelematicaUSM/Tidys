@@ -37,11 +37,12 @@ make_iterate_over_d = for d in */ ; \
                               $(MAKE) -C "$$d" --no-print-directory $(sub_target); \
                           fi \
                       done
-clean: sub_target = clean
 
 VPATH = static $(gembin) $(scsspath) $(nmodulesfolder) \
         $(jspath) env/lib/python3.4/site-packages \
         make_empty_targets
+
+qrm_path = src/utils/qrmaster
 
 make_empty_targets:
 	mkdir make_empty_targets
@@ -63,11 +64,14 @@ env: | dependencies virtualenv
 	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
-tornado motor oauth2client: | env
+tornado motor oauth2client qrcode: | env
 	$(pip_install) $@
 
 jwt: | env
 	$(pip_install) PyJWT
+
+PIL: | env
+	$(pip_install) pillow
 
 httplib2: | env
 	$(pip_install) git+https://github.com/jcgregorio/httplib2.git
@@ -95,7 +99,8 @@ js: coffee-script coffee
 	$(nmodulespath)/coffee-script/bin/coffee $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
-	jswatch djswatch clean publish panels notifications locking_panels
+	jswatch djswatch clean publish panels notifications \
+	locking_panels qrmaster
 
 run: dependencies tornado motor jwt httplib2 oauth2client css js reconnecting-websocket.js panels notifications locking_panels
 	$(python) -i $(program)
@@ -105,6 +110,14 @@ srun:
 
 drun:
 	screen -d -m -S $(dir_name) $(MAKE) run
+
+qrmaster: dependencies tornado qrcode PIL sass $(bbfoldername)
+	-cd $(qrm_path) && \
+	ln -s ../../../$(bbpath) $(bbfoldername)
+	$(sub_make_resources) && \
+	 cd $(qrm_path) && \
+	 $(MAKE)
+	$(python) $(qrm_path) $(qrm_args)
 
 panels notifications locking_panels: coffee-script sass
 	@echo "Executing makefiles in $@ ..."
@@ -134,6 +147,7 @@ jswatch:
 djswatch:
 	screen -d -m -S $(dir_name)_coffee $(MAKE) jswatch
 
+clean: sub_target = clean
 clean:
 	rm -rf $(bowerfolder) env $(nmodulesfolder) \
 	       __pycache__ $(csspath) $(jspath) $(gempath) \
@@ -141,6 +155,7 @@ clean:
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
 	-cd locking_panels && $(make_iterate_over_d)
+	cd $(qrm_path) && $(MAKE) clean
 
 publish:
 	git push $(pub_remote)

@@ -9,14 +9,15 @@ secrets.json
 *.css
 *.cache
 
-env
-gems
-secrets
-make_empty_targets
-node_modules
-bower_components
-static/css
-static/scss/bourbon_files
+/env/
+/gems/
+/secrets/
+/qrmaster/
+/make_empty_targets/
+/node_modules/
+/bower_components/
+/static/css/
+bourbon_files
 
 virtualenv*
 *.sass-cache*

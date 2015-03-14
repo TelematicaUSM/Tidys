@@ -1,0 +1,46 @@
+@import "bourbon_files/bourbon";
+
+$qr_size: 100px;
+$image_size: $qr_size*0.5;
+$image_margin: $qr_size*0.05;
+
+* {
+    box-sizing: border-box;
+    font-size: 12px;
+    font-family: $verdana;
+    margin: 0px;
+    padding: 0px;
+}
+
+.sticker {
+    @include display(inline-flex);
+    @include align-items(center);
+    margin: 2px;
+    border: 1px solid black;
+    width: 400px;
+}
+
+.qr, .info {
+    display: block;
+    margin: 5px;
+    vertical-align: middle;
+}
+
+.qr {
+    @include size($qr_size $qr_size);
+}
+
+.info {
+    @include flex-grow(1);
+    text-align: center;
+}
+
+.image {
+    margin: $image_margin;
+    @include size($image_size $image_size);
+}
+
+#title {
+    margin: 0px;
+    padding: 0px;
+}

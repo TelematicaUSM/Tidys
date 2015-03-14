@@ -1,0 +1,30 @@
+{% from os import path %}
+{% from urllib.parse import urljoin %}
+
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css"
+              href="style.css">
+    </head>
+
+    <body>
+        {% for key in urls %}
+            <div class="sticker">
+                <img class="qr"
+                     src="{{
+                        path.join('qrmaster', key+'.svg')
+                     }}">
+                <div class="info">
+                    {% if title %}
+                        <h1 id=title>{{ title }}</h1>
+                    {% end %}
+                    <p>{{ urls[key] }}</p>
+                    {% if img_path %}
+                        <img class="image"
+                             src="{{ img_path }}">
+                    {% end %}
+                </div>
+            </div>
+        {% end %}
+    </body>
+</html>
