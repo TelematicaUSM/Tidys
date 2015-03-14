@@ -134,6 +134,9 @@ class LoginHandler(RequestHandler):
                     #no se yieldea y no se puede comenzar a
                     #ejecutar fuera del with ya que ahí no
                     #existe ... o algo asi XD :C
+                    self.__class__.disc_doc = None
+                    messages.code_debug(code_path,
+                        'self.__class__.disc_doc = None')
                     
                 messages.code_debug(code_path,
                     'Discovery document arrived!')
@@ -141,16 +144,10 @@ class LoginHandler(RequestHandler):
             else:
                 messages.code_debug(code_path,
                     'Waiting for discovery document ...')
-                self.disc_doc = \
-                    yield self.__class__.disc_doc
+                self.disc_doc = yield self.disc_doc
                 messages.code_debug(code_path,
                     'Got the discovery document!')
-
-            if self.__class__.disc_doc:
-                self.__class__.disc_doc = None
-                messages.code_debug(code_path,
-                    'self.__class__.disc_doc = None')
-            
+                    
         except:
             messages.unexpected_error(
                 'controller.LoginHandler.request_disc_doc')
