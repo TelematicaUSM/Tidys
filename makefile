@@ -52,7 +52,7 @@ $(bbfoldername): bourbon
 	                                    --path=$(scsspath)
 	mv $(scsspath)/bourbon $(bbpath)
 
-css: scss $(bbfoldername) sass
+css: scss | $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \

@@ -5,18 +5,25 @@ from sys import exit
 from logging import info, debug, error, critical
 
 def closing():
-    info('%s: Closing ...', app_name)
+    info(
+        '{.app_name}: Closing ...'.format(conf)
+    )
 
 def stopped():
-    info('%s: Stopped!', app_name)
+    info(
+        '{.app_name}: Stopped!'.format(conf)
+    )
 
 def starting():
-    info('%s: Starting on port %d ...', app_name, port)
+    info(
+        '{c.app_name}: '
+        'Starting on port {c.port} ...'.format(c=conf)
+    )
 
 def wellcome():
     print(
-        'Wellcome to {.app_name}! Open {.proxy_url} in '
-        'your browser.'.format(conf)
+        'Wellcome to {c.app_name}! Open {c.proxy_url} in '
+        'your browser.'.format(c=conf)
     )
 
 def code_related_message(code_path, message, print_f=print):
