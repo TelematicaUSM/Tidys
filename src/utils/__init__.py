@@ -1,10 +1,14 @@
 # -*- coding: UTF-8 -*-
 
-def random_word(length):
+from string import ascii_letters, digits, punctuation
+from concurrent.futures import ThreadPoolExecutor
+from tornado.gen import coroutine
+
+def random_word(length,
+                charset=ascii_letters+digits+punctuation):
     from random import choice
-    from string import ascii_letters, digits, punctuation
     return ''.join(
-        choice(ascii_letters+digits+punctuation)
+        choice(charset)
         for i in range(length)
     )
 
@@ -22,3 +26,20 @@ class run_inside(object):
             
         update_wrapper(run, inner_function)
         return run
+
+class always_run_in_thread(object):
+    def __init__(self, func):
+        self.func = func
+    
+    @coroutine
+    def __call__(self, *args, **kwargs):
+        with ThreadPoolExecutor(1) as thread:
+            result = yield thread.submit(self.func, *args,
+                                         **kwargs)
+        return result
+
+@coroutine
+def run_in_thread(func, *args, **kwargs):
+    with ThreadPoolExecutor(1) as thread:
+        result = yield thread.submit(func, *args, **kwargs)
+    return result

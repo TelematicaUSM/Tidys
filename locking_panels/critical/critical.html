@@ -1,12 +1,16 @@
 {% from conf import author_email as email %}
+{% from conf import proxy_url %}
 
 <div class="box">
     <img id='critical-image'
          src="{{ make_static_url('critical.svg') }}">
     <p id="critical-text">Error!</p>
-    <p id="critical-instructions">
-        There's no way out of here DX. Please <b>reload the
-        page</b>. If the problem persists please contact
+    <p class="critical-instructions">
+        There's no way out of here DX. Please <b>try to open
+        <a href="{{ proxy_url }}">{{ proxy_url }}</a></b>.
+    </p>
+    <p class="critical-instructions">
+        If the problem persists please contact
         <a href="mailto:{{ email }}">{{ email }}</a>.
     </p>
 </div>

@@ -20,10 +20,13 @@ from src.boiler_ui_module import BoilerUIModule
 
 class GUIHandler(RequestHandler):
     def get(self):
+        messages.code_debug('controller.GUIHandler.get',
+                            'Rendering boxes.html ...')
         self.render('boxes.html')
 
 
 class LoginHandler(RequestHandler):
+    path = 'controller.LoginHandler'
     disc_doc = None     #google's discovery document
     disc_doc_client = httplib2.Http('.disc_doc.cache')
         #https://developers.google.com/api-client-library/
@@ -83,11 +86,12 @@ class LoginHandler(RequestHandler):
                 token = jwt.encode({'id': user.id,
                                     'exp': self.get_exp()},
                                    user.secret)
+                messages.code_debug(self.path+'.get',
+                    'Rendering login.html ...')
                 self.render('login.html', token=token)
-        except:
-            messages.unexpected_error(
-                'controller.LoginHandler.get')
-            raise
+        
+        except oa2_client.FlowExchangeError:
+            self.render('critical.html')
     
     def get_scheme(self):
         if 'Scheme' in self.request.headers:
@@ -118,40 +122,34 @@ class LoginHandler(RequestHandler):
                 'https://accounts.google.com/.well-known/'
                 'openid-configuration', 'GET')
             return self.decode_httplib2_json(dd)
-            
-        try:
-            if self.disc_doc == None:
-                messages.code_debug(code_path,
-                    'Requesting discovery document ...')
-                    
-                with ThreadPoolExecutor(1) as thread:
-                    self.__class__.disc_doc = thread.submit(
-                        _req_disc_doc)
-                    self.disc_doc = \
-                        yield self.__class__.disc_doc
-                    #Este yield tiene que ir dentro, ya que
-                    #el thread no se comenzará a ejecutar si
-                    #no se yieldea y no se puede comenzar a
-                    #ejecutar fuera del with ya que ahí no
-                    #existe ... o algo asi XD :C
-                    self.__class__.disc_doc = None
-                    messages.code_debug(code_path,
-                        'self.__class__.disc_doc = None')
-                    
-                messages.code_debug(code_path,
-                    'Discovery document arrived!')
+        
+        if self.disc_doc == None:
+            messages.code_debug(code_path,
+                'Requesting discovery document ...')
                 
-            else:
+            with ThreadPoolExecutor(1) as thread:
+                self.__class__.disc_doc = thread.submit(
+                    _req_disc_doc)
+                self.disc_doc = \
+                    yield self.__class__.disc_doc
+                #Este yield tiene que ir dentro, ya que el
+                #thread no se comenzará a ejecutar si no se
+                #yieldea y no se puede comenzar a ejecutar
+                #fuera del with ya que ahí no existe ... o
+                #algo asi XD :C
+                self.__class__.disc_doc = None
                 messages.code_debug(code_path,
-                    'Waiting for discovery document ...')
-                self.disc_doc = yield self.disc_doc
-                messages.code_debug(code_path,
-                    'Got the discovery document!')
-                    
-        except:
-            messages.unexpected_error(
-                'controller.LoginHandler.request_disc_doc')
-            raise
+                    'self.__class__.disc_doc = None')
+                
+            messages.code_debug(code_path,
+                'Discovery document arrived!')
+            
+        else:
+            messages.code_debug(code_path,
+                'Waiting for discovery document ...')
+            self.disc_doc = yield self.disc_doc
+            messages.code_debug(code_path,
+                'Got the discovery document!')
 
     def decode_httplib2_json(self, response):
         return json.loads(
@@ -163,6 +161,7 @@ class MSGHandler(WebSocketHandler):
     wsclasses = []
     clients = set()
     client_count = 0
+    path = 'controller.MSGHandler'
 
     @classmethod
     def add_class(cls, wsclass):
@@ -180,8 +179,12 @@ class MSGHandler(WebSocketHandler):
             self.actions[msg_type] = {action}
     
     def open(self):
-        messages.code_debug('controller.MSGHandler.open',
-                   'New connection established!')
+        messages.code_debug(
+            self.path+'.open',
+            'New connection established! %s (%s)' %
+                (self, self.request.remote_ip)
+        )
+            
         self.actions = {}
         self.wsobjects = [wsclass(self)
                           for wsclass in self.wsclasses]
@@ -189,8 +192,8 @@ class MSGHandler(WebSocketHandler):
         self.__class__.client_count += 1
 
     def on_message(self, message):
-        messages.code_debug('controller.MSGHandler.on_message',
-                   'Message arrived: %r.' % message)
+        messages.code_debug(self.path+'.on_message',
+            'Message arrived: %r.' % message)
               
         message = json.loads(message)
         
@@ -199,6 +202,12 @@ class MSGHandler(WebSocketHandler):
     
     def on_close(self):
         MSGHandler.clients.remove(self)
+        
+        messages.code_debug(
+            self.path+'.on_close',
+            'Connection closed! %s (%s)' %
+                (self, self.request.remote_ip)
+        )
 
 
 try:

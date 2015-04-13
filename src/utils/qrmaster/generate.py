@@ -8,6 +8,7 @@ from tornado.template import Template
 def generate(codes, output_path = './qrmaster',
              url='http://test.com', title='',
              img_path=None):
+    """codes are tuples in the form: (code, id)"""
     
     module_path, _ = path.split(__file__)
     css_file_name = 'style.css'
@@ -31,20 +32,21 @@ def generate(codes, output_path = './qrmaster',
     
     copyfile(css_path, o_css_path)
         
-    urls = {}
+    data = []
     for c in codes:
         qr = qrcode.QRCode(
             version = 1,
             box_size = 5,
             border = 0,
-            error_correction=
-                qrcode.constants.ERROR_CORRECT_H,
+            error_correction = 
+                qrcode.constants.ERROR_CORRECT_H
         )
-        full_url = urljoin(url, c)
-        urls[c] = full_url
+        full_url = urljoin(url, c[0])
+        c.append(full_url)
+        data.append(c)
         qr.add_data(full_url)
         qr.make()
-        qr_path = path.join(files_path, c+'.svg')
+        qr_path = path.join(files_path, c[0]+'.svg')
         qr.make_image(
             image_factory=qrcode.image.svg.SvgImage).save(
                 qr_path)
@@ -52,9 +54,10 @@ def generate(codes, output_path = './qrmaster',
     with open(template_path, 'r') as f:
         tmp = f.read()
         
-    html = Template(tmp).generate(urls=urls,
-        files_path=files_path, title=title,
-        img_path=img_file_name)
+    html = Template(tmp).generate(data=data,
+                                  files_path=files_path,
+                                  title=title,
+                                  img_path=img_file_name)
     
     with open(output_file, 'w') as f:
         f.write(

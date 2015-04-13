@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 
 from tornado.gen import coroutine
-from src import messages
 from src.utils import random_word
 from .common import db
 from .db_object import DBObject
@@ -27,20 +26,14 @@ class User(DBObject):
                          117984339433749478236',
              'sub': '117984339433749478236'}"""
              
-        try:
-            yield cls.coll.update(
-                {'_id': userinfo['sub']},
-                {
-                    '$set': {'google_userinfo': userinfo}
-                },
-                upsert = True)
-            self = yield cls(userinfo['sub'])
-            return self
-        
-        except:
-            messages.unexpected_error(
-                'src.db.user.User.from_google_userinfo')
-            raise
+        yield cls.coll.update(
+            {'_id': userinfo['sub']},
+            {
+                '$set': {'google_userinfo': userinfo}
+            },
+            upsert = True)
+        self = yield cls(userinfo['sub'])
+        return self
     
     def __str__(self):
         return self.name

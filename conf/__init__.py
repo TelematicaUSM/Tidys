@@ -1,8 +1,10 @@
 # -*- coding: UTF-8 -*-
 
+from urllib.parse import urlunparse
 from . import log
 
 app_name = 'ArtificialAlan'
+app_logo_path = './art/favicon/2logo.png'
 author = 'Cristóbal Ganter'
 author_email = 'cganterh@gmail.com'
 debug = True
@@ -11,6 +13,11 @@ port = 52002
 proxy_scheme = 'http'
 proxy_host = 'mem.zoro.cganterh.net'
 proxy_port = None
+_netloc = proxy_host + (':' + str(proxy_port)
+                        if proxy_port else '')
+proxy_url = urlunparse(
+    (proxy_scheme, _netloc, '', '', '', '')
+)
 
 #CLIENT SPECIFIC:
 ws_scheme = 'ws'

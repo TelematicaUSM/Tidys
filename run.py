@@ -3,8 +3,8 @@
 def start():
     global ioloop, t
     import controller
-    from tornado.ioloop import IOLoop
     from threading import Thread
+    from tornado.ioloop import IOLoop
     from src import messages
     
     messages.starting()
@@ -30,6 +30,7 @@ def stop():
 
 if __name__ == "__main__":
     from src.utils import run_inside
+    from tornado.gen import coroutine
     
     start()
 
@@ -77,3 +78,34 @@ if __name__ == "__main__":
     def bcast(message):
         from controller import MSGHandler
         MSGHandler.broadcast(message)
+
+    @run_inside(ioloop.add_callback)
+    @coroutine
+    def add_room(room_name, svg_path,
+                 output_path='./qrmaster'):
+        import src.utils.qrmaster as qrm
+        from pymongo.errors import DuplicateKeyError, \
+                                   OperationFailure
+        from conf import app_name, proxy_url, \
+                         app_logo_path
+        from src.db.room import Room, CodeType
+        from src import messages as msg
+        
+        try:
+            _, code_objs = yield Room.create(room_name,
+                                         svg_path)
+            codes = (
+                [
+                    c.id,
+                    c.room_id if c.code_type ==
+                    CodeType.room.value else c.seat_id
+                ]
+                for c in code_objs
+            )
+            qrm.generate(codes, url=proxy_url,
+                         title=app_name,
+                         img_path=app_logo_path,
+                         output_path=output_path)
+            
+        except OperationFailure:
+            pass

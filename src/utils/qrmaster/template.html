@@ -8,17 +8,19 @@
     </head>
 
     <body>
-        {% for key in urls %}
+        {% for d in data %}
             <div class="sticker">
                 <img class="qr"
                      src="{{
-                        path.join('qrmaster', key+'.svg')
+                        path.join('qrmaster', d[0]+'.svg')
                      }}">
                 <div class="info">
                     {% if title %}
-                        <h1 id=title>{{ title }}</h1>
+                        <h1 id=title>
+                            {{ title }} ({{d[1]}})
+                        </h1>
                     {% end %}
-                    <p>{{ urls[key] }}</p>
+                    <p>{{ d[2] }}</p>
                     {% if img_path %}
                         <img class="image"
                              src="{{ img_path }}">
