@@ -11,12 +11,12 @@
                              $c-control-face-dark);
     @include align-items(center);
     @include justify-content(space-between);
-    
-    h1 {
-        @include flex-grow(1);
-        text-align: center;
-        font-size: 1rem;
-    }
+}
+
+#header-title {
+    @include flex-grow(1);
+    text-align: center;
+    font-size: 1rem;
 }
 
 .panel {
@@ -24,10 +24,19 @@
     background-color: transparent;
 }
 
+.panel-title {
+    width: 100%;
+    background-color: $c-panel-title;
+    padding: $panel-title-padding;
+    font-size: $panel-title-font-size;
+    line-height: $panel-title-font-size;
+    color: $c-white-font;
+}
+
 .scrolling-panel {
     @extend .panel;
-    @include position(absolute, $header-height 0px null 0px);
-
+    @include position(absolute, $header-height 0px null
+                      0px);
 }
 
 .fixed-panel {

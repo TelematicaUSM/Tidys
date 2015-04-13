@@ -5,6 +5,11 @@ $font-alpha: 0.7;
 $em-base: 10px;
 $header-height: rem(30);
 
+$panel-title-padding: 0.7rem;
+$panel-title-font-size: 1.3rem;
+$panel-title-height: 2*$panel-title-padding +
+                     $panel-title-font-size;
+
 //COLORS
 $c-background: white;
 $c-control-face: lighten(#dfdfdf, 10%);
@@ -15,6 +20,9 @@ $c-white-font: rgba(white, $font-alpha);
     $c-control-face-light: lighten($c-control-face, 5%);
     $c-control-face-dark: darken($c-control-face, 5%);
     $c-control-border: darken($c-control-face, 20%);
+
+    //panels
+    $c-panel-title: #78a4d7;
 
 //Z INDEXES
 $zi-header: 5000;
