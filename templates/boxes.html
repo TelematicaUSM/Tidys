@@ -31,14 +31,6 @@
     {% from locking_panels import boiler_ui_modules as \
        locking_panels %}
     
-    {% for locking_panel in locking_panels %}
-        <div class="{{ locking_panel._class }}
-                    locking_panel"
-             id="{{ locking_panel._id }}">
-            {% module UIModuleLoader(locking_panel) %}
-        </div>
-    {% end %}
-    
     {{ add_ext_file('js/bubble.js') }}
     <div id="message-bubble">Message Bubble</div>
     
@@ -52,9 +44,17 @@
             </button>
         {% end %}
     </nav>
+    
+    {% for locking_panel in locking_panels %}
+        <div class="{{ ' '.join(locking_panel.classes) }}
+                    locking_panel"
+             id="{{ locking_panel._id }}">
+            {% module UIModuleLoader(locking_panel) %}
+        </div>
+    {% end %}
 
     {% for panel in panels %}
-        <section class="{{ panel._class }}"
+        <section class="{{ ' '.join(panel.classes) }}"
                  id="{{ panel._id }}">
             <h1 class="panel-title">{{ panel.name }}</h1>
             {% module UIModuleLoader(panel) %}

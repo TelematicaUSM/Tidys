@@ -3,7 +3,7 @@ import src
 
 class UI(src.boiler_ui_module.BoilerUIModule):
     _id = 'red_black_echo'
-    _class = 'scrolling-panel'
+    classes = ('scrolling-panel',)
     name = 'Red-Black Echo'
     conf = {
         'static_url_prefix': '/rbe/',

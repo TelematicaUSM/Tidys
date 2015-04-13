@@ -22,7 +22,7 @@
     @extend %texts;
 }
 
-#critical-instructions {
+.critical-instructions {
     @extend %texts;
     text-align: justify;
 }

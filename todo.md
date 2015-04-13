@@ -1,1 +1,1 @@
--   switch to ecmascript 6
+-   Switch to ecmascript 6.

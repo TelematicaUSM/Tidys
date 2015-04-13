@@ -79,7 +79,7 @@ css: scss $(bbfoldername) sass
 coffee-script bower: dependencies
 	npm install $@
 
-reconnecting-websocket.js: bower | js
+reconnecting-websocket.js: | bower js
 	$(nmodulespath)/bower/bin/bower install reconnectingWebsocket
 	cd $(jspath) && ln -s ../../$(bowerfolder)/reconnectingWebsocket/reconnecting-websocket.js \
 	                      reconnecting-websocket.js
