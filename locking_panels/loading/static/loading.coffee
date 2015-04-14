@@ -1,7 +1,12 @@
 loading_text = document.getElementById 'loading-text'
 promise_num = 0
 @load_promise = null
-resolve_load_promise = null
+resolveLoadPromise = null
+
+origHideLoadingFunction = ->
+    activatePanels()
+
+hideLoading = origHideLoadingFunction
 
 checkPromiseNum = ->
     if promise_num < 0
@@ -9,19 +14,13 @@ checkPromiseNum = ->
                               registered in this module
                               cannot be negative!")
 
-origHideLoadingFunction = ->
-    activatePanels()
-
-hideLoading = origHideLoadingFunction
-
-resolvePromise = ->
+resolvePromise = =>
     promise_num--
     checkPromiseNum()
     unless promise_num
-        hideLoading()
-        resolve_load_promise()
-        load_promise = null
-        resolve_load_promise = null
+        resolveLoadPromise()
+        @load_promise = null
+        resolveLoadPromise = null
 
 addPromise = (promise) ->
     promise.then resolvePromise, resolvePromise
@@ -29,7 +28,7 @@ addPromise = (promise) ->
     checkPromiseNum()
 
 @showLoading = (message='Loading ...', promise=null,
-                min_time=5000) ->
+                min_time=5000) =>
     unless promise_num
         switchToPanel('loading-panel')
         addPromise(
@@ -38,10 +37,11 @@ addPromise = (promise) ->
                     setTimeout resolve, min_time
             )
         )
-        load_promise = new Promise(
+        @load_promise = new Promise(
             (resolve, reject) ->
-                resolve_load_promise = resolve
+                resolveLoadPromise = resolve
         )
+        @load_promise.then(hideLoading)
     
     addPromise promise if promise
     loading_text.innerHTML = message
