@@ -9,3 +9,8 @@ def add_module_file(handler, filename):
         handler.module_files = []
     handler.module_files.append(filename)
     return ''
+
+def filter_classes(handler, iterable, classes):
+    return list(
+        filter(lambda i: i.classes & classes, iterable)
+    )

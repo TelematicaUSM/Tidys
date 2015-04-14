@@ -1,4 +1,4 @@
-{% from conf import app_name%}
+{% from conf import app_name, login_path%}
 
 <section class="box">
     <h1 class="box-title">{{ app_name }}</h1>
@@ -6,14 +6,14 @@
         Aqui va la descripción de la aplicación. Me dió lata
         hacerla XD.
     </p>
-    <form action="login" method="GET">
+    <form action="{{ login_path }}" method="GET">
         <div>
             <input type="checkbox" id="remember"
                    name="remember" value="True">
             <label for="remember">Recordarme</label>
         </div>
         <input type="submit" id="google-login-button"
-               value="Login con Google">
+               value="Ingresar con Google">
     </form>
 </section>
 

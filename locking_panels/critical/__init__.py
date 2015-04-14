@@ -4,7 +4,7 @@ import src
 class CriticalLockingPanel(
         src.boiler_ui_module.BoilerUIModule):
     _id = 'critical-panel'
-    classes = ('scrolling-panel',)
+    classes = {'scrolling-panel', 'system-panel'}
     conf = {
         'static_url_prefix': '/critical/',
         'static_path': './locking_panels/critical/static',

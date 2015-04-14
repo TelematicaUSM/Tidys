@@ -19,7 +19,7 @@ from src.boiler_ui_module import BoilerUIModule
 
 
 class GUIHandler(RequestHandler):
-    def get(self):
+    def get(self, code):
         messages.code_debug('controller.GUIHandler.get',
                             'Rendering boxes.html ...')
         self.render('boxes.html')
@@ -37,7 +37,7 @@ class LoginHandler(RequestHandler):
         try:
             redirect_uri = urlunparse(
                 (self.get_scheme(), self.request.host,
-                 'login', '', '', '')
+                 conf.login_path, '', '', '')
             )
             #remember the user for a longer period of time
             remember = self.get_argument('remember',
@@ -219,9 +219,9 @@ try:
         google_secrets = json.load(f)
 
     app = Application(
-        [('/$', GUIHandler),
-         ('/ws$', MSGHandler),
-         ('/login$', LoginHandler),],
+        [('/ws$', MSGHandler),
+         ('/{.login_path}$'.format(conf), LoginHandler),
+         ('/([0-9a-z]{5})?$', GUIHandler),],
         debug = conf.debug,
         static_path = './static',
         template_path = './templates',

@@ -4,7 +4,7 @@ import src
 class LoadingLockingPanel(
         src.boiler_ui_module.BoilerUIModule):
     _id = 'loading-panel'
-    classes = ('scrolling-panel',)
+    classes = {'scrolling-panel', 'system-panel'}
     conf = {
         'static_url_prefix': '/loading/',
         'static_path': './locking_panels/loading/static',

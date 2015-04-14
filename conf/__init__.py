@@ -9,6 +9,7 @@ author = 'Cristóbal Ganter'
 author_email = 'cganterh@gmail.com'
 debug = True
 port = 52002
+login_path = 'signin'
 
 proxy_scheme = 'http'
 proxy_host = 'mem.zoro.cganterh.net'
