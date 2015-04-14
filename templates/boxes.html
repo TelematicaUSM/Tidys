@@ -28,7 +28,7 @@
     {% from locking_panels import boiler_ui_modules as \
        locking_panels %}
     
-    {% if 'classes' in globals() %}
+    {% if 'classes' in globals() and classes %}
         {% set panels = filter_classes(panels, classes) %}
             
         {% set locking_panels = \
@@ -76,7 +76,7 @@
         {% end %}
         
         {% if 'room_code' in globals() %}
-            room_code = {{ room_code }}
+            room_code = '{{ room_code }}'
         {% end %}
     </script>
 

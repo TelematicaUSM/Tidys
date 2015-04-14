@@ -19,11 +19,30 @@ from src.boiler_ui_module import BoilerUIModule
 
 
 class GUIHandler(RequestHandler):
-    def get(self, code):
-        messages.code_debug('controller.GUIHandler.get',
-                            'Rendering boxes.html ...')
-        self.render('boxes.html')
-
+    @coroutine
+    def get(self, room_code):
+        try:
+            classes = {'system-panel'}
+            
+            if room_code:
+                c = yield db.Code(room_code)
+                if c.code_type is db.CodeType.room:
+                    classes.add('teacher-panel')
+                else:
+                    classes.add('student-panel')
+            else:
+                classes.update({'teacher-panel',
+                                'student-panel'})
+                
+            messages.code_debug('controller.GUIHandler.get',
+                                'Rendering boxes.html ...')
+            self.render('boxes.html', classes=classes,
+                        room_code=room_code)
+            
+        except db.NoObjectReturnedFromDB:
+            self.render('boxes.html',
+                critical='El código escaneado no está '
+                         'registrado!')
 
 class LoginHandler(RequestHandler):
     path = 'controller.LoginHandler'

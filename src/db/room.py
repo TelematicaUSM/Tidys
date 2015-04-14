@@ -164,3 +164,7 @@ class Code(DBObject):
             room = yield Room(self.room_id)
             self.setattr('_room', room)
         return self._room
+    
+    @property
+    def code_type(self):
+        return CodeType(self._data['code_type'])
