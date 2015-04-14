@@ -43,7 +43,6 @@
     @extend .panel;
     @include position(absolute, $header-height 0px null
                       0px);
-
 }
 
 .fixed-panel {
