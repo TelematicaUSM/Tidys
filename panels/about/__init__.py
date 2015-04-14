@@ -3,7 +3,7 @@ import src
 
 class UI(src.boiler_ui_module.BoilerUIModule):
     _id = 'about'
-    classes = ('scrolling-panel',)
+    classes = {'scrolling-panel', 'info-panel'}
     name = 'About'
     
     def render(self):

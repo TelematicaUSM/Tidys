@@ -3,7 +3,7 @@ import src
 
 class Layout(src.boiler_ui_module.BoilerUIModule):
     _id = 'layout'
-    classes = ('fixed-panel',)
+    classes = {'fixed-panel'}
     name = 'Layout'
     conf = {
         'static_url_prefix': '/layout/',

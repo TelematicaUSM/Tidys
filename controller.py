@@ -10,8 +10,12 @@ from logging import debug
 
 
 class GUIHandler(RequestHandler):
-    def get(self):
-        self.render('boxes.html')
+    def get(self, _class):
+        if _class:
+            self.render('boxes.html',
+                        classes={_class, 'system-panel'})
+        else:
+            self.render('boxes.html')
 
 
 class MSGHandler(WebSocketHandler):
@@ -57,8 +61,8 @@ class MSGHandler(WebSocketHandler):
 
 
 app = Application(
-    [('/$', GUIHandler),
-     ('/ws$', MSGHandler)],
+    [('/ws$', MSGHandler),
+     ('/(.*)$', GUIHandler),],
     debug = conf.debug,
     static_path = './static',
     template_path = './templates',

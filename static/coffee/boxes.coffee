@@ -77,8 +77,11 @@ content_shade.origZIndex = parseInt(
 
 @activatePanels = ->
     return if lock_panels
-    activateMainMenu()
-    switchToPanel main_menu_items[0].dataset.panelId
+    if main_menu_items[0]?
+        switchToPanel main_menu_items[0].dataset.panelId
+    else
+        activateMainMenu()
+        hideAllPanels()
 
 @deactivatePanels = ->
     return if lock_panels
