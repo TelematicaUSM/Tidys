@@ -1,13 +1,11 @@
 {% import conf %}
-{% from collections import ChainMap %}
 
 <!DOCTYPE html>
 
 <html>
     <head>
         {% block window_title %}
-            {% if 'window_title' in ChainMap(globals(),
-                                             locals()) %}
+            {% if 'window_title' in globals() %}
                 <title>{{ window_title }}</title>
             {% else %}
                 <title>{{ conf.app_name }}</title>
@@ -45,8 +43,7 @@
     
     <body>
         {% block body %}
-            {% if 'content' in ChainMap(globals(),
-                                        locals()) %}
+            {% if 'content' in globals() %}
                 {% if raw_content %}
                     {% raw content %}
                 {% else %}

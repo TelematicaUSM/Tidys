@@ -91,7 +91,8 @@ class LoginHandler(RequestHandler):
                 self.render('login.html', token=token)
         
         except oa2_client.FlowExchangeError:
-            self.render('critical.html')
+            self.render('boxes.html',
+                        critical='Error de autenticación!')
     
     def get_scheme(self):
         if 'Scheme' in self.request.headers:

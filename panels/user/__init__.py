@@ -7,7 +7,7 @@ from src.db import User, NoObjectReturnedFromDB
 
 class UserPanel(src.boiler_ui_module.BoilerUIModule):
     _id = 'user-panel'
-    _class = 'scrolling-panel'
+    classes = ('scrolling-panel',)
     name = 'Usuario'
     conf = {
         'static_url_prefix': '/user/',

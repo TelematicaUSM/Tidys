@@ -1,39 +1,49 @@
 loading_text = document.getElementById 'loading-text'
 promise_num = 0
-
-check_promise_num = ->
-    if promise_num < 0
-        throw new RangeError("The number of promises
-                              registered in this module
-                              cannot be negative!")
+@load_promise = null
+resolveLoadPromise = null
 
 origHideLoadingFunction = ->
     activatePanels()
 
 hideLoading = origHideLoadingFunction
 
-resolve_promise = ->
-    promise_num--
-    check_promise_num()
-    hideLoading() unless promise_num
+checkPromiseNum = ->
+    if promise_num < 0
+        throw new RangeError("The number of promises
+                              registered in this module
+                              cannot be negative!")
 
-add_promise = (promise) ->
-    promise.then resolve_promise, resolve_promise
+resolvePromise = =>
+    promise_num--
+    checkPromiseNum()
+    unless promise_num
+        resolveLoadPromise()
+        @load_promise = null
+        resolveLoadPromise = null
+
+addPromise = (promise) ->
+    promise.then resolvePromise, resolvePromise
     promise_num++
-    check_promise_num()
+    checkPromiseNum()
 
 @showLoading = (message='Loading ...', promise=null,
-                min_time=5000) ->
+                min_time=5000) =>
     unless promise_num
         switchToPanel('loading-panel')
-        add_promise(
+        addPromise(
             new Promise(
                 (resolve, reject) ->
                     setTimeout resolve, min_time
             )
         )
+        @load_promise = new Promise(
+            (resolve, reject) ->
+                resolveLoadPromise = resolve
+        )
+        @load_promise.then(hideLoading)
     
-    add_promise promise if promise
+    addPromise promise if promise
     loading_text.innerHTML = message
 
 @setHideLoadingFunction = (func) ->

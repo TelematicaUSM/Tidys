@@ -5,24 +5,20 @@
     
     <header id="app-header">
         {% block header %}
-            {% if 'header_title' in ChainMap(globals(),
-                                             locals()) %}
-                <h1 id='header-title'>
+            <h1 id="header-title">
+                {% if 'header_title' in globals() %}
                     {{ header_title }}
-                </h1>
-            {% else %}
-                <h1 id='header-title'>
+                {% else %}
                     {{ conf.app_name }}
-                </h1>
-            {% end %}
+                {% end %}
+            </h1>
         {% end %}
     </header>
 
     {% block free_content %}
         <section id="content" class="scrolling-panel">
             {% block content %}
-                {% if 'content' in ChainMap(globals(),
-                                            locals()) %}
+                {% if 'content' in globals() %}
                     {% if raw_content %}
                         {% raw content %}
                     {% else %}

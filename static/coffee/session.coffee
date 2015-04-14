@@ -18,3 +18,10 @@ if localStorage.sessionToken?
             'token': localStorage.sessionToken
 else
     showHome()
+
+ws.getMessagePromise('tokenOk').then ->
+    ws.sendJSON
+        'type': 'roomCode'
+        'room_code': room_code
+
+ws.addMessageListener 'roomOk', ()->return

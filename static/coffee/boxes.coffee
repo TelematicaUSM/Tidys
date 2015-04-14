@@ -77,7 +77,7 @@ content_shade.origZIndex = parseInt(
 
 @activatePanels = ->
     return if lock_panels
-    activateMainMenu()
+    #activateMainMenu() #this should be removed
     switchToPanel main_menu_items[0].dataset.panelId
 
 @deactivatePanels = ->
