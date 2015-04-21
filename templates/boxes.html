@@ -71,15 +71,16 @@
     {% module Template('js.html', src='js/boxes.js') %}
 
     <script type="text/javascript">
-        {% if 'critical' in globals() %}
+        {% if 'critical' in globals() and critical %}
             showCritical('{{ critical }}')
         {% end %}
         
-        {% if 'room_code' in globals() %}
+        {% if 'room_code' in globals() and room_code %}
             room_code = '{{ room_code }}'
         {% end %}
     </script>
 
+    {% module Template('js.html', src='js/utils.js') %}
     {% module Template('js.html', src='js/ws.js') %}
     {% module Template('js.html', src='js/session.js') %}
 {% end %}

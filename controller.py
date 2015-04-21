@@ -24,20 +24,22 @@ class GUIHandler(RequestHandler):
         try:
             classes = {'system-panel'}
             
+            messages.code_debug('controller.GUIHandler.get',
+                                'Rendering boxes.html ...')
             if room_code:
                 c = yield db.Code(room_code)
                 if c.code_type is db.CodeType.room:
                     classes.add('teacher-panel')
                 else:
                     classes.add('student-panel')
+                    
+                self.render('boxes.html', classes=classes,
+                            room_code=room_code)
             else:
                 classes.update({'teacher-panel',
                                 'student-panel'})
+                self.render('boxes.html', classes=classes)
                 
-            messages.code_debug('controller.GUIHandler.get',
-                                'Rendering boxes.html ...')
-            self.render('boxes.html', classes=classes,
-                        room_code=room_code)
             
         except db.NoObjectReturnedFromDB:
             self.render('boxes.html',
@@ -214,11 +216,40 @@ class MSGHandler(WebSocketHandler):
     def on_message(self, message):
         messages.code_debug(self.path+'.on_message',
             'Message arrived: %r.' % message)
-              
-        message = json.loads(message)
         
-        for action in self.actions[message['type']]:
-            action(message)
+        try:
+            message = json.loads(message)
+            
+            for action in self.actions[message['type']]:
+                action(message)
+        
+        except KeyError:
+            if 'type' in message:
+                self.send_error('wrongMessageType', message,
+                                'The client has sent a '
+                                'message of an '
+                                'unrecognized type.')
+            else:
+                self.send_malformed_message_error(message)
+                 
+        except ValueError:
+            self.send_malformed_message_error(message)
+    
+    def send_error(self, critical_type, message,
+                   description):
+        self.write_message({'type': 'critical',
+                            'critical_type': critical_type,
+                            'message': message,
+                            'description': description})
+    
+    def send_malformed_message_error(self, message):
+        self.send_error('malformedMessage', message,
+                        "The client has sent a message "
+                        "which either isn't in JSON "
+                        "format, does not have a 'type' "
+                        "field or at least one attribute "
+                        "is not consistent with the "
+                        "others.")
     
     def on_close(self):
         MSGHandler.clients.remove(self)

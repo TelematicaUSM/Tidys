@@ -12,6 +12,7 @@ secrets.json
 /env/
 /gems/
 /secrets/
+/secrets_robin/
 /qrmaster/
 /make_empty_targets/
 /node_modules/

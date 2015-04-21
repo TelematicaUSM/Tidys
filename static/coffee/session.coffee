@@ -4,6 +4,10 @@
     delete localStorage.sessionToken
     showHome()
 
+token_message =
+    'type': 'sessionToken',
+    'token': localStorage.sessionToken
+
 #SETUP
 
 ws.addMessageListener 'logout', logout
@@ -11,17 +15,15 @@ ws.addMessageListener 'logout', logout
 if localStorage.sessionToken?
     showLoading('Autenticando ...',
                 ws.getMessagePromise 'tokenOk')
-
-    ws.open_promise.then ->
-        ws.sendJSON
-            'type': 'sessionToken'
-            'token': localStorage.sessionToken
+    
+    ws.sendJSONIfOpen token_message
+    ws.addEventListener 'open', ->
+        ws.sendJSON token_message
 else
     showHome()
 
-ws.getMessagePromise('tokenOk').then ->
-    ws.sendJSON
-        'type': 'roomCode'
-        'room_code': room_code
-
-ws.addMessageListener 'roomOk', ()->return
+ws.addMessageListener 'tokenOk', ->
+    if room_code?
+        ws.sendJSON
+            'type': 'roomCode'
+            'room_code': room_code
