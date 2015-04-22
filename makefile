@@ -22,11 +22,11 @@ bbpath = $(scsspath)/$(bbfoldername)
 nmodulespath = ./node_modules
 
 bowerpath = ./bower_components
-bowerbin = $(nmodulespath)/bower/bin/bower
+bowercmd = $(nmodulespath)/bower/bin/bower
 
 VPATH = static $(gembin) $(scsspath) $(nmodulespath) \
         env/lib/python3.4/site-packages \
-        make_empty_targets $(bowerpath)
+        make_empty_targets $(csspath)
 
 make_empty_targets:
 	mkdir make_empty_targets
@@ -65,8 +65,8 @@ bower: | dependencies
 	npm install $@
 
 normalize.css: | css bower
-	$(bowerbin) install $@
-	mv $(bowerpath)/$@/$@ $(csspath)/$@
+	$(bowercmd) install $@
+	cd $(csspath) && ln -s ../../$(bowerpath)/$@/$@ $@
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
 	clean
