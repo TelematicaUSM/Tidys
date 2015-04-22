@@ -19,9 +19,12 @@ sasscmd = $(gembin)/sass
 bbfoldername = bourbon_files
 bbpath = $(scsspath)/$(bbfoldername)
 
-nmodulesfolder = node_modules
-bowerfolder = bower_components
-nmodulespath = ./$(nmodulesfolder)
+~~nmodulesfolder = node_modules~~
+~~bowerfolder = bower_components~~
+nmodulespath = ./node_modules
+
+bowerpath = ./bower_components
+bowercmd = $(nmodulespath)/bower/bin/bower
 
 jspath = static/js
 coffeepaths = $(jspath) static/coffee
@@ -39,9 +42,9 @@ make_iterate_over_d = for d in */ ; \
                       done
 clean: sub_target = clean
 
-VPATH = static $(gembin) $(scsspath) $(nmodulesfolder) \
+VPATH = static $(gembin) $(scsspath) $(nmodulespath) \
         $(jspath) env/lib/python3.4/site-packages \
-        make_empty_targets
+        make_empty_targets $(csspath)
 
 make_empty_targets:
 	mkdir make_empty_targets
@@ -49,8 +52,8 @@ make_empty_targets:
 dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
-	                     build-essential ruby npm curl screen
-	-sudo ln -s /usr/bin/nodejs /usr/bin/node
+	                     build-essential ruby npm curl \
+	                     screen nodejs-legacy
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
@@ -79,18 +82,21 @@ css: scss | $(bbfoldername) sass
 coffee-script bower: dependencies
 	npm install $@
 
+normalize.css: | css bower
+	$(bowercmd) install $@
+	cd $(csspath) && ln -s ../../$(bowerpath)/$@/$@ $@
+
 reconnecting-websocket.js: | bower js
 	$(nmodulespath)/bower/bin/bower install reconnectingWebsocket
-	cd $(jspath) && ln -s ../../$(bowerfolder)/reconnectingWebsocket/reconnecting-websocket.js \
-	                      reconnecting-websocket.js
+	cd $(jspath) && ln -s ../../$(bowerfolder)/reconnectingWebsocket/$@ $@
 
-js: coffee-script coffee
-	$(nmodulespath)/coffee-script/bin/coffee $(coffeeoptions) $(coffeepaths)
+js: coffee | coffee-script
+	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
-	jswatch djswatch clean publish panels notifications locking_panels
+	jswatch djswatch clean panels notifications locking_panels
 
-run: dependencies tornado css js reconnecting-websocket.js panels notifications locking_panels
+run: dependencies tornado css normalize.css js reconnecting-websocket.js panels notifications locking_panels
 	$(python) -i $(program)
 
 srun:
@@ -128,12 +134,9 @@ djswatch:
 	screen -d -m -S $(dir_name)_coffee $(MAKE) jswatch
 
 clean:
-	rm -rf $(bowerfolder) env $(nmodulesfolder) \
+	rm -rf $(bowerpath) env $(nmodulesfolder) \
 	       __pycache__ $(csspath) $(jspath) $(gempath) \
 	       log.log $(bbpath) virtualenv
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
 	-cd locking_panels && $(make_iterate_over_d)
-
-publish:
-	git push $(pub_remote)
