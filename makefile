@@ -19,9 +19,14 @@ sasscmd = $(gembin)/sass
 bbfoldername = bourbon_files
 bbpath = $(scsspath)/$(bbfoldername)
 
-VPATH = static $(gembin) $(scsspath) \
-        env/lib/python3.4/site-packages make_empty_targets
+nmodulespath = ./node_modules
 
+bowerpath = ./bower_components
+bowerbin = $(nmodulespath)/bower/bin/bower
+
+VPATH = static $(gembin) $(scsspath) $(nmodulespath) \
+        env/lib/python3.4/site-packages \
+        make_empty_targets $(bowerpath)
 
 make_empty_targets:
 	mkdir make_empty_targets
@@ -29,7 +34,8 @@ make_empty_targets:
 dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
-	                     build-essential ruby curl screen
+	                     build-essential ruby npm curl \
+	                     screen nodejs-legacy
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
@@ -55,10 +61,17 @@ $(bbfoldername): bourbon
 css: scss | $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
-.PHONY: run srun drun testenv attach csswatch dcsswatch \
-	clean publish
+bower: | dependencies
+	npm install $@
 
-run: dependencies tornado css
+normalize.css: | css bower
+	$(bowerbin) install $@
+	mv $(bowerpath)/$@/$@ $(csspath)/$@
+
+.PHONY: run srun drun testenv attach csswatch dcsswatch \
+	clean
+
+run: dependencies tornado css normalize.css
 	$(python) -i $(program)
 
 srun:
@@ -80,8 +93,6 @@ dcsswatch:
 	screen -d -m -S $(dir_name)_sass $(MAKE) csswatch
 
 clean:
-	rm -rf env __pycache__ $(csspath) $(gempath) \
+	rm -rf $(bowerpath) env $(nmodulespath) \
+	       __pycache__ $(csspath) $(gempath) \
 	       log.log $(bbpath) virtualenv
-
-publish:
-	git push $(pub_remote)
