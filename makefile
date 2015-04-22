@@ -19,8 +19,6 @@ sasscmd = $(gembin)/sass
 bbfoldername = bourbon_files
 bbpath = $(scsspath)/$(bbfoldername)
 
-~~nmodulesfolder = node_modules~~
-~~bowerfolder = bower_components~~
 nmodulespath = ./node_modules
 
 bowerpath = ./bower_components
@@ -79,7 +77,7 @@ $(bbfoldername): bourbon
 css: scss | $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
-coffee-script bower: dependencies
+coffee-script bower: | dependencies
 	npm install $@
 
 normalize.css: | css bower
@@ -87,8 +85,8 @@ normalize.css: | css bower
 	cd $(csspath) && ln -s ../../$(bowerpath)/$@/$@ $@
 
 reconnecting-websocket.js: | bower js
-	$(nmodulespath)/bower/bin/bower install reconnectingWebsocket
-	cd $(jspath) && ln -s ../../$(bowerfolder)/reconnectingWebsocket/$@ $@
+	$(bowercmd) install reconnectingWebsocket
+	cd $(jspath) && ln -s ../../$(bowerpath)/reconnectingWebsocket/$@ $@
 
 js: coffee | coffee-script
 	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
@@ -119,7 +117,7 @@ attach:
 
 #Upstream Merge
 upsm:
-	git pull --no-commit cganterh.net:git/tornadoBoiler.git
+	git pull --no-commit --no-rebase cganterh.net:git/tornadoBoiler.git
 
 csswatch: scss $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --watch $(sasspaths)
@@ -134,7 +132,7 @@ djswatch:
 	screen -d -m -S $(dir_name)_coffee $(MAKE) jswatch
 
 clean:
-	rm -rf $(bowerpath) env $(nmodulesfolder) \
+	rm -rf $(bowerpath) env $(nmodulespath) \
 	       __pycache__ $(csspath) $(jspath) $(gempath) \
 	       log.log $(bbpath) virtualenv
 	-cd panels && $(make_iterate_over_d)

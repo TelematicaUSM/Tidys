@@ -17,3 +17,5 @@ __pycache__/
 *.pyc
 *.orig
 *.map
+*.js
+*.css

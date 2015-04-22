@@ -1,1 +1,4 @@
 -   Switch to ecmascript 6.
+-   Include utils.coffee from artificialAlan.
+-   Update ws.coffee from artificialAlan.
+-   Update MSGHandler from artificialAlan.
