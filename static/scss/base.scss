@@ -1,14 +1,18 @@
 @import "bourbon_files/bourbon";
 @import "constants";
 
-* {
-    box-sizing: border-box;
-    margin: 0rem;
-    padding: 0rem;
+html {
+  box-sizing: border-box;
 }
 
 html, body {
     background-color: $c-background;
     font-family: $verdana;
     color: $c-control-font;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+    margin: 0rem;
+    padding: 0rem;
 }

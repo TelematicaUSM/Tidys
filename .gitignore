@@ -1,14 +1,6 @@
-log.log
-secrets.json
+/log.log
 
-*~
-*.pyc
-*.orig
-*.map
-*.js
-*.css
-*.cache
-
+/virtualenv/
 /env/
 /gems/
 /secrets/
@@ -18,8 +10,16 @@ secrets.json
 /node_modules/
 /bower_components/
 /static/css/
-bourbon_files
+/static/js/
+/static/scss/bourbon_files/
 
-virtualenv*
-*.sass-cache*
-*__pycache__*
+.sass-cache/
+__pycache__/
+
+*~
+*.pyc
+*.orig
+*.map
+*.js
+*.css
+*.cache

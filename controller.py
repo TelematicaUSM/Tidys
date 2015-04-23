@@ -216,7 +216,7 @@ class MSGHandler(WebSocketHandler):
     def on_message(self, message):
         messages.code_debug(self.path+'.on_message',
             'Message arrived: %r.' % message)
-        
+
         try:
             message = json.loads(message)
             
@@ -252,7 +252,7 @@ class MSGHandler(WebSocketHandler):
                         "others.")
     
     def on_close(self):
-        MSGHandler.clients.remove(self)
+        self.__class__.clients.remove(self)
         
         messages.code_debug(
             self.path+'.on_close',

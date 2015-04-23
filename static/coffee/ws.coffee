@@ -35,20 +35,6 @@ ws.sendSafeJSON = (json_message) ->
         ws.getOpenPromise().then ->
             ws.sendJSON json_message
 
-#primes = [2, 3, 5, 7]
-#pptr = 0
-#ws.sendRecurringJSON = (json_message, stop_msg_type) ->
-#    ws.sendJSONIfOpen json_message
-#    int_id = setInterval(ws.sendJSONIfOpen,
-#                         1000*primes[pptr++%4],
-#                         json_message)
-#    promise = ws.getMessagePromise(stop_msg_type)
-#    promise.then ->
-#        clearInterval(int_id)
-#        console.log('###HOLA###: deteniendo a ' +
-#                    JSON.stringify json_message)
-#    return promise
-
 ws.addMessageListener = (msg_type, func) ->
     listener = (evt) ->
         func evt.detail.message

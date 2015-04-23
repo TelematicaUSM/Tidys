@@ -2,6 +2,10 @@
 
 {% block header %}
     {{ add_ext_file('css/boxes.css') }}
+    {{ add_ext_file('js/reconnecting-websocket.js') }}
+    {{ add_ext_file('js/boxes.js') }}
+    {{ add_ext_file('js/ws.js') }}
+    {{ add_ext_file('js/session.js') }}
     
     {% from notifications import boiler_ui_modules as \
        notifications %}
@@ -64,11 +68,6 @@
             {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
-    
-    {% module Template('js.html',
-        src='js/reconnecting-websocket.js') %}
-    
-    {% module Template('js.html', src='js/boxes.js') %}
 
     <script type="text/javascript">
         {% if 'critical' in globals() and critical %}
@@ -79,8 +78,4 @@
             room_code = '{{ room_code }}'
         {% end %}
     </script>
-
-    {% module Template('js.html', src='js/utils.js') %}
-    {% module Template('js.html', src='js/ws.js') %}
-    {% module Template('js.html', src='js/session.js') %}
 {% end %}

@@ -16,6 +16,7 @@
 
 #header-title {
     @include flex-grow(1);
+    margin: 0rem;
     text-align: center;
     font-size: 1rem;
 }
@@ -31,6 +32,7 @@
 }
 
 .panel-title {
+    margin: 0rem;
     width: 100%;
     background-color: $c-panel-title;
     padding: $panel-title-padding;

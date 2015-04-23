@@ -19,9 +19,10 @@ sasscmd = $(gembin)/sass
 bbfoldername = bourbon_files
 bbpath = $(scsspath)/$(bbfoldername)
 
-nmodulesfolder = node_modules
-bowerfolder = bower_components
-nmodulespath = ./$(nmodulesfolder)
+nmodulespath = ./node_modules
+
+bowerpath = ./bower_components
+bowercmd = $(nmodulespath)/bower/bin/bower
 
 jspath = static/js
 coffeepaths = $(jspath) static/coffee
@@ -38,9 +39,9 @@ make_iterate_over_d = for d in */ ; \
                           fi \
                       done
 
-VPATH = static $(gembin) $(scsspath) $(nmodulesfolder) \
+VPATH = static $(gembin) $(scsspath) $(nmodulespath) \
         $(jspath) env/lib/python3.4/site-packages \
-        make_empty_targets
+        make_empty_targets $(csspath)
 
 qrm_path = src/utils/qrmaster
 
@@ -51,8 +52,7 @@ dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
 	                     build-essential ruby npm curl \
-	                     screen mongodb
-	-sudo ln -s /usr/bin/nodejs /usr/bin/node
+	                     screen nodejs-legacy
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
@@ -87,22 +87,25 @@ $(bbfoldername): bourbon
 css: scss | $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
-coffee-script bower: dependencies
+coffee-script bower: | dependencies
 	npm install $@
 
-reconnecting-websocket.js: | bower js
-	$(nmodulespath)/bower/bin/bower install reconnectingWebsocket
-	cd $(jspath) && ln -s ../../$(bowerfolder)/reconnectingWebsocket/reconnecting-websocket.js \
-	                      reconnecting-websocket.js
+normalize.css: | css bower
+	$(bowercmd) install $@
+	cd $(csspath) && ln -s ../../$(bowerpath)/$@/$@ $@
 
-js: coffee-script coffee
-	$(nmodulespath)/coffee-script/bin/coffee $(coffeeoptions) $(coffeepaths)
+reconnecting-websocket.js: | bower js
+	$(bowercmd) install reconnectingWebsocket
+	cd $(jspath) && ln -s ../../$(bowerpath)/reconnectingWebsocket/$@ $@
+
+js: coffee | coffee-script
+	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
-	jswatch djswatch clean publish panels notifications \
+	jswatch djswatch clean panels notifications \
 	locking_panels qrmaster
 
-run: dependencies tornado motor jwt httplib2 oauth2client css js reconnecting-websocket.js panels notifications locking_panels
+run: dependencies tornado motor jwt httplib2 oauth2client css js reconnecting-websocket.js normalize.css panels notifications locking_panels
 	$(python) -i $(program)
 
 srun:
@@ -133,7 +136,7 @@ attach:
 
 #Upstream Merge
 upsm:
-	git pull --no-commit cganterh.net:git/tornadoBoxes.git
+	git pull --no-commit --no-rebase cganterh.net:git/tornadoBoxes.git
 
 csswatch: scss $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --watch $(sasspaths)
@@ -149,13 +152,10 @@ djswatch:
 
 clean: sub_target = clean
 clean:
-	rm -rf $(bowerfolder) env $(nmodulesfolder) \
+	rm -rf $(bowerpath) env $(nmodulespath) \
 	       __pycache__ $(csspath) $(jspath) $(gempath) \
 	       log.log $(bbpath) virtualenv
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
 	-cd locking_panels && $(make_iterate_over_d)
 	cd $(qrm_path) && $(MAKE) clean
-
-publish:
-	git push $(pub_remote)
