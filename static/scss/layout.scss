@@ -16,6 +16,7 @@
 
 #header-title {
     @include flex-grow(1);
+    margin: 0rem;
     text-align: center;
     font-size: 1rem;
 }

@@ -2,6 +2,9 @@
 
 {% block header %}
     {{ add_ext_file('css/boxes.css') }}
+    {{ add_ext_file('js/reconnecting-websocket.js') }}
+    {{ add_ext_file('js/boxes.js') }}
+    {{ add_ext_file('js/ws.js') }}
     
     {% from notifications import boiler_ui_modules as \
        notifications %}
@@ -64,10 +67,4 @@
             {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
-    
-    {% module Template('js.html',
-        src='js/reconnecting-websocket.js') %}
-    
-    {% module Template('js.html', src='js/boxes.js') %}
-    {% module Template('js.html', src='js/ws.js') %}
 {% end %}
