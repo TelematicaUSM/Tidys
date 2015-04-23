@@ -9,9 +9,9 @@ class IncludeExtFiles(tornado.web.UIModule):
     
     def get_urls(self, file_extension):
         if hasattr(self.handler, 'ext_files'):
-            ext_files = (self.handler.static_url(fn)
-                         for fn in self.handler.ext_files
-                         if '.'+file_extension in fn)
+            ext_files = filter(
+                lambda fn: '.'+file_extension in fn,
+                self.handler.ext_files)
         else:
             ext_files = []
         

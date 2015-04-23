@@ -1,6 +1,7 @@
 import tornado
 
 from tornado.web import StaticFileHandler
+from src.ui_methods import add_ext_file
 
 
 class BoilerUIModule(tornado.web.UIModule):
@@ -23,22 +24,6 @@ class BoilerUIModule(tornado.web.UIModule):
                     {'path': cls.conf['static_path']}
                 )]
             )
-    
-    def javascript_files(self):
-        """Returns a list of JavaScript files required by
-        this module."""
-        return [
-            self.make_static_url(path)
-            for path in self.conf['js_files']
-        ]
-
-    def css_files(self):
-        """Returns a list of CSS files required by this
-        module."""
-        return [
-            self.make_static_url(path)
-            for path in self.conf['css_files']
-        ]
 
     def make_static_url(self, path):
         return StaticFileHandler.make_static_url(self.conf,
@@ -46,5 +31,10 @@ class BoilerUIModule(tornado.web.UIModule):
 
     def render_string(self, path, **kwargs):
         """Renders a template and returns it as a string."""
+        add_ext_file(self.handler, self.conf['css_files'],
+                     self.make_static_url)
+        add_ext_file(self.handler, self.conf['js_files'],
+                     self.make_static_url)
+            
         return self.handler.render_string(path,
             make_static_url=self.make_static_url, **kwargs)
