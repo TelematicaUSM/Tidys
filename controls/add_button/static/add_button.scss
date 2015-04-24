@@ -1,0 +1,23 @@
+@import "../../../static/scss/constants";
+@import "../../../static/scss/bourbon_files/bourbon";
+
+.add-button {
+    @include size(20vw);
+    border: none;
+    background-color: transparent;
+    background-image: none;
+
+    svg {
+        vertical-align: middle;
+        @include size(15vw);
+        
+        path {
+            fill: $c-control-font;
+        }
+    }
+}
+
+.add_button::-moz-focus-inner {
+    padding: 0px;
+    border: none;
+}

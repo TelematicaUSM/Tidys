@@ -1,0 +1,13 @@
+<section class="box">
+    <h1>Seleccione un curso o cree uno nuevo</h1>
+    
+    {% for course in courses %}
+        <button type='button' class='course-caption'>
+            {{ course.name }}
+        </button>
+    {% end %}
+    
+    {% from controls.add_button import AddButtonControl %}
+    {% module UIModuleLoader(AddButtonControl,
+                             'add-new-course') %}
+</section>
