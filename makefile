@@ -45,6 +45,9 @@ VPATH = static $(gembin) $(scsspath) $(nmodulespath) \
 
 qrm_path = src/utils/qrmaster
 
+green = \033[0;32m
+nc = \033[0m
+
 make_empty_targets:
 	mkdir make_empty_targets
 
@@ -103,7 +106,7 @@ js: coffee | coffee-script
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean panels notifications \
-	locking_panels qrmaster
+	locking_panels qrmaster controls
 
 run: dependencies tornado motor jwt httplib2 oauth2client css js reconnecting-websocket.js normalize.css panels notifications locking_panels controls
 	$(python) -i $(program)
@@ -123,7 +126,7 @@ qrmaster: dependencies tornado qrcode PIL sass $(bbfoldername)
 	$(python) $(qrm_path) $(qrm_args)
 
 panels notifications locking_panels controls: coffee-script sass
-	@echo "Executing makefiles in $@ ..."
+	@echo "$(green)Executing makefiles in $@ ...$(nc)"
 	@$(sub_make_resources) && \
 	 cd $@ && \
 	 $(make_iterate_over_d)

@@ -2,22 +2,24 @@
 @import "../../../static/scss/bourbon_files/bourbon";
 
 .add-button {
-    @include size(20vw);
+    $bposition: 12.5vmin;
+    
+    @include position(fixed, null $bposition $bposition
+                      null);
+    box-shadow: 0vmin 1vmin 2vmin 0vmin
+                rgba(75, 75, 75, 0.5);
     border: none;
+    border-radius: 50%;
+    @include size(15vmin);
     background-color: transparent;
     background-image: none;
 
     svg {
         vertical-align: middle;
-        @include size(15vw);
+        @include size(100%);
         
-        path {
-            fill: $c-control-font;
+        circle {
+            fill: $c-primary;
         }
     }
-}
-
-.add_button::-moz-focus-inner {
-    padding: 0px;
-    border: none;
 }
