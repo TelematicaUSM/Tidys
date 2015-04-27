@@ -11,15 +11,11 @@
     border: none;
     border-radius: 50%;
     @include size(15vmin);
-    background-color: transparent;
+    background-color: $c-primary;
     background-image: none;
 
     svg {
         vertical-align: middle;
         @include size(100%);
-        
-        circle {
-            fill: $c-primary;
-        }
     }
 }

@@ -1,16 +1,9 @@
-#critical-panel {
-    display: block;
-    
-    .box {
-        text-align: center;
-    }
-}
+@import "../../../static/scss/bourbon_files/bourbon";
 
 #critical-image {
     display: block;
     margin: auto;
-    height: 23vmin;
-    width: 23vmin;
+    @include size(23vmin);
 }
 
 %texts {
@@ -20,6 +13,7 @@
 
 #critical-text {
     @extend %texts;
+    text-align: center;
 }
 
 .critical-instructions {

@@ -1,6 +1,6 @@
 <div class="box">
-    <img id='loading-image'
-         src="{{ make_static_url('spinner.svg') }}">
+    {% from controls.spinner import SpinnerControl %}
+    {% module UIModuleLoader(SpinnerControl) %}
     <span id='loading-text'>Cargando ...</span>
 </div>
 

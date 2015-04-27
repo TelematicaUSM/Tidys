@@ -4,7 +4,7 @@ import src
 class LessonSetupLockingPanel(
         src.boiler_ui_module.BoilerUIModule):
     _id = 'lesson-setup-panel'
-    classes = {'scrolling-panel', 'system-panel'}
+    classes = {'scrolling-panel', 'teacher-panel'}
     conf = {
         'static_url_prefix': '/lesson_setup/',
         'static_path':
@@ -16,4 +16,4 @@ class LessonSetupLockingPanel(
     def render(self):
         return self.render_string(
             '../locking_panels/lesson_setup/'
-            'lesson_setup.html', courses=[])
+            'lesson_setup.html')

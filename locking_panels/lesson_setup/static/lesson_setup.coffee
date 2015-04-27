@@ -1,53 +1,21 @@
-#loading_text = document.getElementById 'loading-text'
-#promise_num = 0
-#@load_promise = null
-#resolveLoadPromise = null
+#VARIABLES
 
-#origHideLoadingFunction = ->
-#    activatePanels()
+panel_id = 'lesson-setup-panel'
+panel = document.getElementById panel_id
 
-#hideLoading = origHideLoadingFunction
+#FUNCTIONS
 
-#checkPromiseNum = ->
-#    if promise_num < 0
-#        throw new RangeError("The number of promises
-#                              registered in this module
-#                              cannot be negative!")
+@showLessonSetup = ->
+    switchToPanel(panel_id)
 
-#resolvePromise = =>
-#    promise_num--
-#    checkPromiseNum()
-#    unless promise_num
-#        resolveLoadPromise()
-#        @load_promise = null
-#        resolveLoadPromise = null
+#SETUP
 
-#addPromise = (promise) ->
-#    promise.then resolvePromise, resolvePromise
-#    promise_num++
-#    checkPromiseNum()
+ws.getMessagePromise('tokenOk').then ->
+    showLoading('Obteniendo nombre de usuario ...',
+                ws.getMessagePromise 'userName')
+    ws.sendSafeJSON
+        'type': 'getUserName'
 
-#@showLoading = (message='Loading ...', promise=null,
-#                min_time=5000) =>
-#    unless promise_num
-#        switchToPanel('loading-panel')
-#        addPromise(
-#            new Promise(
-#                (resolve, reject) ->
-#                    setTimeout resolve, min_time
-#            )
-#        )
-#        @load_promise = new Promise(
-#            (resolve, reject) ->
-#                resolveLoadPromise = resolve
-#        )
-#        @load_promise.then(hideLoading)
-#    
-#    addPromise promise if promise
-#    loading_text.innerHTML = message
-
-#@setHideLoadingFunction = (func) ->
-#    hideLoading = func
-
-#@resetHideLoadingFunction = ->
-#    hideLoading = origHideLoadingFunction
+ws.getMessagePromise('userName').then (message) ->
+    document.getElementById('user-name').innerHTML = \
+        message.name

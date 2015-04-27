@@ -52,10 +52,11 @@ class UserWSC(src.wsclass.WSClass):
     @coroutine
     def load_room_code(self, message):
         try:
-            self.handler.room_code = yield Code(
-                message['room_code'])
+            room_code = yield Code(message['room_code'])
+            self.handler.room_code = room_code
             self.handler.write_message(
-                {'type': 'roomCodeOk'})
+                {'type': 'roomCodeOk',
+                 'code_type': room_code.code_type.value})
                 
         except KeyError:
             self.handler.send_malformed_message_error(

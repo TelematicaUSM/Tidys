@@ -1,13 +1,18 @@
-<section class="box">
-    <h1>Seleccione un curso o cree uno nuevo</h1>
+<h1 class="panel-title">
+    Sus Cursos
+</h1>
+
+<div class="box">
+    {% from controls.spinner import SpinnerControl %}
+    {% module UIModuleLoader(SpinnerControl,
+                             'lsp-course-box-spinner') %}
     
-    {% for course in courses %}
+    <template>
         <button type='button' class='course-caption'>
-            {{ course.name }}
         </button>
-    {% end %}
+    </template>
+</div>
     
-    {% from controls.add_button import AddButtonControl %}
-    {% module UIModuleLoader(AddButtonControl,
-                             'add-new-course') %}
-</section>
+{% from controls.add_button import AddButtonControl %}
+{% module UIModuleLoader(AddButtonControl,
+                         'add-new-course') %}
