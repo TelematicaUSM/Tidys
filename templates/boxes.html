@@ -71,11 +71,12 @@
 
     <script type="text/javascript">
         {% if 'critical' in globals() and critical %}
-            showCritical('{{ critical }}')
+            var backend_critical = '{{ critical }}';
         {% end %}
         
         {% if 'room_code' in globals() and room_code %}
-            room_code = '{{ room_code }}'
+            var room_code = '{{ room_code }}';
         {% end %}
     </script>
+    {{ add_ext_file('js/backend_actions.js') }}
 {% end %}

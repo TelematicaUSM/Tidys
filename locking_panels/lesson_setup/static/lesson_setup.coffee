@@ -9,13 +9,10 @@ panel = document.getElementById panel_id
     switchToPanel(panel_id)
 
 #SETUP
-
-ws.getMessagePromise('tokenOk').then ->
-    showLoading('Obteniendo nombre de usuario ...',
-                ws.getMessagePromise 'userName')
+#FIXME: should wait for userok, not for roomCoseOk
+ws.getMessagePromise('roomCodeOk').then ->
     ws.sendSafeJSON
-        'type': 'getUserName'
+        'type': 'getCourses'
 
-ws.getMessagePromise('userName').then (message) ->
-    document.getElementById('user-name').innerHTML = \
-        message.name
+ws.getMessagePromise('courses').then ->
+    console.log 'Dejo la patá!'

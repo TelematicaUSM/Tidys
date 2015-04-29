@@ -12,6 +12,7 @@
 /static/css/
 /static/js/
 /static/scss/bourbon_files/
+/src/utils/qrmaster/bourbon_files
 
 .sass-cache/
 __pycache__/

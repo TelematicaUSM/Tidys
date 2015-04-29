@@ -108,7 +108,7 @@ js: coffee | coffee-script
 	jswatch djswatch clean panels notifications \
 	locking_panels qrmaster controls
 
-run: dependencies tornado motor jwt httplib2 oauth2client css js reconnecting-websocket.js normalize.css panels notifications locking_panels controls
+run: dependencies tornado motor jwt httplib2 oauth2client css js reconnecting-websocket.js normalize.css panels notifications locking_panels controls qrmaster
 	$(python) -i $(program)
 
 srun:
@@ -123,7 +123,6 @@ qrmaster: dependencies tornado qrcode PIL sass $(bbfoldername)
 	$(sub_make_resources) && \
 	 cd $(qrm_path) && \
 	 $(MAKE)
-	$(python) $(qrm_path) $(qrm_args)
 
 panels notifications locking_panels controls: coffee-script sass
 	@echo "$(green)Executing makefiles in $@ ...$(nc)"

@@ -30,6 +30,12 @@ ws.sendJSONIfOpen = (json_message, else_func=->) ->
     else
         else_func()
 
+ws.sendJSONOnOpen = (json_message) ->
+    #Send JSON now and on every open event.
+    ws.sendJSONIfOpen json_message
+    ws.addEventListener 'open', ->
+        ws.sendJSON json_message
+
 ws.sendSafeJSON = (json_message) ->
     ws.sendJSONIfOpen json_message, ->
         ws.getOpenPromise().then ->
