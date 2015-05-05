@@ -3,6 +3,8 @@
 {% block body %}
     <script>
         localStorage.setItem('sessionToken', '{{ token }}');
-        document.location.replace('/');
+        document.location.replace(
+            "/{{ handler.state['room_code'] \
+                 if handler.state['room_code'] else '' }}");
     </script>
 {% end %}

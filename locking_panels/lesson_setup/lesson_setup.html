@@ -2,17 +2,36 @@
     Sus Cursos
 </h1>
 
-<div class="box">
+<div id='lsp-new-course' class="box">
+    <h1>Introduzca el nombre del curso nuevo:</h1>
+    <input id='new-course-name' type='text' autofocus
+           placeholder="Estructura de datos y algoritmos"
+           inputmode='latin-name'>
+    </input>
+    <div id='new-course-buttons'>
+        <button id='lsp-cancel-button' type='button'>
+            Cancelar
+        </button>
+        <button id='lsp-create-button' type='button'
+                disabled>
+            Crear
+        </button>
+    </div>
+</div>
+
+<div id='lsp-select-course' class="box">
+    <h1>Seleccione el curso que dictará:</h1>
+    
     {% from controls.spinner import SpinnerControl %}
     {% module UIModuleLoader(SpinnerControl,
-                             'lsp-course-box-spinner') %}
+                             'lsp-spinner') %}
     
-    <template>
-        <button type='button' class='course-caption'>
+    <template id='course-button-template'>
+        <button type='button' class='button-list-item'>
         </button>
     </template>
 </div>
     
 {% from controls.add_button import AddButtonControl %}
 {% module UIModuleLoader(AddButtonControl,
-                         'add-new-course') %}
+                         'new-course-button') %}

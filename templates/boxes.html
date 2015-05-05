@@ -74,8 +74,9 @@
             var backend_critical = '{{ critical }}';
         {% end %}
         
-        {% if 'room_code' in globals() and room_code %}
-            var room_code = '{{ room_code }}';
+        {% if hasattr(handler, 'room_code') and \
+              handler.room_code %}
+            var room_code = '{{ handler.room_code }}';
         {% end %}
     </script>
     {{ add_ext_file('js/backend_actions.js') }}

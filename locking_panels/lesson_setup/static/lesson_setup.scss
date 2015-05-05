@@ -1,0 +1,26 @@
+@import "../../../static/scss/constants";
+@import "../../../static/scss/bourbon_files/bourbon";
+
+.box > h1:first-child {
+    border: none;
+    padding: 0rem;
+}
+
+#new-course-name {
+    display: block;
+    margin-bottom: 1rem;
+    @include size(100% 2rem);
+    padding-left: 0.5rem;
+}
+
+#new-course-buttons {
+    @include display(flex);
+    
+    button {
+        @include flex(1);
+    }
+    
+    button:first-child {
+        margin-right: 1rem;
+    }
+}

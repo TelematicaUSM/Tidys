@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+from unicodedata import normalize
 from tornado.gen import coroutine
 from pymongo import ASCENDING
 from .common import db
@@ -12,23 +13,28 @@ class Course(DBObject):
     @classmethod
     @coroutine
     def create(cls, user, name):
-        self = yield super().create(
-            {'name': name, 'user_id': user.id})
+        compacted_name = name.replace(' ', '')
+        norm_name = normalize('NFKC', compacted_name)
+        casefolded_name = norm_name.casefold()
+        _id = str(user.id) + casefolded_name
+        
+        self = yield super().create(_id)
+        self.store_dict({'name': name, 'user_id': user.id})
         return self
     
     @classmethod
     @coroutine
-    def get_user_course_names(cls, user):
-        yield cls.coll.ensure_index('_id.user_id')
+    def get_user_courses(cls, user):
+        yield cls.coll.ensure_index(
+            [('user_id', ASCENDING),
+             ('_id', ASCENDING)])
         
-        cursor = cls.coll.find(
-            filter={'_id.user_id': user.id},
-            projection={'_id.name': 1},
-            sort=[('_id', ASCENDING)])
+        cursor = cls.coll.find({'user_id': user.id},
+                               {'name': True},
+                               sort=[('_id', ASCENDING)])
             
         courses = yield cursor.to_list(None)
-        
-        return [c['_id']['name'] for c in courses]
+        return courses
     
     def __str__(self):
         return self.name

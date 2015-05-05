@@ -13,3 +13,23 @@
             target.removeEventListener type, listener
         
     return promise
+
+@ensureArray = (object) ->
+    return object if Array.isArray object
+    return [object]
+
+@hideElements = (elements) ->
+    elements = ensureArray elements
+    element.style.display = 'none' for element in elements
+
+@showElements = (elements, display='block') ->
+    elements = ensureArray elements
+    element.style.display = display for element in elements
+
+@switchElements_visibility = (elements, display='block') ->
+    elements = ensureArray elements
+    for element in elements
+        if element.style.display is 'none'
+            showElement element, display
+        else
+            hideElement element

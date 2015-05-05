@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 150 150" class='spinner-control'
-     {{ "id='{}'".format(_id) if _id else '' }}>
+     {% raw "id='{}'".format(_id) if _id else '' %}>
      
     <path d="M 35,35  35,115 115,115 115, 35 35,35 z
              M 30,30 120, 30 120,120  30,120 30,30 z"

@@ -44,9 +44,14 @@ class UserWSC(src.wsclass.WSClass):
             self.handler.write_message({'type': 'userName',
                                         'name': name})
         except AttributeError:
-            self.send_error('userNotLoaded', message,
-                            'There was no loaded user '
-                            'when this message arrived.')
+            self.send_user_not_loaded_error(self.handler,
+                                            message)
+    
+    @staticmethod
+    def send_user_not_loaded_error(handler, message):
+        handler.send_error('userNotLoaded', message,
+                           'There was no loaded user when '
+                           'this message arrived.')
     
     @src.wsclass.WSClass.subscribe('roomCode')
     @coroutine

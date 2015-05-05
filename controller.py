@@ -23,23 +23,29 @@ class GUIHandler(RequestHandler):
     def get(self, room_code):
         try:
             classes = {'system-panel'}
+            #room_code must be passed to the template as a
+            #handler's attribute, because it is used in the
+            #home panel.
+            self.room_code = room_code
             
-            messages.code_debug('controller.GUIHandler.get',
-                                'Rendering boxes.html ...')
             if room_code:
                 c = yield db.Code(room_code)
+                
                 if c.code_type is db.CodeType.room:
-                    classes.add('teacher-panel')
+                    classes.update(
+                        {'teacher-panel',
+                        'room-code-panel'})
                 else:
-                    classes.add('student-panel')
-                    
-                self.render('boxes.html', classes=classes,
-                            room_code=room_code)
+                    classes.update(
+                        {'student-panel',
+                         'seat-code-panel'})
             else:
                 classes.update({'teacher-panel',
                                 'student-panel'})
-                self.render('boxes.html', classes=classes)
-                
+                                
+            messages.code_debug('controller.GUIHandler.get',
+                                'Rendering boxes.html ...')
+            self.render('boxes.html', classes=classes)
             
         except db.NoObjectReturnedFromDB:
             self.render('boxes.html',
@@ -61,9 +67,11 @@ class LoginHandler(RequestHandler):
                  conf.login_path, '', '', '')
             )
             #remember the user for a longer period of time
-            remember = self.get_argument('remember',
-                                         False)
-            state = jwt.encode({'remember': remember},
+            remember = self.get_argument('remember', False)
+            room_code = self.get_argument('room_code',
+                                          False)
+            state = jwt.encode({'remember': remember,
+                                'room_code': room_code},
                                secrets['simple'])
             flow = oa2_client.OAuth2WebServerFlow(
                 google_secrets['web']['client_id'],
@@ -113,6 +121,7 @@ class LoginHandler(RequestHandler):
         
         except oa2_client.FlowExchangeError:
             self.render('boxes.html',
+                        classes={'system-panel'},
                         critical='Error de autenticación!')
     
     def get_scheme(self):
@@ -121,14 +130,25 @@ class LoginHandler(RequestHandler):
         else:
             return self.request.protocol
     
-    def get_exp(self):
+    @property
+    def state(self):
+        if hasattr(self, '_state'):
+            return self._state
+        
         state = self.get_argument('state', None)
         
         if state:
-            state_dict = jwt.decode(state,
+            self._state = jwt.decode(state,
                                     secrets['simple'])
+        else:
+            self._state = None
+        
+        return self._state
+    
+    def get_exp(self):
+        if self.state:
             delta = conf.long_account_exp \
-                    if state_dict['remember'] else \
+                    if self.state['remember'] else \
                     conf.short_account_exp
             return datetime.utcnow() + timedelta(**delta)
         else:

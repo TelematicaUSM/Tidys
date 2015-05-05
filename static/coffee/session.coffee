@@ -22,16 +22,14 @@ if localStorage.sessionToken?
         'token': localStorage.sessionToken
 
     if room_code?
-        setHideLoadingFunction(->)
+        setHideLoadingFunction ->
         
         showLoading('Localizando ...',
                     ws.getMessagePromise 'roomCodeOk')
         
-        #FIXME: should send roomCode on open
-        ws.addMessageListener 'tokenOk', ->
-            ws.sendJSON
-                'type': 'roomCode'
-                'room_code': room_code
+        ws.sendJSONOnOpen
+            'type': 'roomCode'
+            'room_code': room_code
                 
         ws.getMessagePromise('roomCodeOk').then (message) ->
             if message.code_type is 'room'

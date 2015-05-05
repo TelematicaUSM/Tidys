@@ -50,6 +50,7 @@
 
 .main-menu-item {
     display: block;
+    margin: 0rem;
     border: none;
     padding: 1rem;
     width: 100%;
@@ -58,6 +59,7 @@
     font-size: 1rem;
     color: $c-main-menu-font;
     border-bottom: 1px solid $c-main-menu-font;
+    border-radius: 0rem;
 }
 
 .main-menu-item:active {
@@ -75,14 +77,60 @@
     text-align: justify;
 }
 
+.box > h1:first-child {
+    margin: 0rem 0rem 1rem;
+    border-bottom: 1px solid $c-control-border;
+    padding: 0rem 0rem 0.5rem;
+    font-size: 1rem;
+}
+
 #message-bubble {
     @include position(fixed, $header-height 0px auto auto);
     z-index: $zi-panels - 1;
     margin: 0.5rem;
     border-radius: 0.2rem;
-    max-width: (100vw/3);
+    max-width: 50vw;
     background-color: rgba($c-main-menu, 0.8);
     padding: 0.5rem;
     color: $c-white-font;
     opacity: 0;
+}
+
+button,
+input[type="button"],
+input[type="reset"],
+input[type="submit"] {
+    border: 1px solid $c-control-border;
+    border-radius: 2 * $box-border-radius;
+    padding: 0.5rem;
+    background-color: lighten($c-secondary, 25%);
+    background-image: none;
+}
+
+button:active,
+input[type="button"]:active,
+input[type="reset"]:active,
+input[type="submit"]:active {
+    background-color: lighten(black, 50%);
+}
+
+button[disabled],
+input[type="button"][disabled],
+input[type="reset"][disabled],
+input[type="submit"][disabled] {
+    background-color: lighten($c-secondary, 32%);
+    color: lighten($c-control-font, 50%);
+}
+
+.button-list-item {
+    border-width: 1px 0px 0px;
+    border-style: solid;
+    border-color: $c-control-border;
+    border-radius: 0rem;
+    width: 100%;
+    background-color: transparent;
+}
+
+.button-list-item:last-child {
+    border-width: 1px 0px;
 }
