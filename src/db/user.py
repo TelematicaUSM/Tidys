@@ -1,5 +1,13 @@
 # -*- coding: UTF-8 -*-
 
+"""User mongodb adapter
+
+Users have a status (student or teacher) and location (room,
+seat).
+
+
+""""
+
 from tornado.gen import coroutine
 from src.utils import random_word
 from .common import db

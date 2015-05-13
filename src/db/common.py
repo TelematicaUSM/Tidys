@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 from tornado.gen import coroutine
 from motor import MotorClient
 from conf import database_name

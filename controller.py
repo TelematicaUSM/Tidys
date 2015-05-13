@@ -234,8 +234,10 @@ class MSGHandler(WebSocketHandler):
         self.__class__.client_count += 1
 
     def on_message(self, message):
-        messages.code_debug(self.path+'.on_message',
-            'Message arrived: %r.' % message)
+        messages.code_debug(
+            self.path+'.on_message',
+            'Message arrived: {}.'.format(message)
+        )
 
         try:
             message = json.loads(message)
@@ -279,6 +281,13 @@ class MSGHandler(WebSocketHandler):
             'Connection closed! %s (%s)' %
                 (self, self.request.remote_ip)
         )
+    
+    def write_message(self, message):
+        messages.code_debug(
+            self.path+'.write_message',
+            'Sending message: {}.'.format(message)
+        )
+        super().write_message(message)
 
 
 try:
@@ -300,7 +309,7 @@ try:
     )
     
     app.listen(conf.port)
-
+    
     import panels
     for module in app.ui_modules.values():
         if issubclass(module, BoilerUIModule):

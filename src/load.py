@@ -4,6 +4,7 @@ from importlib import import_module
 from os.path import dirname
 from pkgutil import iter_modules
 from inspect import isclass
+from src import messages
 from .boiler_ui_module import BoilerUIModule
 from . wsclass import WSClass
 
@@ -41,4 +42,8 @@ def load_wsclasses(package, handler):
         for member in module.__dict__.values():
             if isclass(member) and issubclass(member,
                                               WSClass):
+                messages.code_debug(
+                    'src.load.load_wsclasses',
+                    'Adding WSClass {}.'.format(member)
+                )
                 handler.add_class(member)

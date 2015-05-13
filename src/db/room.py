@@ -75,6 +75,20 @@ class Room(DBObject):
     def __repr__(self):
         return "Room('%s')" % self.id
     
+    @coroutine
+    def assign_course(self, course_id):
+        data = yield self.coll.find_and_modify(
+            {'_id': self.id},
+            {
+                '$addToSet': {'courses': course_id}
+            },
+            new=True)
+            
+        if data == None:
+            raise NoObjectReturnedFromDB
+        else:
+            self._data = data
+    
     @property
     def name(self):
         return self.id

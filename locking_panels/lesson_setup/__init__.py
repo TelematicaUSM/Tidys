@@ -1,10 +1,11 @@
+import re
 import src
+import panels
 
 from tornado.gen import coroutine
 from tornado.escape import xhtml_escape
 from pymongo.errors import DuplicateKeyError
 from src.db import Course
-from panels.user import UserWSC
 
 
 class LessonSetupLockingPanel(
@@ -47,19 +48,52 @@ class LessonSetupWSC(src.wsclass.WSClass):
     def create_course(self, message):
         try:
             course_name = xhtml_escape(message['name'])
-            courses = yield Course.create(
-                self.handler.user, course_name)
-                
+            
+            if not re.search('\S', course_name):
+                self.handler.write_message(
+                    {'type': 'createCourseResult',
+                     'result': 'emptyName'})
+                return
+            
+            course = yield Course.create(self.handler.user,
+                                         course_name)
             self.handler.write_message(
                 {'type': 'createCourseResult',
-                 'result': 'ok'})
+                 'result': 'ok',
+                 'course_id': course.id})
+                
+        except KeyError:
+            self.handler.send_malformed_message_error(
+                message)
                 
         except AttributeError:
             if not hasattr(self.handler, 'user'):
-                UserWSC.send_user_not_loaded_error(
+                panels.user.UserWSC.\
+                        send_user_not_loaded_error(
                     self.handler, message)
         
         except DuplicateKeyError:
             self.handler.write_message(
                 {'type': 'createCourseResult',
                  'result': 'duplicate'})
+                                
+    @src.wsclass.WSClass.subscribe(
+        'assignCourseToCurrentRoom')
+    @coroutine
+    def assign_course_to_current_room(self, message):
+        try:
+            room = yield self.handler.room_code.room
+            yield room.assign_course(message['course_id'])
+            
+            self.handler.write_message(
+                {'type': 'courseAssignmentOk'})
+                
+        except KeyError:
+            self.handler.send_malformed_message_error(
+                message)
+        
+        except AttributeError:
+            if not hasattr(self.handler, 'room_code'):
+                panels.user.UserWSC.\
+                        send_room_not_loaded_error(
+                    self.handler, message)

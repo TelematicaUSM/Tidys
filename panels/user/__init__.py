@@ -22,6 +22,8 @@ class UserPanel(src.boiler_ui_module.BoilerUIModule):
 
 
 class UserWSC(src.wsclass.WSClass):
+    path = 'panels.user.__init__.UserWSC'
+    
     @src.wsclass.WSClass.subscribe('sessionToken')
     @coroutine
     def check_token(self, message):
@@ -51,6 +53,12 @@ class UserWSC(src.wsclass.WSClass):
     def send_user_not_loaded_error(handler, message):
         handler.send_error('userNotLoaded', message,
                            'There was no loaded user when '
+                           'this message arrived.')
+    
+    @staticmethod
+    def send_room_not_loaded_error(handler, message):
+        handler.send_error('roomNotLoaded', message,
+                           'There was no loaded room when '
                            'this message arrived.')
     
     @src.wsclass.WSClass.subscribe('roomCode')

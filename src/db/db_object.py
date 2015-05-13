@@ -1,7 +1,9 @@
+# -*- coding: UTF-8 -*-
+
+from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
 from bson.dbref import DBRef
-from pymongo.errors import DuplicateKeyError, \
-                           OperationFailure
+from pymongo.errors import DuplicateKeyError
 from src import messages as msg
 from .common import NoObjectReturnedFromDB
 
@@ -54,54 +56,24 @@ class DBObject(object):
         if hasattr(self, name):
             self.setattr(name, value)
         else:
-            self.store(name, value)
+            IOLoop.current().spawn_callback(
+                self.store, name, value, update_data=False)
+            self._data[name] = value
     
     def setattr(self, name, value):
         super().__setattr__(name, value)
     
     @coroutine
-    def store(self, name, value):
-        self._data[name] = value
-        yield self.coll.update(
-            {'_id': self.id},
-            {
-                '$set':{name: value}
-            }
-        )
+    def store(self, name, value, update_data):
+        yield self.store_dict({name: value}, update_data)
     
     @coroutine
-    def store_dict(self, d):
-        yield self.coll.update(
-            {'_id': self.id},
-            {
-                '$set': d
-            }
-        )
-        self._data.update(d)
+    def store_dict(self, d, update_data=True):
+        yield self.coll.update({'_id': self.id},
+                               {'$set': d})
+        if update_data:
+            self._data.update(d)
     
     @property
     def id(self):
         return self._data['_id']
-    
-#    @classmethod
-#    @coroutine
-#    def get_or_create(cls, _id):
-#        """Returns an object from the database, if it
-#        doesn't exist, it creates it."""
-#        try:
-#            code_path = cls.path + '.get_or_create'
-#            
-#            try:
-#                self = yield cls(_id)
-#                
-#            except NoObjectReturnedFromDB:
-#                self = yield cls.create(_id)
-#                
-#            return self
-#            
-#        except DuplicateKeyError:
-#            msg.impossible_condition(code_path)
-#        
-#        except:
-#            msg.unexpected_error(code_path)
-#            raise

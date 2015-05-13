@@ -67,7 +67,7 @@ env: | dependencies virtualenv
 	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
-tornado motor oauth2client qrcode: | env
+tornado motor oauth2client qrcode termcolor: | env
 	$(pip_install) $@
 
 jwt: | env
@@ -108,7 +108,10 @@ js: coffee | coffee-script
 	jswatch djswatch clean panels notifications \
 	locking_panels qrmaster controls
 
-run: dependencies tornado motor jwt httplib2 oauth2client css js reconnecting-websocket.js normalize.css panels notifications locking_panels controls qrmaster
+run: dependencies tornado motor jwt httplib2 oauth2client \
+     css js reconnecting-websocket.js normalize.css panels \
+     notifications locking_panels controls qrmaster \
+     termcolor
 	$(python) -i $(program)
 
 srun:
