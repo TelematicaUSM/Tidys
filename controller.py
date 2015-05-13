@@ -2,6 +2,7 @@
 
 import conf, json
 
+from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
 from src import ui_modules, ui_methods, messages
@@ -52,14 +53,17 @@ class MSGHandler(WebSocketHandler):
         self.__class__.client_count += 1
 
     def on_message(self, message):
-        messages.code_debug(self.path+'.on_message',
-            'Message arrived: %r.' % message)
-        
+        messages.code_debug(
+            self.path+'.on_message',
+            'Message arrived: {}.'.format(message)
+        )
+
         try:
             message = json.loads(message)
             
             for action in self.actions[message['type']]:
-                action(message)
+                IOLoop.current().spawn_callback(action,
+                                                message)
         
         except KeyError:
             if 'type' in message:
@@ -97,6 +101,13 @@ class MSGHandler(WebSocketHandler):
             'Connection closed! %s (%s)' %
                 (self, self.request.remote_ip)
         )
+    
+    def write_message(self, message):
+        messages.code_debug(
+            self.path+'.write_message',
+            'Sending message: {}.'.format(message)
+        )
+        super().write_message(message)
 
 
 app = Application(
