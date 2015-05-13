@@ -15,10 +15,13 @@ $box-shadow-dimensions: 0rem 0.1rem 0rem 0rem;
 $box-padding: 1rem;
 
 //COLORS
+$c-primary: #e21e3a;
+$c-secondary: #7878d7;
 $c-background: #EDECEA;
 $c-control-face: lighten(#dfdfdf, 10%);
 $c-control-font: rgba(black, $font-alpha);
 $c-white-font: rgba(white, $font-alpha);
+$c-footer-font: rgba(black, 0.5);
 $c-shade: rgba(black, 0.6);
 
     //app-header

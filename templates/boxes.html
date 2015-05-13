@@ -31,7 +31,7 @@
     {% from locking_panels import boiler_ui_modules as \
        locking_panels %}
     
-    {% if 'classes' in globals() %}
+    {% if 'classes' in globals() and classes %}
         {% set panels = filter_classes(panels, classes) %}
             
         {% set locking_panels = \
@@ -67,4 +67,11 @@
             {% module UIModuleLoader(panel) %}
         </section>
     {% end %}
+
+    <script type="text/javascript">
+        {% if 'critical' in globals() and critical %}
+            var backend_critical = '{{ critical }}';
+        {% end %}
+    </script>
+    {{ add_ext_file('js/backend_actions.js') }}
 {% end %}
