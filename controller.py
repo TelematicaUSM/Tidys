@@ -243,7 +243,8 @@ class MSGHandler(WebSocketHandler):
             message = json.loads(message)
             
             for action in self.actions[message['type']]:
-                action(message)
+                IOLoop.current().spawn_callback(action,
+                                                message)
         
         except KeyError:
             if 'type' in message:
