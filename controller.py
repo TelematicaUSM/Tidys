@@ -7,6 +7,7 @@ from logging import debug, error, critical
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlunparse
 
+from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
