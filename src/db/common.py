@@ -14,6 +14,14 @@ db = client[database_name]
 #_login(db)
 
 
+@coroutine
+def stop_db():
+    from .message_broker import cursor as msg_broker_cursor
+    if msg_broker_cursor:
+        yield msg_broker_cursor.close()
+    client.disconnect()
+
+
 class NoObjectReturnedFromDB(Exception):
     def __str__(self):
         return 'Exception: No object returned from ' \

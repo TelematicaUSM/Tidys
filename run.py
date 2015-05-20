@@ -1,5 +1,8 @@
 # -*- coding: UTF-8 -*-
 
+from tornado.gen import coroutine
+
+
 def start():
     global ioloop, t
     import controller
@@ -18,9 +21,10 @@ def start():
 def stop():
     from src import messages
     
+    @coroutine
     def callback():
         from src import db
-        db.client.disconnect()
+        db.stop()
         ioloop.stop()
         
     ioloop.add_callback(callback)
@@ -30,7 +34,6 @@ def stop():
 
 if __name__ == "__main__":
     from src.utils import run_inside
-    from tornado.gen import coroutine
     
     start()
 
@@ -109,3 +112,18 @@ if __name__ == "__main__":
             
         except OperationFailure:
             pass
+    
+    @run_inside(ioloop.add_callback)
+    def send_dbm(message):
+        import src.db.message_broker as mb
+        mb.send_message(message)
+
+    @run_inside(ioloop.add_callback)
+    def register_dbm(owner, msg_type, action):
+        import src.db.message_broker as mb
+        mb.register_action(owner, msg_type, action)
+
+    @run_inside(ioloop.add_callback)
+    def remove_owner_dbm(owner):
+        import src.db.message_broker as mb
+        mb.remove_owner(owner)

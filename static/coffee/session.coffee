@@ -40,3 +40,6 @@ if localStorage.sessionToken?
         localizationSetup()
 else
     showHome()
+
+
+#Necesito: user_state(room, dictando, status), room, code_type

@@ -23,6 +23,7 @@ $c-control-font: rgba(black, $font-alpha);
 $c-white-font: rgba(white, $font-alpha);
 $c-footer-font: rgba(black, 0.5);
 $c-shade: rgba(black, 0.6);
+$c-active-button: lighten(black, 50%);
 
     //app-header
     $c-control-face-light: lighten($c-control-face, 5%);

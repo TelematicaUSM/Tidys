@@ -111,7 +111,14 @@ button:active,
 input[type="button"]:active,
 input[type="reset"]:active,
 input[type="submit"]:active {
-    background-color: lighten(black, 50%);
+    background-color: $c-active-button;
+}
+
+button:focus,
+input[type="button"]:focus,
+input[type="reset"]:focus,
+input[type="submit"]:focus {
+    border-color: lighten($c-primary, 25%);
 }
 
 button[disabled],
@@ -133,4 +140,13 @@ input[type="submit"][disabled] {
 
 .button-list-item:last-child {
     border-width: 1px 0px;
+}
+
+.button-list-item:focus {
+    border-color: $c-control-border;
+    background-color: lighten(black, 90%);
+}
+
+.button-list-item:active {
+    background-color: $c-active-button;
 }
