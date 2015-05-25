@@ -6,6 +6,7 @@ from tornado.gen import coroutine
 from tornado.escape import xhtml_escape
 from pymongo.errors import DuplicateKeyError
 from src.db import Course
+from src.wsclass import subscribe
 
 
 class LessonSetupLockingPanel(
@@ -27,7 +28,7 @@ class LessonSetupLockingPanel(
 
 
 class LessonSetupWSC(src.wsclass.WSClass):
-    @src.wsclass.WSClass.subscribe('getCourses')
+    @subscribe('getCourses')
     @coroutine
     def send_course_names(self, message):
         try:
@@ -43,7 +44,7 @@ class LessonSetupWSC(src.wsclass.WSClass):
                 UserWSC.send_user_not_loaded_error(
                     self.handler, message)
                                 
-    @src.wsclass.WSClass.subscribe('createCourse')
+    @subscribe('createCourse')
     @coroutine
     def create_course(self, message):
         try:
@@ -77,8 +78,7 @@ class LessonSetupWSC(src.wsclass.WSClass):
                 {'type': 'createCourseResult',
                  'result': 'duplicate'})
                                 
-    @src.wsclass.WSClass.subscribe(
-        'assignCourseToCurrentRoom')
+    @subscribe('assignCourseToCurrentRoom')
     @coroutine
     def assign_course_to_current_room(self, message):
         try:

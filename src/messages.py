@@ -79,16 +79,16 @@ def obj_creation_error(code_path, cls, *args, **kwargs):
                                            kwargs)
     )
 
-def unrecognized_db_message_type(code_path, message):
+def unrecognized_message_type(code_path, message):
     code_error(
         code_path,
-        'Someone has sent a database message of an '
+        'Someone has sent a message of an '
         'unrecognized type! Message: {}'.format(message)
     )
 
-def malformed_db_message(code_path, message):
+def malformed_message(code_path, message):
     code_error(
         code_path,
-        'Someone has sent a malformed database message! '
+        'Someone has sent a malformed message! '
         'Message: {}'.format(message)
     )

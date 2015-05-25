@@ -57,10 +57,10 @@ def on_message(message):
 
     except KeyError:
         if 'type' in message:
-            msg.unrecognized_db_message_type(code_path,
+            msg.unrecognized_message_type(code_path,
                                              message)
         else:
-            msg.malformed_db_message(code_path, message)
+            msg.malformed_message(code_path, message)
 
 
 @coroutine

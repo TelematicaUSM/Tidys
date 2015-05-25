@@ -3,6 +3,7 @@ import src, jwt
 from tornado.gen import coroutine
 from src import messages
 from src.db import User, Code, NoObjectReturnedFromDB
+from src.wsclass import subscribe
 
 
 class UserPanel(src.boiler_ui_module.BoilerUIModule):
@@ -24,7 +25,7 @@ class UserPanel(src.boiler_ui_module.BoilerUIModule):
 class UserWSC(src.wsclass.WSClass):
     path = 'panels.user.__init__.UserWSC'
     
-    @src.wsclass.WSClass.subscribe('sessionToken')
+    @subscribe('sessionToken')
     @coroutine
     def check_token(self, message):
         try:
@@ -39,7 +40,7 @@ class UserWSC(src.wsclass.WSClass):
                 NoObjectReturnedFromDB):
             self.handler.write_message({'type': 'logout'})
         
-    @src.wsclass.WSClass.subscribe('getUserName')
+    @subscribe('getUserName')
     def get_user_name(self, message):
         try:
             name = self.handler.user.name
@@ -61,15 +62,17 @@ class UserWSC(src.wsclass.WSClass):
                            'There was no loaded room when '
                            'this message arrived.')
     
-    @src.wsclass.WSClass.subscribe('roomCode')
+    @subscribe('roomCode')
     @coroutine
     def load_room_code(self, message):
         try:
             room_code = yield Code(message['room_code'])
             self.handler.room_code = room_code
+            self.handler.room = yield room_code.room
             self.handler.write_message(
                 {'type': 'roomCodeOk',
-                 'code_type': room_code.code_type.value})
+                 'code_type': room_code.code_type.value,
+                 'room_name': room.name})
                 
         except KeyError:
             self.handler.send_malformed_message_error(
