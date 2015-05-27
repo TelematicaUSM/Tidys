@@ -12,68 +12,37 @@ from tornado.ioloop import IOLoop
 from tornado.gen import coroutine, Task
 from pymongo.errors import CollectionInvalid
 
-from src import messages as msg
+from src.pub_sub import OwnerPubSub
 from .common import db
-from .db_object import DBObject
 
 
 _path = 'src.db.message_broker'
 
 _coll_name = 'messages'
 _coll = db[_coll_name]
-_actions = {}
-_owners = {}
 cursor = None
+_ps = OwnerPubSub()
 
-
-def register_action(owner, msg_type, action):
-    if owner in _owners:
-        _owners[owner].add((msg_type, action))
-    else:
-        _owners[owner] = {(msg_type, action)}
-
-    if msg_type in _actions:
-        _actions[msg_type].add(action)
-    else:
-        _actions[msg_type] = {action}
-
-
-def remove_owner(owner):
-    for msg_type, action in _owners[owner]:
-        _actions[msg_type].discard(action)
-
-        if not _actions[msg_type]:
-            del _actions[msg_type]
-
-    del _owners[owner]
-
-
-def on_message(message):
-    code_path = _path + '.on_message'
-
-    try:
-        for action in _actions[message['type']]:
-            IOLoop.current().spawn_callback(action, message)
-
-    except KeyError:
-        if 'type' in message:
-            msg.unrecognized_message_type(code_path,
-                                             message)
-        else:
-            msg.malformed_message(code_path, message)
+# METHOD ALIASES:
+register = _ps.register
+remove_owner = _ps.remove_owner
 
 
 @coroutine
 def send_message(message):
-    if not isinstance(message, dict): raise TypeError
-    if 'type' not in message: raise ValueError
+    if not isinstance(message, dict):
+        raise TypeError
+
+    if 'type' not in message:
+        raise ValueError
+
     yield _coll.insert(message)
 
 
 @coroutine
-def _tailable_iteration(function: 'callable' = None,
-                        stop: bool = True,
-                        sleep: int = 0):
+def _tailable_iteration(function: 'callable'=None,
+                        stop: bool=True,
+                        sleep: int=0):
     global cursor
 
     while True:
@@ -83,11 +52,13 @@ def _tailable_iteration(function: 'callable' = None,
 
         if (yield cursor.fetch_next):
             message = cursor.next_object()
-            if function: function(message)
-        elif stop: return
+            if function:
+                function(message)
+        elif stop:
+            return
 
-        if sleep: yield Task(IOLoop.current().call_later,
-                             sleep)
+        elif sleep:
+            yield Task(IOLoop.current().call_later, sleep)
 
 
 @coroutine
@@ -99,9 +70,11 @@ def _broker_loop():
         pass
 
     yield _tailable_iteration()
-    yield _tailable_iteration(function=on_message,
-                              stop=False, sleep=1)
+    yield _tailable_iteration(
+        function=_ps.distribute_message, stop=False,
+        sleep=1)
 
 
-#This starts the loop the first time this module is imported
+# This starts the loop the first time this module is
+# imported
 IOLoop.current().spawn_callback(_broker_loop)
