@@ -21,6 +21,7 @@ sendLogout = ->
 redirectToTeacherView = ->
     console.log 'redirectToTeacherView not implemented!'
     return
+    document.location.replace room_code
 
 #SETUP
 
@@ -80,7 +81,7 @@ else
             load_promise.then(activatePanels)
 
     #RUN
-    
+
     setHideLoadingFunction ->
     showLoading 'Preparando sesión ...'
 

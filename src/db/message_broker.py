@@ -40,9 +40,9 @@ def send_message(message):
 
 
 @coroutine
-def _tailable_iteration(function: 'callable'=None,
-                        stop: bool=True,
-                        sleep: int=0):
+def _tailable_iteration(function: 'callable' = None,
+                        stop: bool = True,
+                        sleep: int = 0):
     global cursor
 
     while True:

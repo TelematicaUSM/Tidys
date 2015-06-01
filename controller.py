@@ -9,7 +9,6 @@ from urllib.parse import urlunparse
 
 import jwt
 import httplib2
-from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler
@@ -18,6 +17,7 @@ from oauth2client import client as oa2_client
 import conf
 from src import ui_modules, ui_methods, messages as msg, db
 from src.boiler_ui_module import BoilerUIModule
+from src.pub_sub import OwnerPubSub
 
 _path = 'controller'
 
@@ -209,31 +209,31 @@ class LoginHandler(RequestHandler):
 
 
 class MSGHandler(WebSocketHandler):
-    wsclasses = []
-    clients = set()
-    client_count = 0
     _path = msg.join_path(_path, 'MSGHandler')
+
+    ws_classes = []
+    clients = set()
+    client_count = 0    # Total clients that have connected
 
     def initialize(self):
         _path = msg.join_path(self._path, 'initialize')
         msg.code_debug(
             _path,
-            'New connection established! {} '
+            'New connection established! {0} '
             '({0.request.remote_ip})'.format(self)
         )
 
-        # FIXME: Aqui hay que agregar el nuevo pubsub
-        self.local_actions = {}
-        self.actions = {}
-        self.wsobjects = [wsclass(self)
-                          for wsclass in self.wsclasses]
+        self.local_pub_sub = OwnerPubSub()
+        self.ws_pub_sub = OwnerPubSub()
+        self.ws_objects = [ws_class(self)
+                           for ws_class in self.ws_classes]
 
         self.__class__.clients.add(self)
         self.__class__.client_count += 1
 
     @classmethod
     def add_class(cls, wsclass):
-        cls.wsclasses.append(wsclass)
+        cls.ws_classes.append(wsclass)
 
     @classmethod
     def broadcast(cls, message):
@@ -248,20 +248,9 @@ class MSGHandler(WebSocketHandler):
         )
 
         try:
+            # Throws ValueError
             message = json.loads(message)
-
-            for action in self.actions[message['type']]:
-                IOLoop.current().spawn_callback(action,
-                                                message)
-
-        except KeyError:
-            if 'type' in message:
-                self.send_error('wrongMessageType', message,
-                                'The client has sent a '
-                                'message of an '
-                                'unrecognized type.')
-            else:
-                self.send_malformed_message_error(message)
+            self.ws_pub_sub.distribute_message(message)
 
         except ValueError:
             self.send_malformed_message_error(message)
@@ -285,21 +274,16 @@ class MSGHandler(WebSocketHandler):
     def on_close(self):
         _path = msg.join_path(self._path, 'on_close')
 
+        for ws_object in self.ws_objects:
+            ws_object.unregister()
+
         self.__class__.clients.discard(self)
 
         msg.code_debug(
             _path,
-            'Connection closed! {} '
-            '({0.request.remote_ip}})'.format(self)
+            'Connection closed! {0} '
+            '({0.request.remote_ip})'.format(self)
         )
-
-        from pprint import pprint
-        import gc
-        gc.collect()
-        l = self.wsobjects
-        o = l[0]
-        r = gc.get_referrers(l[0])
-        pprint(r[0] is l)
 
     def write_message(self, message):
         _path = msg.join_path(self._path, 'write_message')
@@ -308,40 +292,6 @@ class MSGHandler(WebSocketHandler):
             'Sending message: {}.'.format(message)
         )
         super().write_message(message)
-
-    # @staticmethod
-    # def register_action_in(self, action_dict, msg_type,
-    #                        action):
-    #     if msg_type in self.actions:
-    #         self.actions[msg_type].add(action)
-    #     else:
-    #         self.actions[msg_type] = {action}
-    #
-    # def register_action(self, msg_type, action):
-    #     if msg_type in self.actions:
-    #         self.actions[msg_type].add(action)
-    #     else:
-    #         self.actions[msg_type] = {action}
-    #
-    # def local_register_action(self, msg_type, action):
-    #     if msg_type in self.local_actions:
-    #         self.local_actions[msg_type].add(action)
-    #     else:
-    #         self._actions[msg_type] = {action}
-    #
-    # def send_local_message(self, message):
-    #     _path = '.'.join((self._path, 'send_message'))
-    #
-    #     try:
-    #         for action in self._actions[message['type']]:
-    #             IOLoop.current().spawn_callback(action,
-    #                                             message)
-    #     except KeyError:
-    #         if 'type' in message:
-    #             msg.unrecognized_message_type(_path,
-    #                                           message)
-    #         else:
-    #             msg.malformed_message(_path, message)
 
 
 try:

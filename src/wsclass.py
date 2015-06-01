@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 from src import messages as msg
 from src.db import message_broker as mb
 
@@ -8,13 +10,13 @@ class WSClass(object):
     _path = '.'.join((_path, 'WSClass'))
 
     def __init__(self, handler):
-        _path = '.'.join((self._path, '__init__'))
+        _path = msg.join_path(self._path, '__init__')
 
         self.handler = handler
-        self._action_registers = {
-            'w': self.handler.register_action,
-            'd': mb.register_action,
-            'l': self.handler.local_register_action,
+        self._pub_subs = {
+            'w': self.handler.ws_pub_sub,
+            'd': mb,
+            'l': self.handler.local_pub_sub,
         }
 
         for attr_name in dir(self):
@@ -27,26 +29,25 @@ class WSClass(object):
                     )
                     self.register_action_in(
                         msg_type=_type, action=attribute,
-                        channels=channels, owner=self)
+                        channels=channels)
 
     def __del__(self):
-        _path = '.'.join((self._path, '__del__'))
+        _path = msg.join_path(self._path, '__del__')
         msg.code_debug(_path, 'Deleting WSClass ...')
 
-        mb.remove_owner(self)
-
-    def register_action_in(self, msg_type, action, channels,
-                           owner=None):
+    def register_action_in(self, msg_type, action,
+                           channels):
         for channel in channels:
-            register = self._action_registers[channel]
+            ps = self._pub_subs[channel]
+            ps.register(msg_type, action, self)
 
-            if channel == 'd':
-                register(owner, msg_type, action)
-            else:
-                register(msg_type, action)
+    def unregister(self):
+        for ps in self._pub_subs.values():
+            ps.remove_owner(self)
 
 
 class subscribe(object):
+
     """Append the msg_types attribute to a method.
 
     Each parameter should in one of the following forms:
