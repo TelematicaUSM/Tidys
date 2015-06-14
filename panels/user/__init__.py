@@ -4,8 +4,11 @@ import jwt
 from tornado.gen import coroutine
 
 import src
+from src import messages as msg
 from src.db import User, Code, NoObjectReturnedFromDB
 from src.wsclass import subscribe
+
+_path = msg.join_path('panels', 'user')
 
 
 class UserPanel(src.boiler_ui_module.BoilerUIModule):
@@ -25,9 +28,9 @@ class UserPanel(src.boiler_ui_module.BoilerUIModule):
 
 
 class UserWSC(src.wsclass.WSClass):
-    path = 'panels.user.__init__.UserWSC'
+    _path = msg.join_path(_path, 'UserWSC')
 
-    @subscribe('sessionToken')
+    @subscribe('sessionToken', channels={'w'})
     @coroutine
     def check_token(self, message):
         try:
@@ -37,6 +40,13 @@ class UserWSC(src.wsclass.WSClass):
             jwt.decode(message['token'], user.secret)
             self.handler.user = user
             self.handler.write_message({'type': 'tokenOk'})
+
+            user_msg_type = 'userMessage({})'.format(uid)
+            self.register_action_in(
+                user_msg_type,
+                action=self.route_db_message,
+                channels={'d'}
+            )
 
         except (jwt.ExpiredSignatureError, jwt.DecodeError,
                 NoObjectReturnedFromDB):

@@ -23,6 +23,10 @@ def stop_db():
 
 
 class NoObjectReturnedFromDB(Exception):
+    """
+    .. todo::
+        * Pass message through __init__.
+    """
     def __str__(self):
         return 'Exception: No object returned from ' \
                'database.'

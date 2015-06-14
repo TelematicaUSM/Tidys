@@ -13,6 +13,7 @@
 /static/js/
 /static/scss/bourbon_files/
 /src/utils/qrmaster/bourbon_files
+/temp/
 
 .sass-cache/
 __pycache__/
@@ -24,3 +25,8 @@ __pycache__/
 *.js
 *.css
 *.cache
+
+/doc/_build/
+/doc/log.log
+/doc/*.rst
+!/doc/index.rst

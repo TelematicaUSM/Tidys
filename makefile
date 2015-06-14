@@ -44,6 +44,7 @@ VPATH = static $(gembin) $(scsspath) $(nmodulespath) \
         make_empty_targets $(csspath)
 
 qrm_path = src/utils/qrmaster
+doc_path = doc
 
 green = \033[0;32m
 nc = \033[0m
@@ -59,9 +60,9 @@ dependencies: | make_empty_targets
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
-	mkdir virtualenv && \
-	curl $$(./get_venv_url.py) | tar xvfz - -C $@ \
-	                                 --strip-components=1
+	url=$$(./get_venv_url.py) && \
+	mkdir $@ && \
+	curl $$url | tar xvfz - -C $@ --strip-components=1
 
 env: | dependencies virtualenv
 	cd virtualenv && \
@@ -78,6 +79,9 @@ PIL: | env
 
 httplib2: | env
 	$(pip_install) git+https://github.com/jcgregorio/httplib2.git
+
+sphinx: | env
+	$(pip_install) Sphinx
 
 sass bourbon: | dependencies
 	$(use_gempath) && gem install --no-ri --no-rdoc $@
@@ -106,12 +110,12 @@ js: coffee | coffee-script
 
 .PHONY: run srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean panels notifications \
-	locking_panels qrmaster controls
+	locking_panels qrmaster controls autodoc clean_doc
 
-run: dependencies tornado motor jwt httplib2 oauth2client \
-     css js reconnecting-websocket.js normalize.css panels \
-     notifications locking_panels controls qrmaster \
-     termcolor
+run_py_deps = tornado motor jwt httplib2 oauth2client
+run: $(run_py_deps) dependencies css js \
+     reconnecting-websocket.js normalize.css panels \
+     notifications locking_panels controls qrmaster
 	$(python) -i $(program)
 
 srun:
@@ -120,14 +124,15 @@ srun:
 drun:
 	screen -d -m -S $(dir_name) $(MAKE) run
 
-qrmaster: dependencies tornado qrcode PIL sass $(bbfoldername)
+qrmaster_py_deps = tornado qrcode PIL
+qrmaster: dependencies sass $(bbfoldername) $(qrmaster_py_deps)
 	-cd $(qrm_path) && \
 	ln -s ../../../$(bbpath) $(bbfoldername)
 	$(sub_make_resources) && \
 	 cd $(qrm_path) && \
 	 $(MAKE)
 
-panels notifications locking_panels controls: coffee-script sass
+panels notifications locking_panels controls: coffee-script sass $(bbfoldername)
 	@echo "$(green)Executing makefiles in $@ ...$(nc)"
 	@$(sub_make_resources) && \
 	 cd $@ && \
@@ -155,11 +160,27 @@ jswatch:
 djswatch:
 	screen -d -m -S $(dir_name)_coffee $(MAKE) jswatch
 
+autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
+	$(runenv) && \
+	dir_name=$(dir_name) && \
+	cd .. && \
+	sphinx-apidoc --separate -f -o $$dir_name/$(doc_path) $$dir_name
+
+	$(runenv) && \
+	cd $(doc_path) && \
+	export AA_PATH=".." && \
+	$(MAKE) html
+
+clean_doc: sphinx
+	$(runenv) && cd $(doc_path) && $(MAKE) clean
+	cd $(doc_path) && \
+	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|conf.py\|[mM]akefile\)' -delete
+
 clean: sub_target = clean
-clean:
+clean: clean_doc
 	rm -rf $(bowerpath) env $(nmodulespath) \
 	       __pycache__ $(csspath) $(jspath) $(gempath) \
-	       log.log $(bbpath) virtualenv
+	       log.log $(bbpath) virtualenv temp
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
 	-cd locking_panels && $(make_iterate_over_d)

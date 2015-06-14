@@ -11,7 +11,7 @@ class BoilerUIModule(tornado.web.UIModule):
         'css_files': [],
         'js_files': [],
     }
-    
+
     @classmethod
     def add_handler(cls, app):
         if cls.conf['static_path'] and \
@@ -30,11 +30,12 @@ class BoilerUIModule(tornado.web.UIModule):
                                                  path)
 
     def render_string(self, path, **kwargs):
-        """Renders a template and returns it as a string."""
+        """Render a template and returns it as a string."""
         add_ext_file(self.handler, self.conf['css_files'],
                      self.make_static_url)
         add_ext_file(self.handler, self.conf['js_files'],
                      self.make_static_url)
-            
-        return self.handler.render_string(path,
-            make_static_url=self.make_static_url, **kwargs)
+
+        return self.handler.render_string(
+            path, make_static_url=self.make_static_url,
+            **kwargs)

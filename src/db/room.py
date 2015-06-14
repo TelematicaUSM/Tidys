@@ -114,6 +114,10 @@ class CodeType(Enum):
 
 
 class Code(DBObject):
+    """
+    .. todo::
+        * review error handling
+    """
     coll = db.codes
     _path = msg.join_path(_path, 'Code')
 

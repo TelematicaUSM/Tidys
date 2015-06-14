@@ -21,22 +21,21 @@ _path = 'src.db.message_broker'
 _coll_name = 'messages'
 _coll = db[_coll_name]
 cursor = None
-_ps = OwnerPubSub()
-
-# METHOD ALIASES:
-register = _ps.register
-remove_owner = _ps.remove_owner
 
 
 @coroutine
-def send_message(message):
-    if not isinstance(message, dict):
-        raise TypeError
-
-    if 'type' not in message:
-        raise ValueError
-
+def _send_message(message):
     yield _coll.insert(message)
+
+_ps = OwnerPubSub(
+    name='db_pub_sub',
+    send_function=_send_message
+)
+
+# METHOD ALIASES:
+register = _ps.register
+send_message = _ps.send_message
+remove_owner = _ps.remove_owner
 
 
 @coroutine
@@ -46,13 +45,13 @@ def _tailable_iteration(function: 'callable' = None,
     global cursor
 
     while True:
-        if not cursor or not cursor.alive:
+        if cursor is None or not cursor.alive:
             cursor = _coll.find(tailable=True,
                                 await_data=True)
 
         if (yield cursor.fetch_next):
             message = cursor.next_object()
-            if function:
+            if function is not None:
                 function(message)
         elif stop:
             return
@@ -71,7 +70,7 @@ def _broker_loop():
 
     yield _tailable_iteration()
     yield _tailable_iteration(
-        function=_ps.distribute_message, stop=False,
+        function=_ps.execute_actions, stop=False,
         sleep=1)
 
 

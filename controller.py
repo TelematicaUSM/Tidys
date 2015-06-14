@@ -1,9 +1,8 @@
 # -*- coding: UTF-8 -*-
 
 import json
-from sys import exit
 from datetime import datetime, timedelta
-from logging import critical
+from functools import partialmethod
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlunparse
 
@@ -17,7 +16,8 @@ from oauth2client import client as oa2_client
 import conf
 from src import ui_modules, ui_methods, messages as msg, db
 from src.boiler_ui_module import BoilerUIModule
-from src.pub_sub import OwnerPubSub
+from src.pub_sub import OwnerPubSub, NoMessageTypeError, \
+    UnrecognizedMessageError
 
 _path = 'controller'
 
@@ -223,8 +223,13 @@ class MSGHandler(WebSocketHandler):
             '({0.request.remote_ip})'.format(self)
         )
 
-        self.local_pub_sub = OwnerPubSub()
-        self.ws_pub_sub = OwnerPubSub()
+        self.local_pub_sub = OwnerPubSub(
+            name='local_pub_sub')
+
+        self.ws_pub_sub = OwnerPubSub(
+            name='ws_pub_sub',
+            send_function=self.write_message
+        )
         self.ws_objects = [ws_class(self)
                            for ws_class in self.ws_classes]
 
@@ -241,6 +246,15 @@ class MSGHandler(WebSocketHandler):
             client.write_message(message)
 
     def on_message(self, message):
+        """Process messages when they arrive.
+
+        :param str message:
+            The received message. This should be a valid
+            json document.
+
+        .. todo::
+            * Review error handling.
+        """
         _path = msg.join_path(self._path, 'on_message')
         msg.code_debug(
             _path,
@@ -250,26 +264,40 @@ class MSGHandler(WebSocketHandler):
         try:
             # Throws ValueError
             message = json.loads(message)
-            self.ws_pub_sub.distribute_message(message)
 
-        except ValueError:
+            self.ws_pub_sub.execute_actions(message)
+
+        except (ValueError, NoMessageTypeError):
             self.send_malformed_message_error(message)
+            msg.malformed_message(_path, message)
+
+        except UnrecognizedMessageError:
+            self.send_error(
+                'unrecognizedMessage',
+                message,
+                "The client has sent a message for which "
+                "there is no associated action."
+            )
+            msg.unrecognized_message_type(_path, message)
 
     def send_error(self, critical_type, message,
                    description):
-        self.write_message({'type': 'critical',
-                            'critical_type': critical_type,
-                            'message': message,
-                            'description': description})
+        self.write_message(
+            {'type': 'critical',
+             'critical_type': critical_type,
+             'message': message,
+             'description': description}
+        )
 
-    def send_malformed_message_error(self, message):
-        self.send_error('malformedMessage', message,
-                        "The client has sent a message "
-                        "which either isn't in JSON "
-                        "format, does not have a 'type' "
-                        "field or at least one attribute "
-                        "is not consistent with the "
-                        "others.")
+    send_malformed_message_error = partialmethod(
+        send_error,
+        'malformedMessage',
+        description="The client has sent a message which "
+                    "either isn't in JSON format, does not "
+                    "have a 'type' field or at least one "
+                    "attribute is not consistent with the "
+                    "others."
+    )
 
     def on_close(self):
         _path = msg.join_path(self._path, 'on_close')
@@ -284,14 +312,6 @@ class MSGHandler(WebSocketHandler):
             'Connection closed! {0} '
             '({0.request.remote_ip})'.format(self)
         )
-
-    def write_message(self, message):
-        _path = msg.join_path(self._path, 'write_message')
-        msg.code_debug(
-            _path,
-            'Sending message: {}.'.format(message)
-        )
-        super().write_message(message)
 
 
 try:
@@ -314,16 +334,27 @@ try:
 
     app.listen(conf.port)
 
+    # Import the modules which register actions in the
+    # MSGHandler
+    import backend_modules
+    import locking_panels
+    import notifications
     import panels
+
+    # BoilerUIModules that aren't automatically loaded from
+    # a package, must add their handlers to the app.
     for module in app.ui_modules.values():
         if issubclass(module, BoilerUIModule):
             module.add_handler(app)
 
-except FileNotFoundError as error:
-    if error.filename == conf.secrets_file:
-        msg.file_not_found(_path, error.filename,
-                           print_f=critical)
-        msg.closing()
-        exit(1)
+except FileNotFoundError as e:
+    if e.filename in (conf.secrets_file,
+                      conf.google_secrets_file):
+        desc = "Couldn't find the secrets file: " \
+            "{.filename}. Change your configuration in " \
+            "conf/__init__.py or create the file. " \
+            "For more information, see the " \
+            "documentation.".format(e)
+        raise FileNotFoundError(e.errno, desc) from e
     else:
         raise
