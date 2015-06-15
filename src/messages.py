@@ -20,9 +20,9 @@ def starting():
         'Starting on port {c.port} ...'.format(c=conf)
     )
 
-def wellcome():
+def welcome():
     print(
-        'Wellcome to {c.app_name}! Open {c.proxy_url} in '
+        'Welcome to {c.app_name}! Open {c.proxy_url} in '
         'your browser.'.format(c=conf)
     )
 

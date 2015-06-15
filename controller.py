@@ -1,9 +1,11 @@
 # -*- coding: UTF-8 -*-
 
-import conf, json
+import json
 
 from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
+
+import conf
 from tornado.websocket import WebSocketHandler
 from src import ui_modules, ui_methods, messages
 from src.boiler_ui_module import BoilerUIModule
@@ -113,11 +115,11 @@ class MSGHandler(WebSocketHandler):
 app = Application(
     [('/ws$', MSGHandler),
      ('/(.*)$', GUIHandler),],
-    debug = conf.debug,
-    static_path = './static',
-    template_path = './templates',
-    ui_modules = [ui_modules],
-    ui_methods = [ui_methods],
+    debug=conf.debug,
+    static_path='./static',
+    template_path='./templates',
+    ui_modules=[ui_modules],
+    ui_methods=[ui_methods],
 )
 
 app.listen(conf.port)

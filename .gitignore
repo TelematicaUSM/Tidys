@@ -3,12 +3,13 @@
 /virtualenv/
 /env/
 /gems/
+/make_empty_targets/
 /node_modules/
 /bower_components/
-/make_empty_targets/
 /static/css/
 /static/js/
 /static/scss/bourbon_files/
+/temp/
 
 .sass-cache/
 __pycache__/
@@ -19,3 +20,10 @@ __pycache__/
 *.map
 *.js
 *.css
+*.cache
+
+/doc/_build/
+/doc/log.log
+/doc/*.rst
+!/doc/index.rst
+!/doc/todo.rst
