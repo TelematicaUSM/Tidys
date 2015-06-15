@@ -116,7 +116,7 @@ autodoc: $(run_py_deps) sphinx
 clean_doc: sphinx
 	$(runenv) && cd $(doc_path) && $(MAKE) clean
 	cd $(doc_path) && \
-	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|conf.py\|[mM]akefile\)' -delete
+	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|todo.rst\|conf.py\|[mM]akefile\)' -delete
 
 clean: clean_doc
 	rm -rf $(bowerpath) env $(nmodulespath) \
