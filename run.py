@@ -30,7 +30,7 @@ def stop():
     @coroutine
     def callback():
         from src import db
-        db.stop()
+        yield db.stop()
         ioloop.stop()
 
     ioloop.add_callback(callback)
