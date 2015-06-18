@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Tornado Boiler documentation build configuration file, created by
+# Tornado Boxes documentation build configuration file, created by
 # sphinx-quickstart on Sun Jun 14 13:38:38 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -53,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Tornado Boiler'
+project = 'Tornado Boxes'
 copyright = '2015, Cristóbal Ganter'
 author = 'Cristóbal Ganter'
 
@@ -207,7 +207,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'TornadoBoilerdoc'
+htmlhelp_basename = 'TornadoBoxesdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -229,7 +229,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'TornadoBoiler.tex', 'Tornado Boiler Documentation',
+  (master_doc, 'TornadoBoxes.tex', 'Tornado Boxes Documentation',
    'Cristóbal Ganter', 'manual'),
 ]
 
@@ -259,7 +259,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'tornadoboiler', 'Tornado Boiler Documentation',
+    (master_doc, 'tornadoBoxes', 'Tornado Boxes Documentation',
      [author], 1)
 ]
 
@@ -273,8 +273,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'TornadoBoiler', 'Tornado Boiler Documentation',
-   author, 'TornadoBoiler', 'One line description of project.',
+  (master_doc, 'TornadoBoxes', 'Tornado Boxes Documentation',
+   author, 'TornadoBoxes', 'One line description of project.',
    'Miscellaneous'),
 ]
 

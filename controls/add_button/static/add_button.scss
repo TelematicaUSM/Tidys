@@ -1,0 +1,28 @@
+@import "../../../static/scss/constants";
+@import "../../../static/scss/bourbon_files/bourbon";
+
+.add-button {
+    $bposition: 9.5vmin;
+    $bsize: 4rem;
+    $max-bsize: 19vmin;
+    $min-bsize: 3rem;
+    
+    @include position(fixed, null $bposition $bposition
+                      null);
+    box-shadow: 0vmin 1vmin 2vmin 0vmin
+                rgba(75, 75, 75, 0.5);
+    border: none;
+    border-radius: 50%;
+    @include size($bsize);
+    max-height: $max-bsize;
+    max-width: $max-bsize;
+    min-height: $min-bsize;
+    min-width: $min-bsize;
+    background-color: $c-primary;
+    background-image: none;
+
+    svg {
+        vertical-align: middle;
+        @include size(100%);
+    }
+}

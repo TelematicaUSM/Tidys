@@ -37,7 +37,6 @@ make_iterate_over_d = for d in */ ; \
                               $(MAKE) -C "$$d" --no-print-directory $(sub_target); \
                           fi \
                       done
-clean: sub_target = clean
 
 VPATH = static $(gembin) $(scsspath) $(nmodulespath) \
         $(jspath) env/lib/python3.4/site-packages \
@@ -100,10 +99,10 @@ js: coffee | coffee-script
 
 .PHONY: run python srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean panels notifications locking_panels \
-        autodoc clean_doc
+        controls autodoc clean_doc
 
 run_py_deps = tornado
-run: $(run_py_deps) dependencies css normalize.css js reconnecting-websocket.js panels notifications locking_panels
+run: $(run_py_deps) dependencies css js reconnecting-websocket.js normalize.css panels notifications locking_panels controls
 	$(python) -i $(program)
 
 python: dependencies
@@ -115,8 +114,8 @@ srun:
 drun:
 	screen -d -m -S $(dir_name) $(MAKE) run
 
-panels notifications locking_panels: coffee-script sass
-	@echo "Executing makefiles in $@ ..."
+panels notifications locking_panels controls: coffee-script sass $(bbfoldername)
+	@echo "$(green)Executing makefiles in $@ ...$(nc)"
 	@$(sub_make_resources) && \
 	 cd $@ && \
 	 $(make_iterate_over_d)
@@ -159,6 +158,7 @@ clean_doc: sphinx
 	cd $(doc_path) && \
 	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|todo.rst\|conf.py\|[mM]akefile\)' -delete
 
+clean: sub_target = clean
 clean: clean_doc
 	rm -rf $(bowerpath) env $(nmodulespath) \
 	       __pycache__ $(csspath) $(jspath) $(gempath) \
@@ -166,3 +166,4 @@ clean: clean_doc
 	-cd panels && $(make_iterate_over_d)
 	-cd notifications && $(make_iterate_over_d)
 	-cd locking_panels && $(make_iterate_over_d)
+	-cd controls && $(make_iterate_over_d)

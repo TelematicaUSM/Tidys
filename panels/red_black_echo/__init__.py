@@ -1,8 +1,10 @@
 import src
+from src.wsclass import subscribe
 
 
-class UI(src.boiler_ui_module.BoilerUIModule):
-    _id = 'red_black_echo'
+class RedBlackEchoPanel(
+        src.boiler_ui_module.BoilerUIModule):
+    id_ = 'red_black_echo'
     classes = {'scrolling-panel'}
     name = 'Red-Black Echo'
     conf = {
@@ -11,23 +13,23 @@ class UI(src.boiler_ui_module.BoilerUIModule):
         'css_files': [],
         'js_files': ['rbe.js'],
     }
-    
+
     def render(self):
         return self.render_string(
-            '../panels/red_black_echo/demo.html')
+            '../panels/red_black_echo/rbe.html')
 
 
-class WS(src.wsclass.WSClass):
-    @src.wsclass.WSClass.subscribe('red')
+class RedBlackEchoWSC(src.wsclass.WSClass):
+    @subscribe('red', channels={'w'})
     def return_red(self, message):
-        self.handler.write_message({
+        self.handler.ws_pub_sub.send_message({
             'type': 'white',
             'string': 'Red said: "%s"' % message['string']
         })
-    
-    @src.wsclass.WSClass.subscribe('black')
+
+    @subscribe('black', channels={'w'})
     def return_black(self, message):
-        self.handler.write_message({
+        self.handler.ws_pub_sub.send_message({
             'type': 'white',
             'string': 'Black said: "%s"' % message['string']
         })

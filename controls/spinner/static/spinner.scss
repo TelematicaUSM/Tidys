@@ -1,0 +1,7 @@
+@import "../../../static/scss/bourbon_files/bourbon";
+
+.spinner-control {
+    display: block;
+    margin: auto;
+    @include size(23vmin);
+}

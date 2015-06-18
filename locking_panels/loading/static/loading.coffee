@@ -14,12 +14,14 @@ checkPromiseNum = ->
                               registered in this module
                               cannot be negative!")
 
-resolvePromise = =>
+resolvePromise = ->
     promise_num--
     checkPromiseNum()
     unless promise_num
         resolveLoadPromise()
-        @load_promise = null
+        #@load_promise = null #load_promise stays defined
+                              #until next showLoading
+                              #invocation
         resolveLoadPromise = null
 
 addPromise = (promise) ->
@@ -41,7 +43,7 @@ addPromise = (promise) ->
             (resolve, reject) ->
                 resolveLoadPromise = resolve
         )
-        @load_promise.then(hideLoading)
+        @load_promise.then(-> hideLoading())
     
     addPromise promise if promise
     loading_text.innerHTML = message

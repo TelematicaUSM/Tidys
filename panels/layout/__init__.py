@@ -2,7 +2,7 @@ import src
 
 
 class Layout(src.boiler_ui_module.BoilerUIModule):
-    _id = 'layout'
+    id_ = 'layout'
     classes = {'fixed-panel'}
     name = 'Layout'
     conf = {
@@ -11,7 +11,7 @@ class Layout(src.boiler_ui_module.BoilerUIModule):
         'css_files': ['layout.css'],
         'js_files': [],
     }
-    
+
     def render(self):
         return self.render_string(
             '../panels/layout/layout.html')

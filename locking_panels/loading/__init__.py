@@ -3,7 +3,7 @@ import src
 
 class LoadingLockingPanel(
         src.boiler_ui_module.BoilerUIModule):
-    _id = 'loading-panel'
+    id_ = 'loading-panel'
     classes = {'scrolling-panel', 'system-panel'}
     conf = {
         'static_url_prefix': '/loading/',
@@ -11,7 +11,7 @@ class LoadingLockingPanel(
         'css_files': ['loading.css'],
         'js_files': [],
     }
-    
+
     def render(self):
         return self.render_string(
             '../locking_panels/loading/loading.html')
