@@ -6,23 +6,23 @@ from tornado.util import bytes_type, unicode_type
 class IncludeExtFiles(tornado.web.UIModule):
     def render(self):
         return ''
-    
+
     def get_urls(self, file_extension):
         if hasattr(self.handler, 'ext_files'):
             ext_files = filter(
-                lambda fn: '.'+file_extension in fn,
+                lambda fn: '.' + file_extension in fn,
                 self.handler.ext_files)
         else:
             ext_files = []
-        
+
         return ext_files
-            
+
     def css_files(self):
         return self.get_urls('css')
-        
+
     def javascript_files(self):
         return self.get_urls('js')
-        
+
 
 class UIModuleLoader(tornado.web.UIModule):
     def __init__(self, handler):
@@ -34,7 +34,7 @@ class UIModuleLoader(tornado.web.UIModule):
         if module_class not in self.modules:
             module_instance = module_class(self.handler)
             self.modules[module_class] = module_instance
-            
+
             resources = {
                 'embedded_javascript':
                     module_instance.embedded_javascript(),
@@ -49,16 +49,16 @@ class UIModuleLoader(tornado.web.UIModule):
                 'html_body':
                     module_instance.html_body(),
             }
-            
+
             self._resource_list.append(resources)
-            
+
         return self.modules[module_class].render(*args,
                                                  **kwargs)
 
     def _get_resources(self, key):
         return (r[key] for r in self._resource_list
-                       if key in r
-                       if r[key])
+                if key in r
+                if r[key])
 
     def embedded_javascript(self):
         return "\n".join(self._get_resources(
