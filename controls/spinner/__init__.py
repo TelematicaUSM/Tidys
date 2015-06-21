@@ -8,8 +8,8 @@ class SpinnerControl(src.boiler_ui_module.BoilerUIModule):
         'css_files': ['spinner.css'],
         'js_files': [],
     }
-    
-    def render(self, _id=None):
+
+    def render(self, id_=None):
         return self.render_string(
             '../controls/spinner/spinner.html',
-            _id=_id)
+            id_=id_)

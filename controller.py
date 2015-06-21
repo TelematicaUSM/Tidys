@@ -210,6 +210,7 @@ class LoginHandler(RequestHandler):
 
 
 class MSGHandler(WebSocketHandler):
+
     """Serve the WebSocket clients.
 
     An instance of this class is created every time a
@@ -219,6 +220,7 @@ class MSGHandler(WebSocketHandler):
 
     .. automethod:: _finalize
     """
+
     _path = msg.join_path(_path, 'MSGHandler')
 
     ws_classes = []
@@ -258,7 +260,7 @@ class MSGHandler(WebSocketHandler):
     @classmethod
     def broadcast(cls, message):
         for client in cls.clients:
-            client.write_message(message)
+            client.ws_pub_sub.send_message(message)
 
     def on_message(self, message):
         """Process messages when they arrive.

@@ -1,23 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 150 150" class='spinner-control'
-     {% raw "id='{}'".format(_id) if _id else '' %}>
-     
+     {% raw "id='{}'".format(id_) if id_ else '' %}>
+
     <path d="M 35,35  35,115 115,115 115, 35 35,35 z
              M 30,30 120, 30 120,120  30,120 30,30 z"
           style="fill:#7878d7; fill-opacity:0.6;
                  stroke:none">
-                     
+
         <animateTransform attributeName="transform"
                           begin="0s" dur="20s" type="rotate"
                           from="0 75 75" to="360 75 75"
                           repeatCount="indefinite"/>
     </path>
-    
+
     <path d="M 35,35  35,115 115,115 115, 35 35,35 z
              M 30,30 120, 30 120,120  30,120 30,30 z"
           style="fill:#e21e3a; fill-opacity:0.8;
                  stroke:none">
-                     
+
         <animateTransform attributeName="transform"
                           begin="0s" dur="20s" type="rotate"
                           from="0 75 75" to="-360 75 75"

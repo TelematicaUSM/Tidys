@@ -8,8 +8,8 @@ class AddButtonControl(src.boiler_ui_module.BoilerUIModule):
         'css_files': ['add_button.css'],
         'js_files': [],
     }
-    
-    def render(self, _id):
+
+    def render(self, id_):
         return self.render_string(
             '../controls/add_button/add_button.html',
-            _id=_id)
+            id_=id_)

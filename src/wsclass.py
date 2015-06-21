@@ -4,6 +4,7 @@ from functools import partialmethod
 from weakref import finalize
 
 from src import messages as msg
+from src.db import message_broker as mb
 from src.pub_sub import MalformedMessageError, \
     UnrecognizedOwnerError
 

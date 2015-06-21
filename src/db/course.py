@@ -6,6 +6,7 @@ from pymongo import ASCENDING
 from .common import db
 from .db_object import DBObject
 
+
 class Course(DBObject):
     coll = db.courses
     path = 'src.db.course.Course'
@@ -16,9 +17,9 @@ class Course(DBObject):
         compacted_name = name.replace(' ', '')
         norm_name = normalize('NFKC', compacted_name)
         casefolded_name = norm_name.casefold()
-        _id = str(user.id) + casefolded_name
+        id_ = str(user.id) + casefolded_name
 
-        self = yield super().create(_id)
+        self = yield super().create(id_)
         yield self.store_dict(
             {'name': name, 'user_id': user.id})
         return self

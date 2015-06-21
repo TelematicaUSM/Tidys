@@ -231,7 +231,7 @@ class NoMessageTypeError(MalformedMessageError):
 
     """Rise when a message doesn't have the ``type`` key."""
 
-    def __init__(*args):
+    def __init__(self, *args):
         super().__init__(
             "All messages must have the 'type' key.", *args)
 
@@ -247,7 +247,7 @@ class NoActionForMsgTypeError(UnrecognizedMessageError):
 
     """Raise when there's no action for a message type."""
 
-    def __init__(*args):
+    def __init__(self, *args):
         super().__init__(
             "There's no registered action for this message "
             "type.",
@@ -266,7 +266,7 @@ class MsgIsNotDictError(TypeError):
 
     """Raise when a message is not an instance of dict."""
 
-    def __init__(*args):
+    def __init__(self, *args):
         super().__init__(
             'Messages must be instances of ``dict``.',
             *args

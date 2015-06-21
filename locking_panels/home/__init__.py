@@ -3,7 +3,7 @@ import src
 
 class HomeLockingPanel(
         src.boiler_ui_module.BoilerUIModule):
-    _id = 'home-panel'
+    id_ = 'home-panel'
     classes = {'scrolling-panel', 'system-panel'}
     conf = {
         'static_url_prefix': '/home/',
@@ -11,7 +11,7 @@ class HomeLockingPanel(
         'css_files': ['home.css'],
         'js_files': [],
     }
-    
+
     def render(self):
         return self.render_string(
             '../locking_panels/home/home.html')

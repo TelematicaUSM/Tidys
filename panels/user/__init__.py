@@ -1,18 +1,44 @@
 # -*- coding: UTF-8 -*-
 
+"""Render the user panel and process all user messages.
+
+This module patches the :class:`controller.MSGHandler`
+class, adding the
+:meth:`controller.MSGHandler.send_user_not_loaded_error` and
+:meth:`controller.MSGHandler.send_room_not_loaded_error`
+methods.
+"""
+
+from functools import partialmethod
+
 import jwt
 from tornado.gen import coroutine
 
 import src
+from controller import MSGHandler
 from src import messages as msg
 from src.db import User, Code, NoObjectReturnedFromDB
 from src.wsclass import subscribe
 
 _path = msg.join_path('panels', 'user')
 
+MSGHandler.send_user_not_loaded_error = partialmethod(
+    MSGHandler.send_error,
+    'userNotLoaded',
+    description='There was no loaded user when '
+                'this message arrived.'
+)
+
+MSGHandler.send_room_not_loaded_error = partialmethod(
+    MSGHandler.send_error,
+    'roomNotLoaded',
+    description='There was no loaded room when '
+    'this message arrived.'
+)
+
 
 class UserPanel(src.boiler_ui_module.BoilerUIModule):
-    _id = 'user-panel'
+    id_ = 'user-panel'
     classes = {'scrolling-panel', 'system-panel'}
     name = 'Usuario'
     conf = {
@@ -28,6 +54,9 @@ class UserPanel(src.boiler_ui_module.BoilerUIModule):
 
 
 class UserWSC(src.wsclass.WSClass):
+
+    """Process user messages"""
+
     _path = msg.join_path(_path, 'UserWSC')
 
     @subscribe('sessionToken', channels={'w'})
@@ -39,7 +68,8 @@ class UserWSC(src.wsclass.WSClass):
             user = yield User(uid)
             jwt.decode(message['token'], user.secret)
             self.handler.user = user
-            self.handler.write_message({'type': 'tokenOk'})
+            self.pub_subs['w'].send_message(
+                {'type': 'tokenOk'})
 
             user_msg_type = 'userMessage({})'.format(uid)
             self.register_action_in(
@@ -50,29 +80,18 @@ class UserWSC(src.wsclass.WSClass):
 
         except (jwt.ExpiredSignatureError, jwt.DecodeError,
                 NoObjectReturnedFromDB):
-            self.handler.write_message({'type': 'logout'})
+            self.pub_subs['w'].send_message(
+                {'type': 'logout'})
 
     @subscribe('getUserName')
     def get_user_name(self, message):
         try:
             name = self.handler.user.name
-            self.handler.write_message({'type': 'userName',
-                                        'name': name})
+            self.pub_subs['w'].send_message(
+                {'type': 'userName',
+                 'name': name})
         except AttributeError:
-            self.send_user_not_loaded_error(self.handler,
-                                            message)
-
-    @staticmethod
-    def send_user_not_loaded_error(handler, message):
-        handler.send_error('userNotLoaded', message,
-                           'There was no loaded user when '
-                           'this message arrived.')
-
-    @staticmethod
-    def send_room_not_loaded_error(handler, message):
-        handler.send_error('roomNotLoaded', message,
-                           'There was no loaded room when '
-                           'this message arrived.')
+            self.send_user_not_loaded_error(message)
 
     @subscribe('roomCode')
     @coroutine
@@ -81,7 +100,7 @@ class UserWSC(src.wsclass.WSClass):
             room_code = yield Code(message['room_code'])
             self.handler.room_code = room_code
             self.handler.room = yield room_code.room
-            self.handler.write_message(
+            self.pub_subs['w'].send_message(
                 {'type': 'roomCodeOk',
                  'code_type': room_code.code_type.value,
                  'room_name': self.handler.room.name})
