@@ -59,7 +59,7 @@ class MSGHandler(WebSocketHandler):
             send_function=self.write_message
         )
         self.ws_objects = {
-            ws_class.__class__: ws_class(self)
+            ws_class: ws_class(self)
             for ws_class in self.ws_classes}
 
         # Call ``self._finalize`` when this object is about
