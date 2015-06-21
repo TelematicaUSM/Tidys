@@ -167,6 +167,10 @@ class subscribe(object):
     ``'w'``, ``'l'``. The channel strings mean:
     Websocket and Local.
 
+    If there are only 2 string parameters and the second is
+    one character long then this parameters are interpreted
+    as ``subscribe(type, channel)``.
+
     This class should be used as a decorator.
 
     :raises TypeError:
@@ -182,6 +186,12 @@ class subscribe(object):
 
     def __init__(self, *msg_types,
                  channels={'w', 'l'}):
+
+        if len(msg_types) == 2 and \
+                isinstance(msg_types[0], str) and \
+                isinstance(msg_types[1], str) and \
+                len(msg_types[1]) == 1:
+            msg_types = ((msg_types[0], msg_types[1]),)
 
         for t in msg_types:
             if not isinstance(t, (tuple, str)):

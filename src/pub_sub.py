@@ -268,6 +268,6 @@ class MsgIsNotDictError(TypeError):
 
     def __init__(self, *args):
         super().__init__(
-            'Messages must be instances of ``dict``.',
+            'Messages must be instances of dict.',
             *args
         )
