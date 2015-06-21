@@ -16,6 +16,7 @@ from tornado.gen import coroutine
 
 import src
 from controller import MSGHandler
+from backend_modules import router
 from src import messages as msg
 from src.db import User, Code, NoObjectReturnedFromDB
 from src.wsclass import subscribe
@@ -71,10 +72,15 @@ class UserWSC(src.wsclass.WSClass):
             self.pub_subs['w'].send_message(
                 {'type': 'tokenOk'})
 
+            # from pprint import pprint
+            # pprint(self.handler.ws_objects)
+
             user_msg_type = 'userMessage({})'.format(uid)
+            router_object = self.handler.ws_objects[
+                router.RouterWSC]
             self.register_action_in(
                 user_msg_type,
-                action=self.route_db_message,
+                action=router_object.to_local,
                 channels={'d'}
             )
 
