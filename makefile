@@ -1,6 +1,5 @@
 .DEFAULT_GOAL = run
 program = run.py
-pub_remote = prod
 dir_name = $${PWD\#\#*/}
 
 runenv = . env/bin/activate
@@ -108,7 +107,7 @@ reconnecting-websocket.js: | bower js
 js: coffee | coffee-script
 	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
 
-.PHONY: run srun drun testenv attach csswatch dcsswatch \
+.PHONY: run python srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean panels notifications \
 	locking_panels qrmaster controls autodoc clean_doc
 
@@ -117,6 +116,9 @@ run: $(run_py_deps) dependencies css js \
      reconnecting-websocket.js normalize.css panels \
      notifications locking_panels controls qrmaster
 	$(python) -i $(program)
+
+python: dependencies
+	$(python)
 
 srun:
 	screen -S $(dir_name) $(MAKE) run
@@ -174,7 +176,7 @@ autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
 clean_doc: sphinx
 	$(runenv) && cd $(doc_path) && $(MAKE) clean
 	cd $(doc_path) && \
-	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|conf.py\|[mM]akefile\)' -delete
+	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|todo.rst\|conf.py\|[mM]akefile\)' -delete
 
 clean: sub_target = clean
 clean: clean_doc

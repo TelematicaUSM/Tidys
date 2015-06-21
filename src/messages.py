@@ -28,9 +28,9 @@ def starting():
     )
 
 
-def wellcome():
+def welcome():
     print(
-        'Wellcome to {c.app_name}! Open {c.proxy_url} in '
+        'Welcome to {c.app_name}! Open {c.proxy_url} in '
         'your browser.'.format(c=conf)
     )
 
@@ -43,6 +43,11 @@ def code_related_message(code_path, message, print_f=print):
 
 def code_info(code_path, message):
     code_related_message(code_path, message, print_f=info)
+
+
+def code_warning(code_path, message):
+    code_related_message(code_path, message,
+                         print_f=warning)
 
 
 def code_debug(code_path, message):
@@ -85,8 +90,7 @@ def try_new_id_after_dup_obj_in_db(code_path):
 
 
 def exhausted_tries(code_path):
-    code_critical(
-        code_path,
+    code_critical(code_path,
         'We exhausted all tries in an algorithm and '
         'didn\'t have luck. Try incrementing the maximum'
         'number of tries.'
@@ -107,11 +111,11 @@ def obj_creation_error(code_path, cls, *args, **kwargs):
     )
 
 
-def unrecognized_message_type(code_path, message):
+def no_action_for_msg_type(code_path, message):
     code_error(
         code_path,
-        'Someone has sent a message of an '
-        'unrecognized type! Message: {}'.format(message)
+        'Someone has sent a message for which there is no '
+        'associated action! Message: {}'.format(message)
     )
 
 

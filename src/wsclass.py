@@ -1,15 +1,23 @@
 # -*- coding: UTF-8 -*-
 
 from functools import partialmethod
+from weakref import finalize
 
 from src import messages as msg
-from src.db import message_broker as mb
-from src.pub_sub import MalformedMessageError
+from src.pub_sub import MalformedMessageError, \
+    UnrecognizedOwnerError
 
 _path = 'src.swclass'
 
 
 class WSClass(object):
+
+    """Attaches its methods to a controller.MSGHandler.
+
+    .. todo::
+        *   Explain this class better XD.
+    """
+
     _path = '.'.join((_path, 'WSClass'))
 
     def __init__(self, handler):
@@ -34,13 +42,15 @@ class WSClass(object):
                         msg_type=_type, action=attribute,
                         channels=channels)
 
+        finalize(
+            self, msg.code_debug, self._path,
+            'Deleting WSClass {0} from {0.handler} '
+            '...'.format(self)
+        )
+
     @property
     def channels(self):
         return self.pub_subs.keys()
-
-    def __del__(self):
-        _path = msg.join_path(self._path, '__del__')
-        msg.code_debug(_path, 'Deleting WSClass ...')
 
     def redirect_to(self, channel, message, content=False):
         """Redirect ``message`` through ``channel``.
@@ -70,14 +80,14 @@ class WSClass(object):
             If ``channel`` is not one of ``self.pub_subs``
             keys.
 
-        :raises TypeError:
+        :raises MsgIsNotDictError:
             If ``message`` is not a dictionary.
 
         :raises NoMessageTypeError:
             If the message or it's content doesn't have the
             ``'type'`` key.
 
-        :raises UnrecognizedMessageError:
+        :raises NoActionForMsgTypeError:
             If ``send_function`` of the ``PubSub`` object
             wasn't specified during object creation and
             there's no registered action for this message
@@ -140,7 +150,10 @@ class WSClass(object):
 
     def unregister(self):
         for ps in self.pub_subs.values():
-            ps.remove_owner(self)
+            try:
+                ps.remove_owner(self)
+            except UnrecognizedOwnerError:
+                pass
 
 
 class subscribe(object):
@@ -156,6 +169,14 @@ class subscribe(object):
     Websocket, Database and Local.
 
     This class should be used as a decorator.
+
+    :raises TypeError:
+        If any element of ``msg_types`` is not a tuple or a
+        string.
+
+    :raises ValueError:
+        If any tuple in ``msg_types`` has a length different
+        than 2.
     """
 
     _path = '.'.join((_path, 'subscribe'))
@@ -165,10 +186,16 @@ class subscribe(object):
 
         for t in msg_types:
             if not isinstance(t, (tuple, str)):
-                raise TypeError
+                raise TypeError(
+                    'msg_types has an element that is not '
+                    'a tuple or a string.'
+                )
 
             if isinstance(t, tuple) and len(t) != 2:
-                raise ValueError
+                raise ValueError(
+                    'msg_types has a tuple that has a '
+                    'length different than 2.'
+                )
 
         self.msg_types = [(t, channels)
                           for t in msg_types

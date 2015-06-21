@@ -30,3 +30,4 @@ __pycache__/
 /doc/log.log
 /doc/*.rst
 !/doc/index.rst
+!/doc/todo.rst

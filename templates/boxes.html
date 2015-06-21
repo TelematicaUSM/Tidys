@@ -9,17 +9,17 @@
     
     {% from notifications import boiler_ui_modules as \
        notifications %}
-    
+
     <button type="button" id="main-menu-button">
         <img src="{{ static_url('images/main-menu.svg') }}">
     </button>
-    
+
     <h1 id="header-title">
         {% if 'header_title' in globals() %}
             {{ header_title }}
         {% end %}
     </h1>
-    
+
     <div id="notifications">
         {% for notification in notifications %}
             {% module UIModuleLoader(notification) %}
@@ -31,39 +31,39 @@
     {% from panels import boiler_ui_modules as panels %}
     {% from locking_panels import boiler_ui_modules as \
        locking_panels %}
-    
+
     {% if 'classes' in globals() and classes %}
         {% set panels = filter_classes(panels, classes) %}
-            
+
         {% set locking_panels = \
             filter_classes(locking_panels, classes) %}
     {% end %}
-    
+
     {{ add_ext_file('js/bubble.js') }}
     <div id="message-bubble">Message Bubble</div>
-    
+
     <div id="content-shade"></div>
-    
+
     <nav id="main-menu">
         {% for panel in panels %}
             <button type="button" class="main-menu-item"
-                    data-panel-id="{{ panel._id }}">
+                    data-panel-id="{{ panel.id_ }}">
                 {{ panel.name }}
             </button>
         {% end %}
     </nav>
-    
+
     {% for locking_panel in locking_panels %}
         <div class="{{ ' '.join(locking_panel.classes) }}
                     locking_panel"
-             id="{{ locking_panel._id }}">
+             id="{{ locking_panel.id_ }}">
             {% module UIModuleLoader(locking_panel) %}
         </div>
     {% end %}
 
     {% for panel in panels %}
         <section class="{{ ' '.join(panel.classes) }}"
-                 id="{{ panel._id }}">
+                 id="{{ panel.id_ }}">
             <h1 class="panel-title">{{ panel.name }}</h1>
             {% module UIModuleLoader(panel) %}
         </section>

@@ -10,7 +10,7 @@ class ConnectionIndicator(
         'css_files': ['conn-ind.css'],
         'js_files': ['conn-ind.js'],
     }
-    
+
     def render(self):
         return self.render_string(
             '../notifications/connection_indicator/'

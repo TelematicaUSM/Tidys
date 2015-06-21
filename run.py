@@ -21,7 +21,7 @@ def start():
     t = Thread(target=lambda: ioloop.start())
     t.start()
 
-    messages.wellcome()
+    messages.welcome()
 
 
 def stop():
@@ -53,12 +53,7 @@ if __name__ == "__main__":
     def make(goal):
         from os import system
         system('make %s' % goal)
-
-    @run_inside(ioloop.add_callback)
-    def bcast(message):
-        from controller import MSGHandler
-        MSGHandler.broadcast(message)
-
+    
     @run_inside(ioloop.add_callback)
     def clients():
         from controller import MSGHandler
@@ -70,6 +65,11 @@ if __name__ == "__main__":
             'Total connections closed: %d' %
             (total - current)
         )
+
+    @run_inside(ioloop.add_callback)
+    def bcast(message):
+        from controller import MSGHandler
+        MSGHandler.broadcast(message)
 
     @run_inside(ioloop.add_callback)
     @coroutine
