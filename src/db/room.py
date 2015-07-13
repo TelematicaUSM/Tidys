@@ -8,7 +8,8 @@ from pymongo.errors import DuplicateKeyError, \
     OperationFailure
 from src import messages as msg
 from src.utils import run_in_thread, random_word
-from .common import db, NoObjectReturnedFromDB
+from .common import db, NoObjectReturnedFromDB, \
+    ConditionNotMetError
 from .db_object import DBObject
 
 
@@ -82,17 +83,44 @@ class Room(DBObject):
 
     @coroutine
     def assign_course(self, course_id):
-        data = yield self.coll.find_and_modify(
-            {'_id': self.id},
+        yield self.modify(
             {
                 '$addToSet': {'courses': course_id}
-            },
-            new=True)
+            }
+        )
 
-        if data is None:
-            raise NoObjectReturnedFromDB
-        else:
-            self._data = data
+    @coroutine
+    def deassign_course(self, course_id):
+        yield self.modify(
+            {
+                '$pull': {'courses': course_id}
+            }
+        )
+
+    @coroutine
+    def _modify_seat(self, seat_id, use):
+        try:
+            used = 'seats.{}.used'.format(seat_id)
+            yield self.modify_if(
+                {used: not use},
+                {
+                    '$set': {used: use}
+                }
+            )
+        except ConditionNotMetError as e:
+            cnme = ConditionNotMetError(
+                'The seat {} is{} used.'.format(
+                    seat_id, '' if use else ' not')
+            )
+            raise cnme from e
+
+    @coroutine
+    def use_seat(self, seat_id):
+        yield self._modify_seat(seat_id, use=True)
+
+    @coroutine
+    def leave_seat(self, seat_id):
+        yield self._modify_seat(seat_id, use=False)
 
     @property
     def name(self):
@@ -114,10 +142,13 @@ class CodeType(Enum):
 
 
 class Code(DBObject):
-    """
+
+    """Interface to the ``codes`` collection.
+
     .. todo::
-        * review error handling
+        * Review error handling.
     """
+
     coll = db.codes
     _path = msg.join_path(_path, 'Code')
 
@@ -128,7 +159,8 @@ class Code(DBObject):
             try:
                 code = random_word(
                     5, ascii_lowercase + digits)
-                return (yield super().create(code), code)
+                self = yield super().create(code)
+                return (self, code)
 
             except DuplicateKeyError:
                 msg.try_new_id_after_dup_obj_in_db(
@@ -139,6 +171,7 @@ class Code(DBObject):
     @classmethod
     @coroutine
     def create(cls, room_id, code_type, seat_id=None):
+        """Create a new code."""
         _path = msg.join_path(cls._path, 'create')
 
         def creat_err_msg():

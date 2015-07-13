@@ -6,9 +6,7 @@ logout_button = document.getElementById 'logout'
 
 logout_button.addEventListener 'click', logout
 
-ws.getMessagePromise('tokenOk').then ->
-    showLoading('Obteniendo nombre de usuario ...',
-                ws.getMessagePromise 'userName')
+ws.getMessagePromise('session.start.ok').then ->
     ws.sendSafeJSON
         'type': 'getUserName'
 

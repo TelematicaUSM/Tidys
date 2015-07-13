@@ -29,7 +29,9 @@ def stop():
 
     @coroutine
     def callback():
+        from controller import MSGHandler
         from src import db
+        MSGHandler.stop()
         yield db.stop()
         ioloop.stop()
 
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     def make(goal):
         from os import system
         system('make %s' % goal)
-    
+
     @run_inside(ioloop.add_callback)
     def clients():
         from controller import MSGHandler

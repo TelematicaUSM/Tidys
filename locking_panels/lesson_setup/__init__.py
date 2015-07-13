@@ -5,7 +5,7 @@ import panels
 from tornado.gen import coroutine
 from tornado.escape import xhtml_escape
 from pymongo.errors import DuplicateKeyError
-from src.db import Course
+from src.db import Course, NoObjectReturnedFromDB
 from src.wsclass import subscribe
 
 
@@ -71,8 +71,8 @@ class LessonSetupWSC(src.wsclass.WSClass):
         except AttributeError:
             if not hasattr(self.handler, 'user'):
                 panels.user.UserWSC.\
-                        send_user_not_loaded_error(
-                    self.handler, message)
+                    send_user_not_loaded_error(
+                        self.handler, message)
 
         except DuplicateKeyError:
             self.pub_subs['w'].send_message(
@@ -83,18 +83,20 @@ class LessonSetupWSC(src.wsclass.WSClass):
     @coroutine
     def assign_course_to_current_room(self, message):
         try:
+            self.handler.course = yield Course(
+                message['course_id'])
             room = yield self.handler.room_code.room
             yield room.assign_course(message['course_id'])
 
             self.pub_subs['w'].send_message(
                 {'type': 'courseAssignmentOk'})
 
-        except KeyError:
+        except (KeyError, NoObjectReturnedFromDB):
             self.handler.send_malformed_message_error(
                 message)
 
         except AttributeError:
             if not hasattr(self.handler, 'room_code'):
                 panels.user.UserWSC.\
-                        send_room_not_loaded_error(
-                    self.handler, message)
+                    send_room_not_loaded_error(
+                        self.handler, message)

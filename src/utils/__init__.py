@@ -1,7 +1,11 @@
 # -*- coding: UTF-8 -*-
 
 from string import ascii_letters, digits, punctuation
+from functools import partial
+from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor
+
+from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
 
 
@@ -48,3 +52,19 @@ def run_in_thread(func, *args, **kwargs):
     with ThreadPoolExecutor(1) as thread:
         result = yield thread.submit(func, *args, **kwargs)
     return result
+
+
+@contextmanager
+def suppress_attr_exc(obj, *attributes):
+    try:
+        yield obj
+
+    except:
+        if all(hasattr(obj, a) and
+               getattr(obj, a) is not None
+               for a in attributes):
+            raise
+
+
+def ioloop_callback(f):
+    return partial(IOLoop.current().spawn_callback, f)

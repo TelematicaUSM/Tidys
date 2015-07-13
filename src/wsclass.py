@@ -81,7 +81,7 @@ class WSClass(object):
             If ``channel`` is not one of ``self.pub_subs``
             keys.
 
-        :raises MsgIsNotDictError:
+        :raises NotDictError:
             If ``message`` is not a dictionary.
 
         :raises NoMessageTypeError:
@@ -155,6 +155,9 @@ class WSClass(object):
                 ps.remove_owner(self)
             except UnrecognizedOwnerError:
                 pass
+
+    def end(self):
+        self.unregister()
 
 
 class subscribe(object):

@@ -42,6 +42,12 @@ remove_owner = _ps.remove_owner
 def _tailable_iteration(function: 'callable' = None,
                         stop: bool = True,
                         sleep: int = 0):
+    """Iterates through a tailable cursor.
+
+    .. todo::
+        *   Use ``tornado.gen.sleep`` instead of
+            ``Task(IOLoop.current().call_later, sleep)``.
+    """
     global cursor
 
     while True:

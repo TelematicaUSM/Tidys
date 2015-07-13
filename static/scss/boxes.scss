@@ -77,11 +77,19 @@
     text-align: justify;
 }
 
-.box > h1:first-child {
+.box-title {
     margin: 0rem 0rem 1rem;
+    font-size: 1rem;
+}
+
+.box-ulined-title {
+    @extend .box-title;
     border-bottom: 1px solid $c-control-border;
     padding: 0rem 0rem 0.5rem;
-    font-size: 1rem;
+}
+
+.box > h1:first-child {
+    @extend .box-title;
 }
 
 #message-bubble {

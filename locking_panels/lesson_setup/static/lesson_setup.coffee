@@ -18,14 +18,12 @@ new_course_name = document.getElementById 'new-course-name'
     switchToPanel(panel_id)
 
 assignCourseToCurrentRoom = (course_id) ->
-    send = -> ws.sendJSONIfOpen
+    ws.sendJSONIfOpen
         'type': 'assignCourseToCurrentRoom'
         'course_id': course_id
-    send()
-    ws.addMessageListener 'roomCodeOk', send
 
 #SETUP
-ws.getMessagePromise('tokenOk').then ->
+ws.getMessagePromise('session.start.ok').then ->
     ws.sendSafeJSON
         'type': 'getCourses'
 
@@ -33,7 +31,7 @@ ws.addMessageListener 'courseAssignmentOk', activatePanels
 
 ws.getMessagePromise('courses').then (message) ->
     spinner.style.display = 'none'
-    
+
     if message.courses.length is 0
         hideElements [new_course_button, select_course_box,
                       cancel_button]
@@ -41,10 +39,10 @@ ws.getMessagePromise('courses').then (message) ->
     else
         hideElements new_course_box
         showElements [new_course_button, select_course_box]
-        
+
     tbutton = template.content.querySelector 'button'
     for course in message.courses
-        button = tbutton.cloneNode()
+        button = document.importNode(tbutton, true)
         button.textContent = course.name
         button.course_id = course._id
         button.addEventListener 'click', (event) ->
@@ -80,12 +78,12 @@ ws.addMessageListener 'createCourseResult', (message) ->
     switch message.result
         when 'ok' then assignCourseToCurrentRoom(
             message.course_id)
-        
+
         when 'emptyName' then showErrorBubble(
             'El nombre pareciera estar vacío!')
-        
+
         when 'duplicate' then showErrorBubble(
             'El curso que quiere crear ya existe!')
-        
+
         else showErrorBubble(
             'No se ha podido crear el curso!')

@@ -5,6 +5,7 @@ from warnings import warn
 from tornado.ioloop import IOLoop
 
 from src import messages as msg
+from src.exeptions import NotDictError
 
 _path = msg.join_path('src', 'pub_sub')
 
@@ -61,9 +62,13 @@ class PubSub(object):
         during object creation. If not,
         ``self.execute_actions`` is used.
 
+        The message will be sent on the next iteration of
+        the IOLoop. If you need to send the message
+        immediately use "self.send_function" directly.
+
         :param dict message: The message to be sent.
 
-        :raises MsgIsNotDictError:
+        :raises NotDictError:
             If ``message`` is not a dictionary.
 
         :raises NoMessageTypeError:
@@ -77,7 +82,7 @@ class PubSub(object):
         _path = msg.join_path(self._path, 'send_message')
 
         if not isinstance(message, dict):
-            raise MsgIsNotDictError(message)
+            raise NotDictError('message', message)
 
         if 'type' not in message:
             raise NoMessageTypeError(message)
@@ -105,7 +110,7 @@ class PubSub(object):
             If there's no registered action for this message
             type.
 
-        :raises MsgIsNotDictError:
+        :raises NotDictError:
             If ``message`` is not an instance of ``dict``.
         """
         _path = msg.join_path(self._path, 'execute_actions')
@@ -120,7 +125,8 @@ class PubSub(object):
                                                 message)
         except TypeError as te:
             if not isinstance(message, dict):
-                raise MsgIsNotDictError(message) from te
+                nde = NotDictError('message', message)
+                raise nde from te
             else:
                 raise
 
@@ -260,14 +266,3 @@ class UnrecognizedOwnerError(KeyError):
     """Rise when an owner wasn't found in a dict."""
 
     pass
-
-
-class MsgIsNotDictError(TypeError):
-
-    """Raise when a message is not an instance of dict."""
-
-    def __init__(self, *args):
-        super().__init__(
-            'Messages must be instances of dict.',
-            *args
-        )

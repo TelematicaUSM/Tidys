@@ -11,14 +11,16 @@ import jwt
 import httplib2
 from tornado.gen import coroutine
 from tornado.web import Application, RequestHandler
-from tornado.websocket import WebSocketHandler
+from tornado.websocket import WebSocketHandler, \
+    WebSocketClosedError
 from oauth2client import client as oa2_client
 
 import conf
 from src import ui_modules, ui_methods, messages as msg, db
 from src.boiler_ui_module import BoilerUIModule
 from src.pub_sub import OwnerPubSub, NoMessageTypeError, \
-    NoActionForMsgTypeError, MsgIsNotDictError
+    NoActionForMsgTypeError
+from src.exeptions import NotDictError
 
 _path = 'controller'
 
@@ -26,6 +28,7 @@ _path = 'controller'
 class GUIHandler(RequestHandler):
     @coroutine
     def get(self, room_code):
+        """Render the application."""
         try:
             classes = {'system-panel'}
             # room_code must be passed to the template as a
@@ -227,6 +230,11 @@ class MSGHandler(WebSocketHandler):
     clients = set()
     client_count = 0    # Total clients that have connected
 
+    @classmethod
+    def stop(cls):
+        for client in cls.clients.copy():
+            client.finalize()
+
     def initialize(self):
         _path = msg.join_path(self._path, 'initialize')
         msg.code_debug(
@@ -245,10 +253,6 @@ class MSGHandler(WebSocketHandler):
         self.ws_objects = {
             ws_class: ws_class(self)
             for ws_class in self.ws_classes}
-
-        from pprint import pprint
-        pprint(self.ws_objects)
-        pprint(self.ws_classes)
 
         # Call ``self._finalize`` when this object is about
         # to be destroyed.
@@ -288,7 +292,7 @@ class MSGHandler(WebSocketHandler):
             )
             msg.no_action_for_msg_type(_path, message)
 
-        except (MsgIsNotDictError, NoMessageTypeError,
+        except (NotDictError, NoMessageTypeError,
                 ValueError):
             self.send_malformed_message_error(message)
             msg.malformed_message(_path, message)
@@ -313,12 +317,21 @@ class MSGHandler(WebSocketHandler):
                     "others."
     )
 
+    def write_message(self, message, binary=False):
+        try:
+            super().write_message(message, binary)
+
+        except WebSocketClosedError:
+            if not hasattr(self, 'clean_closed') or \
+                    not self.clean_closed:
+                raise
+
     def _finalize(self):
         """Clean up the associated objects
 
-        This method calls the ``unregister`` method of all
-        objects in ``self.ws_objects`` and it removes
-        ``self`` from ``self.__class__.clients``.
+        This method calls :meth:`src.wsclass.WSClass.end`
+        for all objects in ``self.ws_objects`` and it
+        removes ``self`` from ``self.__class__.clients``.
 
         This method should not be called directly.
         ``self.finalize`` is setup to call this method when
@@ -330,7 +343,7 @@ class MSGHandler(WebSocketHandler):
         _path = msg.join_path(self._path, '_finalize')
 
         for ws_object in self.ws_objects.values():
-            ws_object.unregister()
+            ws_object.end()
 
         self.__class__.clients.discard(self)
 

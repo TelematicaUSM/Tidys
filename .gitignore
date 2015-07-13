@@ -14,6 +14,7 @@
 /static/scss/bourbon_files/
 /src/utils/qrmaster/bourbon_files
 /temp/
+/salas/
 
 .sass-cache/
 __pycache__/

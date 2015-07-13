@@ -10,12 +10,18 @@ seat).
 
 from tornado.gen import coroutine
 from src.utils import random_word
-from .common import db
+from .common import db, ConditionNotMetError
 from .db_object import DBObject
 
 
 class User(DBObject):
     coll = db.users
+    defaults = {
+        'status': 'none',
+        'room_name': None,
+        'room_code': 'none',
+        'instances': 0,
+    }
 
     @classmethod
     @coroutine
@@ -42,7 +48,7 @@ class User(DBObject):
             {
                 '$set': {'google_userinfo': userinfo}
             },
-            upsert = True)
+            upsert=True)
         self = yield cls(userinfo['sub'])
         return self
 
@@ -64,3 +70,29 @@ class User(DBObject):
     @property
     def name(self):
         return self.google_userinfo['name']
+
+    @coroutine
+    def increase_instances(self):
+        yield self.modify(
+            {
+                '$inc': {'instances': 1}
+            }
+        )
+
+    @coroutine
+    def decrease_instances(self):
+        try:
+            yield self.modify_if(
+                {
+                    'instances': {'$gt': 0}
+                },
+                {
+                    '$inc': {'instances': -1}
+                }
+            )
+            yield self.store_dict_if(
+                {'instances': 0},
+                {'status': self.defaults['status']}
+            )
+        except ConditionNotMetError:
+            pass

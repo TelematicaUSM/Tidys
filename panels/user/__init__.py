@@ -4,22 +4,26 @@
 
 This module patches the :class:`controller.MSGHandler`
 class, adding the
-:meth:`controller.MSGHandler.send_user_not_loaded_error` and
-:meth:`controller.MSGHandler.send_room_not_loaded_error`
-methods.
+:meth:`controller.MSGHandler.send_user_not_loaded_error`,
+:meth:`controller.MSGHandler.send_room_not_loaded_error` and
+:meth:`controller.MSGHandler.logout_and_close` methods.
 """
 
 from functools import partialmethod
 
 import jwt
 from tornado.gen import coroutine
+from pymongo.errors import OperationFailure
 
 import src
 from controller import MSGHandler
 from backend_modules import router
 from src import messages as msg
-from src.db import User, Code, NoObjectReturnedFromDB
+from src.db import User, Code, NoObjectReturnedFromDB, \
+    ConditionNotMetError, CodeType
 from src.wsclass import subscribe
+from src.pub_sub import MalformedMessageError
+from src.utils import suppress_attr_exc, ioloop_callback
 
 _path = msg.join_path('panels', 'user')
 
@@ -36,6 +40,14 @@ MSGHandler.send_room_not_loaded_error = partialmethod(
     description='There was no loaded room when '
     'this message arrived.'
 )
+
+
+def _logout_and_close(self, reason):
+    """Send a logout message and close the connection."""
+    self.write_message({'type': 'logout'})
+    self.close(1000, reason)
+    self.clean_closed = True
+MSGHandler.logout_and_close = _logout_and_close
 
 
 class UserPanel(src.boiler_ui_module.BoilerUIModule):
@@ -60,37 +72,249 @@ class UserWSC(src.wsclass.WSClass):
 
     _path = msg.join_path(_path, 'UserWSC')
 
-    @subscribe('sessionToken', channels={'w'})
+    def __init__(self, handler):
+        super().__init__(handler)
+        self.session_start_ok = False
+
     @coroutine
-    def check_token(self, message):
+    def load_user(self, token):
         try:
-            uid = jwt.decode(message['token'],
-                             verify=False)['id']
+            uid = jwt.decode(token, verify=False)['id']
             user = yield User(uid)
-            jwt.decode(message['token'], user.secret)
+            jwt.decode(token, user.secret)
             self.handler.user = user
-            self.pub_subs['w'].send_message(
-                {'type': 'tokenOk'})
 
-            # from pprint import pprint
-            # pprint(self.handler.ws_objects)
+        except NoObjectReturnedFromDB as norfdb:
+            ite = jwt.InvalidTokenError(
+                'No user was found in the database for '
+                'this token.'
+            )
+            raise ite from norfdb
 
-            user_msg_type = 'userMessage({})'.format(uid)
-            router_object = self.handler.ws_objects[
-                router.RouterWSC]
-            self.register_action_in(
-                user_msg_type,
-                action=router_object.to_local,
-                channels={'d'}
+    @subscribe('logout', channels={'l'})
+    def logout(self, message):
+        try:
+            blocked = \
+                hasattr(self.handler, 'block_logout') and \
+                self.handler.block_logout
+
+            if blocked:
+                self.handler.block_logout = False
+            else:
+                self.handler.logout_and_close(
+                    message['reason'])
+
+        except KeyError as ke:
+            if 'reason' not in message:
+                mme = MalformedMessageError(
+                    "'reason' key not found in message.")
+                raise mme from ke
+            else:
+                raise
+
+    def sub_to_user_messages(self):
+        """Route messages of the same user to the local PS.
+
+        This method subscribes
+        :meth:`backend_modules.router.RouterWSC.to_local` to
+        the messages of type ``userMessage(uid)`` coming
+        from the database pub-sub. Where ``uid`` is the
+        current user id.
+
+        After the execution of this method,
+        ``self.handler.user_msg_type`` contains the message
+        type to be used to send messages to all instances of
+        the user.
+        """
+        self.handler.user_msg_type = \
+            'userMessage({})'.format(self.handler.user.id)
+
+        router_object = self.handler.ws_objects[
+            router.RouterWSC]
+        self.register_action_in(
+            self.handler.user_msg_type,
+            action=router_object.to_local,
+            channels={'d'}
+        )
+
+    def send_session_start_error(self, message, causes):
+        """Send a session error message to the client.
+
+        :param dict message:
+            The message that caused the error.
+
+        :param str causes:
+            A string explaining the posible causes of the
+            error.
+        """
+        try:
+            self.handler.send_error(
+                'session.start.error',
+                message,
+                'La sesión no se ha podido iniciar. ' +
+                causes
             )
 
-        except (jwt.ExpiredSignatureError, jwt.DecodeError,
-                NoObjectReturnedFromDB):
-            self.pub_subs['w'].send_message(
-                {'type': 'logout'})
+        except TypeError as e:
+            if not isinstance(message, dict):
+                te = TypeError(
+                    'message should be a dictionary.')
+                raise te from e
 
-    @subscribe('getUserName')
+            elif not isinstance(causes, str):
+                te = TypeError(
+                    'causes should be a string.')
+                raise te from e
+
+            else:
+                raise
+
+    @coroutine
+    def load_room_code(self, room_code_str):
+        if room_code_str == 'none':
+            self.handler.room_code = None
+            self.handler.room = None
+            code_type = 'none'
+            room_name = None
+        else:
+            self.handler.room_code = \
+                yield Code(room_code_str)
+            self.handler.room = \
+                yield self.handler.room_code.room
+
+            code_type = \
+                self.handler.room_code.code_type.name
+            room_name = self.handler.room.name
+
+        return (code_type, room_name)
+
+    def redirect_to_teacher_view(self, room_code, message):
+        """Redirect the client to the current teacher view.
+
+        .. todo:
+            *   Use send_session_start_error instead of
+                handler.send_error.
+        """
+        if room_code == 'none':
+            err_msg = "Can't redirect user to the " \
+                "teacher view. This can be caused by an " \
+                "inconsistency in the database."
+
+            self.handler.send_error(
+                'databaseInconsistency', message, err_msg)
+
+            raise Exception(err_msg)
+
+        self.pub_subs['w'].send_message(
+            {
+                'type': 'replaceLocation',
+                'url': room_code
+            }
+        )
+
+    @subscribe('session.start', 'w')
+    @coroutine
+    def startSession(self, message):
+        try:
+            yield self.load_user(message['token'])
+            self.sub_to_user_messages()
+            code_type, room_name = \
+                yield self.load_room_code(
+                    message['room_code'])
+
+            distinct_room = \
+                room_name is not None \
+                and \
+                self.handler.user.room_name is not None \
+                and \
+                room_name != self.handler.user.room_name
+
+            was_none = self.handler.user.status == 'none'
+            was_student = self.handler.user.status == 'seat'
+            was_teacher = self.handler.user.status == 'room'
+
+            is_none = code_type == 'none'
+            is_student = code_type == 'seat'
+            is_teacher = code_type == 'room'
+
+            if distinct_room or was_student or \
+                    is_student or (was_none and is_teacher):
+                self.handler.block_logout = True
+                self.pub_subs['d'].send_message(
+                    {
+                        'type': self.handler.user_msg_type,
+                        'content': {
+                            'type': 'logout',
+                            'reason': 'exclusiveLogin'
+                        }
+                    }
+                )
+
+            if was_teacher and is_none:
+                self.redirect_to_teacher_view(
+                    self.handler.user.room_code, message)
+                # The rest of the code is not executed.
+                return
+
+            yield self.handler.user.store_dict(
+                {
+                    'room_name': room_name,
+                    'room_code': message['room_code'],
+                    'status': code_type,
+                }
+            )
+
+            if is_student:
+                yield self.handler.room.use_seat(
+                    self.handler.room_code.seat_id)
+
+            yield self.handler.user.increase_instances()
+            self.session_start_ok = True
+
+            self.pub_subs['w'].send_message(
+                {'type': 'session.start.ok',
+                 'code_type': code_type}
+            )
+
+        except jwt.InvalidTokenError:
+            self.handler.logout_and_close('invalidToken')
+
+        except ConditionNotMetError:
+            self.send_session_start_error(
+                message,
+                'Es probable que este error se daba a que '
+                'el asiento que desea registrar ya está '
+                'usado.'
+            )
+
+        except OperationFailure:
+            self.send_session_start_error(
+                message,
+                'Una operación de la base de datos ha '
+                'fallado.'
+            )
+
+        except KeyError:
+            keys_in_message = all(
+                map(
+                    lambda k: k in message,
+                    ('token', 'room_code')
+                )
+            )
+            if not keys_in_message:
+                self.handler.send_malformed_message_error(
+                    message)
+            else:
+                raise
+
+    @subscribe('getUserName', 'w')
     def get_user_name(self, message):
+        """Send the user's name to the client.
+
+        .. todo::
+            *   Re-raise attribute error and review error
+                handling.
+        """
         try:
             name = self.handler.user.name
             self.pub_subs['w'].send_message(
@@ -99,25 +323,58 @@ class UserWSC(src.wsclass.WSClass):
         except AttributeError:
             self.send_user_not_loaded_error(message)
 
-    @subscribe('roomCode')
-    @coroutine
-    def load_room_code(self, message):
-        try:
-            room_code = yield Code(message['room_code'])
-            self.handler.room_code = room_code
-            self.handler.room = yield room_code.room
-            self.pub_subs['w'].send_message(
-                {'type': 'roomCodeOk',
-                 'code_type': room_code.code_type.value,
-                 'room_name': self.handler.room.name})
+    @subscribe('userMessage', 'w')
+    def send_user_message(self, message):
+        """Send a message to all instances of a single user.
 
-        except KeyError:
+        The user id is appended to the message type and
+        ``message`` is sent through the database.
+        """
+        try:
+            message['type'] = '{}({})'.format(
+                message['type'], self.handler.user.id)
+
+            self.redirect_to('d', message)
+
+        except MalformedMessageError:
             self.handler.send_malformed_message_error(
                 message)
+            msg.malformed_message(_path, message)
 
-        except NoObjectReturnedFromDB:
-            self.handler.send_error('codeNotPresentInDB',
-                                    message,
-                                    'This code is not '
-                                    'present in the '
-                                    'database.')
+        except AttributeError:
+            if not hasattr(self.handler, 'user'):
+                self.send_user_not_loaded_error(message)
+            else:
+                raise
+
+    def end(self):
+        super().end()
+
+        @ioloop_callback
+        @suppress_attr_exc(self.handler, 'user')
+        def decrease_user_instances():
+            if self.session_start_ok:
+                self.handler.user.decrease_instances()
+
+        @ioloop_callback
+        @suppress_attr_exc(self.handler, 'room_code',
+                           'user', 'room', 'course')
+        def deasign_course_from_room():
+            if self.handler.room_code.code_type is \
+                    CodeType.room and \
+                    self.handler.user.instances == 0:
+                self.handler.room.deassign_course(
+                    self.handler.course.id)
+
+        @ioloop_callback
+        @suppress_attr_exc(self.handler, 'room_code',
+                           'room')
+        def leave_seat():
+            if self.handler.room_code.code_type is \
+                    CodeType.seat:
+                self.handler.room.leave_seat(
+                    self.handler.room_code.seat_id)
+
+        decrease_user_instances()
+        deasign_course_from_room()
+        leave_seat()
