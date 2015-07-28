@@ -9,6 +9,7 @@ seat).
 """
 
 from tornado.gen import coroutine
+
 from src.utils import random_word
 from .common import db, ConditionNotMetError
 from .db_object import DBObject
@@ -17,10 +18,11 @@ from .db_object import DBObject
 class User(DBObject):
     coll = db.users
     defaults = {
-        'status': 'none',
-        'room_name': None,
-        'room_code': 'none',
-        'instances': 0,
+        'status': 'none',       # current user status
+        'room_name': None,      # current room name
+        'room_code': 'none',    # last scanned room code
+        'course_id': None,      # user is teaching this
+        'instances': 0,         # number of tabs opened
     }
 
     @classmethod
@@ -81,6 +83,12 @@ class User(DBObject):
 
     @coroutine
     def decrease_instances(self):
+        """Decrease the ``instances`` counter of the user.
+
+        :raises OperationFailure:
+            If an error occurred during the update
+            operation.
+        """
         try:
             yield self.modify_if(
                 {
@@ -90,9 +98,8 @@ class User(DBObject):
                     '$inc': {'instances': -1}
                 }
             )
-            yield self.store_dict_if(
-                {'instances': 0},
-                {'status': self.defaults['status']}
-            )
+            yield self.reset_if(
+                {'instances': 0}, 'status', 'course_id')
+
         except ConditionNotMetError:
             pass

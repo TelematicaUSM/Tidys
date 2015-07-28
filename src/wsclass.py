@@ -3,6 +3,8 @@
 from functools import partialmethod
 from weakref import finalize
 
+from tornado.gen import coroutine
+
 from src import messages as msg
 from src.db import message_broker as mb
 from src.pub_sub import MalformedMessageError, \
@@ -156,6 +158,7 @@ class WSClass(object):
             except UnrecognizedOwnerError:
                 pass
 
+    @coroutine
     def end(self):
         self.unregister()
 

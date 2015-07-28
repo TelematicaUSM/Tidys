@@ -20,10 +20,10 @@ from controller import MSGHandler
 from backend_modules import router
 from src import messages as msg
 from src.db import User, Code, NoObjectReturnedFromDB, \
-    ConditionNotMetError, CodeType
+    ConditionNotMetError, CodeType, Course
 from src.wsclass import subscribe
 from src.pub_sub import MalformedMessageError
-from src.utils import suppress_attr_exc, ioloop_callback
+from src.utils import raise_if_all_attr_def
 
 _path = msg.join_path('panels', 'user')
 
@@ -109,6 +109,30 @@ class UserWSC(src.wsclass.WSClass):
                 mme = MalformedMessageError(
                     "'reason' key not found in message.")
                 raise mme from ke
+            else:
+                raise
+
+    @subscribe('userMessage', channels={'w', 'l'})
+    def send_user_message(self, message):
+        """Send a message to all instances of a single user.
+
+        The user id is appended to the message type and
+        ``message`` is sent through the database.
+        """
+        try:
+            message['type'] = '{}({})'.format(
+                message['type'], self.handler.user.id)
+
+            self.redirect_to('d', message)
+
+        except MalformedMessageError:
+            self.handler.send_malformed_message_error(
+                message)
+            msg.malformed_message(_path, message)
+
+        except AttributeError:
+            if not hasattr(self.handler, 'user'):
+                self.send_user_not_loaded_error(message)
             else:
                 raise
 
@@ -250,11 +274,29 @@ class UserWSC(src.wsclass.WSClass):
                     }
                 )
 
-            if was_teacher and is_none:
-                self.redirect_to_teacher_view(
-                    self.handler.user.room_code, message)
-                # The rest of the code is not executed.
-                return
+            course_id = self.handler.user.course_id
+
+            if was_teacher:
+                if is_none:
+                    self.redirect_to_teacher_view(
+                        self.handler.user.room_code,
+                        message
+                    )
+                    # The rest of the code is not executed.
+                    return
+
+                elif course_id is not None:
+                    if is_teacher:
+                        self.handler.course = \
+                            yield Course(course_id)
+
+                    elif is_student:
+                        yield \
+                            self.handler.room.\
+                            deassign_course(course_id)
+
+                        yield self.handler.user.reset(
+                            'course_id')
 
             yield self.handler.user.store_dict(
                 {
@@ -272,8 +314,11 @@ class UserWSC(src.wsclass.WSClass):
             self.session_start_ok = True
 
             self.pub_subs['w'].send_message(
-                {'type': 'session.start.ok',
-                 'code_type': code_type}
+                {
+                    'type': 'session.start.ok',
+                    'code_type': code_type,
+                    'course_id': course_id
+                }
             )
 
         except jwt.InvalidTokenError:
@@ -323,58 +368,32 @@ class UserWSC(src.wsclass.WSClass):
         except AttributeError:
             self.send_user_not_loaded_error(message)
 
-    @subscribe('userMessage', 'w')
-    def send_user_message(self, message):
-        """Send a message to all instances of a single user.
-
-        The user id is appended to the message type and
-        ``message`` is sent through the database.
-        """
-        try:
-            message['type'] = '{}({})'.format(
-                message['type'], self.handler.user.id)
-
-            self.redirect_to('d', message)
-
-        except MalformedMessageError:
-            self.handler.send_malformed_message_error(
-                message)
-            msg.malformed_message(_path, message)
-
-        except AttributeError:
-            if not hasattr(self.handler, 'user'):
-                self.send_user_not_loaded_error(message)
-            else:
-                raise
-
+    @coroutine
     def end(self):
-        super().end()
+        yield super().end()
 
-        @ioloop_callback
-        @suppress_attr_exc(self.handler, 'user')
-        def decrease_user_instances():
+        try:
             if self.session_start_ok:
-                self.handler.user.decrease_instances()
+                yield self.handler.user.decrease_instances()
+        except:
+            raise_if_all_attr_def(self.handler, 'user')
 
-        @ioloop_callback
-        @suppress_attr_exc(self.handler, 'room_code',
-                           'user', 'room', 'course')
-        def deasign_course_from_room():
+        try:
             if self.handler.room_code.code_type is \
                     CodeType.room and \
                     self.handler.user.instances == 0:
-                self.handler.room.deassign_course(
+                yield self.handler.room.deassign_course(
                     self.handler.course.id)
+        except:
+            raise_if_all_attr_def(
+                self.handler, 'room_code', 'user', 'room',
+                'course')
 
-        @ioloop_callback
-        @suppress_attr_exc(self.handler, 'room_code',
-                           'room')
-        def leave_seat():
+        try:
             if self.handler.room_code.code_type is \
                     CodeType.seat:
-                self.handler.room.leave_seat(
+                yield self.handler.room.leave_seat(
                     self.handler.room_code.seat_id)
-
-        decrease_user_instances()
-        deasign_course_from_room()
-        leave_seat()
+        except:
+            raise_if_all_attr_def(
+                self.handler, 'room_code', 'room')

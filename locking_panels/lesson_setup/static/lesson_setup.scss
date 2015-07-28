@@ -1,6 +1,10 @@
 @import "../../../static/scss/constants";
 @import "../../../static/scss/bourbon_files/bourbon";
 
+#lsp-new-course {
+    display: none;
+}
+
 #new-course-name {
     display: block;
     margin-bottom: 1rem;

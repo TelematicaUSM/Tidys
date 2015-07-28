@@ -3,7 +3,6 @@
 import json
 from datetime import datetime, timedelta
 from functools import partialmethod
-from weakref import finalize
 from urllib.parse import urlunparse
 from concurrent.futures import ThreadPoolExecutor
 
@@ -220,8 +219,6 @@ class MSGHandler(WebSocketHandler):
     client connects using WebSocket. The instances of this
     class deliver messages to a group of objects
     specialized in attending a group of messages.
-
-    .. automethod:: _finalize
     """
 
     _path = msg.join_path(_path, 'MSGHandler')
@@ -231,9 +228,10 @@ class MSGHandler(WebSocketHandler):
     client_count = 0    # Total clients that have connected
 
     @classmethod
+    @coroutine
     def stop(cls):
         for client in cls.clients.copy():
-            client.finalize()
+            yield client.end()
 
     def initialize(self):
         _path = msg.join_path(self._path, 'initialize')
@@ -253,10 +251,6 @@ class MSGHandler(WebSocketHandler):
         self.ws_objects = {
             ws_class: ws_class(self)
             for ws_class in self.ws_classes}
-
-        # Call ``self._finalize`` when this object is about
-        # to be destroyed.
-        self.finalize = finalize(self, self._finalize)
 
         self.__class__.clients.add(self)
         self.__class__.client_count += 1
@@ -326,35 +320,32 @@ class MSGHandler(WebSocketHandler):
                     not self.clean_closed:
                 raise
 
-    def _finalize(self):
+    @coroutine
+    def end(self):
         """Clean up the associated objects
 
-        This method calls :meth:`src.wsclass.WSClass.end`
+        This coroutine calls :meth:`src.wsclass.WSClass.end`
         for all objects in ``self.ws_objects`` and it
         removes ``self`` from ``self.__class__.clients``.
 
-        This method should not be called directly.
-        ``self.finalize`` is setup to call this method when
-        the object is garbage collected, the WebSocket
-        connection closes or when the program ends.
-        To execute this method you should call
-        ``self.finalize`` instead.
+        This coroutine is setup to be called when
+        the WebSocket connection closes or when the program
+        ends.
         """
-        _path = msg.join_path(self._path, '_finalize')
-
         for ws_object in self.ws_objects.values():
-            ws_object.end()
+            yield ws_object.end()
 
         self.__class__.clients.discard(self)
 
         msg.code_debug(
-            _path,
+            msg.join_path(__name__, self.end.__qualname__),
             'Connection closed! {0} '
             '({0.request.remote_ip})'.format(self)
         )
 
+    @coroutine
     def on_close(self):
-        self.finalize()
+        yield self.end()
 
 try:
     with open(conf.secrets_file, 'r') as f:
@@ -368,6 +359,7 @@ try:
          ('/{.login_path}$'.format(conf), LoginHandler),
          ('/([0-9a-z]{5})?$', GUIHandler), ],
         debug=conf.debug,
+        autoreload=conf.autoreload,
         static_path='./static',
         template_path='./templates',
         ui_modules=[ui_modules],

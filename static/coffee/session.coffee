@@ -18,7 +18,8 @@ ws.addMessageListener 'disconnect', disconnect
 ws.addMessageListener 'replaceLocation', replaceLocation
 
 ws.getMessagePromise('session.start.ok').then (message) ->
-    if message.code_type == 'room'
+    if message.code_type == 'room' and \
+            message.course_id == null
         load_promise.then showLessonSetup
     else
         load_promise.then activatePanels

@@ -1,8 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-"""
-.. todo:: Describe secret files origin and format.
-"""
+""".. todo:: Describe secret files origin and format."""
 
 from os import environ, path
 
@@ -14,9 +12,12 @@ app_name = 'ArtificialAlan'
 app_logo_path = './art/favicon/2logo.png'
 author = 'Cristóbal Ganter'
 author_email = 'cganterh@gmail.com'
+login_path = 'signin'
+
+# TORNADO
+autoreload = False
 debug = True
 port = 52002
-login_path = 'signin'
 
 proxy_scheme = 'http'
 proxy_host = 'mem.zoro.cganterh.net'

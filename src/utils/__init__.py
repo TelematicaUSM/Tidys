@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 
 from string import ascii_letters, digits, punctuation
-from functools import partial
 from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor
 
@@ -54,17 +53,20 @@ def run_in_thread(func, *args, **kwargs):
     return result
 
 
-@contextmanager
-def suppress_attr_exc(obj, *attributes):
-    try:
-        yield obj
-
-    except:
-        if all(hasattr(obj, a) and
+def all_attr_defined(obj, *attributes):
+    return all(hasattr(obj, a) and
                getattr(obj, a) is not None
-               for a in attributes):
-            raise
+               for a in attributes)
 
 
-def ioloop_callback(f):
-    return partial(IOLoop.current().spawn_callback, f)
+def raise_if_all_attr_def(obj, *attributes):
+    from src.messages import code_debug
+
+    if all_attr_defined(obj, *attributes):
+        raise
+    else:
+        code_debug(
+            'src.utils.raise_if_all_attr_def',
+            'An exception was suppressed. '
+            '{}, {}.'.format(obj, attributes)
+        )

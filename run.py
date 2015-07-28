@@ -31,7 +31,7 @@ def stop():
     def callback():
         from controller import MSGHandler
         from src import db
-        MSGHandler.stop()
+        yield MSGHandler.stop()
         yield db.stop()
         ioloop.stop()
 

@@ -1,10 +1,11 @@
 import re
-import src
-import panels
 
 from tornado.gen import coroutine
 from tornado.escape import xhtml_escape
 from pymongo.errors import DuplicateKeyError
+
+import src
+import panels
 from src.db import Course, NoObjectReturnedFromDB
 from src.wsclass import subscribe
 
@@ -57,12 +58,16 @@ class LessonSetupWSC(src.wsclass.WSClass):
                      'result': 'emptyName'})
                 return
 
-            course = yield Course.create(self.handler.user,
-                                         course_name)
+            course = yield Course.create(
+                self.handler.user, course_name)
+
             self.pub_subs['w'].send_message(
-                {'type': 'createCourseResult',
-                 'result': 'ok',
-                 'course_id': course.id})
+                {
+                    'type': 'createCourseResult',
+                    'result': 'ok',
+                    'course_id': course.id
+                }
+            )
 
         except KeyError:
             self.handler.send_malformed_message_error(
@@ -79,17 +84,32 @@ class LessonSetupWSC(src.wsclass.WSClass):
                 {'type': 'createCourseResult',
                  'result': 'duplicate'})
 
-    @subscribe('assignCourseToCurrentRoom')
+    @subscribe('course.assignment.to_room', 'w')
     @coroutine
     def assign_course_to_current_room(self, message):
         try:
             self.handler.course = yield Course(
                 message['course_id'])
+
             room = yield self.handler.room_code.room
+
             yield room.assign_course(message['course_id'])
 
-            self.pub_subs['w'].send_message(
-                {'type': 'courseAssignmentOk'})
+            yield self.handler.user.store(
+                'course_id', self.handler.course.id)
+
+            self.course_assignment_source = True
+            """This variable identifies the source of the
+            ``course.assignment.ok`` message."""
+
+            self.pub_subs['d'].send_message(
+                {
+                    'type': self.handler.user_msg_type,
+                    'content': {
+                        'type': 'course.assignment.ok'
+                    }
+                }
+            )
 
         except (KeyError, NoObjectReturnedFromDB):
             self.handler.send_malformed_message_error(
@@ -100,3 +120,19 @@ class LessonSetupWSC(src.wsclass.WSClass):
                 panels.user.UserWSC.\
                     send_room_not_loaded_error(
                         self.handler, message)
+
+    @subscribe('course.assignment.ok', 'l')
+    @coroutine
+    def sync_course_id_and_forward_to_client(self, message):
+        if not (hasattr(self, 'course_assignment_source')
+                and self.course_assignment_source):
+
+            yield self.handler.user.sync('course_id')
+            course_id = self.handler.user.course_id
+
+            if course_id is not None:
+                self.handler.course = yield Course(
+                    course_id)
+
+        self.pub_subs['w'].send_message(
+            {'type': 'course.assignment.ok'})

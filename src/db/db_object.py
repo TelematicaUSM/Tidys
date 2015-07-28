@@ -123,10 +123,8 @@ class DBObject(object):
             method, from a method that is not a coroutine.
 
         :raises ConditionNotMetError:
-            If the document associated with this object does
-            not meet the condition specified by
-            ``condition`` or if the document no longer
-            exists in the database.
+            If the document no longer exists in the
+            database.
 
         :raises OperationFailure:
             If an error occurred during the update
@@ -194,6 +192,19 @@ class DBObject(object):
 
         .. todo::
             *   Use Exception instead of assert.
+
+        .. note::
+            You can implement an equivalent operation using
+            the :meth:`DBObject.modify_if` method. The
+            difference between this two methods is that
+            :meth:`DBObject.store_dict_if` updates only the
+            specified attributes in the local object.
+            Whereas :meth:`DBObject.modify_if` updates the
+            whole data of the local object. You should take
+            this in consideration if your documents are big
+            or if you perform a huge number of operations.
+            In those cases it is more efficient to use
+            :meth:`DBObject.store_dict_if`.
         """
         try:
             condition.update(_id=self.id)
@@ -261,7 +272,7 @@ class DBObject(object):
             if data is None:
                 raise ConditionNotMetError()
             else:
-                self._data = data
+                self.setattr('_data', data)
 
         except (TypeError, AttributeError) as e:
             if not isinstance(condition, dict):
@@ -272,3 +283,108 @@ class DBObject(object):
 
             else:
                 raise
+
+    @coroutine
+    def reset(self, *fields, update_data=True):
+        """Reset some fields to their default values.
+
+        :param list *fields:
+            A list of strings, containing the names of the
+            attributes to be changed to their default
+            values.
+
+        :param bool update_data:
+            If true, ``self._data`` will be updated locally
+            without reading from the database. If False,
+            ``self._data`` will not be updated even after
+            successfully writing to the database. This is
+            useful (but dangerous) when you want to call
+            this method using
+            ``IOLoop.current().spawn_callback()`` and you
+            update the local copy (``self._data``) manually.
+            This can happen when you have to call this
+            method, from a method that is not a coroutine.
+
+        :raises ConditionNotMetError:
+            If the document no longer exists in the
+            database.
+
+        :raises OperationFailure:
+            If an error occurred during the update
+            operation.
+
+        :raises KeyError:
+            If one of the fields is not in
+            ``self.defaults``.
+        """
+        yield self.reset_if(
+            {}, *fields, update_data=update_data)
+
+    @coroutine
+    def reset_if(
+            self, condition, *fields, update_data=True):
+        """Reset some fields to their default values.
+
+        :param dict condition:
+            Condition that has to be met to update this
+            document. Here you can use all the MongoDB's
+            query selectors.
+
+        :param list *fields:
+            A list of strings, containing the names of the
+            attributes to be changed to their default
+            values.
+
+        :param bool update_data:
+            If true, ``self._data`` will be updated locally
+            without reading from the database. If False,
+            ``self._data`` will not be updated even after
+            successfully writing to the database. This is
+            useful (but dangerous) when you want to call
+            this method using
+            ``IOLoop.current().spawn_callback()`` and you
+            update the local copy (``self._data``) manually.
+            This can happen when you have to call this
+            method, from a method that is not a coroutine.
+
+        :raises ConditionNotMetError:
+            If the document associated with this object does
+            not meet the condition specified by
+            ``condition`` or if the document no longer
+            exists in the database.
+
+        :raises OperationFailure:
+            If an error occurred during the update
+            operation.
+
+        :raises NotDictError:
+            If ``condition`` is not a dictionary.
+
+        :raises KeyError:
+            If one of the fields is not in
+            ``self.defaults``.
+        """
+        try:
+            yield self.store_dict_if(
+                condition,
+                {f: self.defaults[f] for f in fields},
+                update_data
+            )
+        except KeyError as ke:
+            if not all(f in self.defaults for f in fields):
+                e = KeyError(
+                    'One of the attributes is not in the '
+                    'defaults dictionary.')
+                raise e from ke
+            else:
+                raise
+
+    @coroutine
+    def sync(self, *fields):
+        data = yield self.coll.find_one(
+            {'_id': self.id}, fields if fields else None)
+
+        if not data:
+            raise NoObjectReturnedFromDB(self.__class__)
+
+        self.setattr('_data', data)
