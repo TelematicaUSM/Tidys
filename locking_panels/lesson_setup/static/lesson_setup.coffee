@@ -18,11 +18,16 @@ new_course_name = document.getElementById 'new-course-name'
     switchToPanel(panel_id)
 
 assignCourseToCurrentRoom = (course_id) ->
-    ws.sendJSONIfOpen
-        'type': 'course.assignment.to_room'
-        'course_id': course_id
+    assign = ->
+        ws.sendJSONIfOpen
+            'type': 'course.assignment.to_room'
+            'course_id': course_id
+
+    ws.addMessageListener 'session.start.ok', assign
+    assign()
 
 #SETUP
+
 ws.getMessagePromise('session.start.ok').then ->
     ws.sendSafeJSON
         'type': 'getCourses'

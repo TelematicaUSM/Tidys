@@ -1,25 +1,27 @@
 # -*- coding: UTF-8 -*-
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from functools import partialmethod
+from sys import exc_info
+from traceback import print_exception
 from urllib.parse import urlunparse
-from concurrent.futures import ThreadPoolExecutor
 
 import jwt
 import httplib2
+from oauth2client import client as oa2_client
 from tornado.gen import coroutine
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler, \
     WebSocketClosedError
-from oauth2client import client as oa2_client
 
 import conf
 from src import ui_modules, ui_methods, messages as msg, db
 from src.boiler_ui_module import BoilerUIModule
+from src.exeptions import NotDictError
 from src.pub_sub import OwnerPubSub, NoMessageTypeError, \
     NoActionForMsgTypeError
-from src.exeptions import NotDictError
 
 _path = 'controller'
 
@@ -36,7 +38,7 @@ class GUIHandler(RequestHandler):
             self.room_code = room_code
 
             if room_code:
-                c = yield db.Code(room_code)
+                c = yield db.Code.get(room_code)
 
                 if c.code_type is db.CodeType.room:
                     classes.update(
@@ -255,6 +257,8 @@ class MSGHandler(WebSocketHandler):
         self.__class__.clients.add(self)
         self.__class__.client_count += 1
 
+        self.clean_closed = False
+
     @classmethod
     def add_class(cls, wsclass):
         cls.ws_classes.append(wsclass)
@@ -316,8 +320,7 @@ class MSGHandler(WebSocketHandler):
             super().write_message(message, binary)
 
         except WebSocketClosedError:
-            if not hasattr(self, 'clean_closed') or \
-                    not self.clean_closed:
+            if not self.clean_closed:
                 raise
 
     @coroutine
@@ -332,20 +335,38 @@ class MSGHandler(WebSocketHandler):
         the WebSocket connection closes or when the program
         ends.
         """
-        for ws_object in self.ws_objects.values():
-            yield ws_object.end()
+        try:
+            exceptions = []
+            for ws_object in self.ws_objects.values():
+                try:
+                    yield ws_object.end()
+                except:
+                    exceptions.append(
+                        exc_info()
+                    )
 
-        self.__class__.clients.discard(self)
+            for exception in exceptions:
+                print_exception(*exception)
 
-        msg.code_debug(
-            msg.join_path(__name__, self.end.__qualname__),
-            'Connection closed! {0} '
-            '({0.request.remote_ip})'.format(self)
-        )
+            self.__class__.clients.discard(self)
+
+            msg.code_debug(
+                msg.join_path(
+                    __name__, self.end.__qualname__),
+                'Connection closed! {0} '
+                '({0.request.remote_ip})'.format(self)
+            )
+
+        except:
+            raise
 
     @coroutine
     def on_close(self):
-        yield self.end()
+        try:
+            yield self.end()
+
+        except:
+            raise
 
 try:
     with open(conf.secrets_file, 'r') as f:

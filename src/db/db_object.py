@@ -2,10 +2,8 @@
 
 from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
-from pymongo.errors import DuplicateKeyError
 from bson.dbref import DBRef
 
-from src import messages as msg
 from src.exeptions import NotDictError
 from .common import ConditionNotMetError, \
     NoObjectReturnedFromDB, db
@@ -20,57 +18,126 @@ class DBObject(object):
     attribute in the new class.
 
     .. todo::
-        * create a constructor instead of overriding
-          __new__.
-        * change \_id with id\_
         * review error handling
         * use is not none instead of not data
+        * remove ``*_if`` methods and add a
+          ``condition`` optional parameter in the original
+          functions
     """
 
     defaults = {}
-    path = 'src.db.db_object.DBObject'
-
-    @property
-    def id(self):
-        return self._data['_id']
-
-    @coroutine
-    def __new__(cls, _id=None, dbref=None):
-        if bool(_id) == bool(dbref):
-            raise ValueError
-
-        if _id:
-            data = yield cls.coll.find_one({'_id': _id})
-        elif not isinstance(dbref, DBRef):
-            raise TypeError
-        elif dbref.collection != cls.coll:
-            raise ValueError
-        else:
-            data = yield db.dereference(dbref)
-
-        if not data:
-            raise NoObjectReturnedFromDB(cls)
-
-        self = super().__new__(cls)
-        self.setattr('_data', data)
-        return self
 
     @classmethod
     @coroutine
-    def create(cls, _id, **kwargs):
-        """Create a new object in the database.
+    def get(cls, id_=None, dbref=None, **kwargs):
+        """Get an instance from a document.
 
-        :return: The created object.
+        This method gets a document from the database and
+        wraps it in an instance of this class. One and only
+        one of the parameters ``id_`` and ``dbref`` should
+        be specified.
+
+        :param str id_:
+            Identifier of the document that will be fetched
+            from the database.
+
+        :param DBRef dbref:
+            DBRef object used to find the document in the
+            database.
+
+        :return:
+            An instance of this class that represents a
+            document of the database.
+
+        :raises ValueError:
+            If none or both of the arguments are
+            specified or if the collection in ``dbref`` does
+            not match this class's collection.
+
+        :raises TypeError:
+            If ``dbref`` is not an instance of ``DBRef``.
+
+        :raises AttributeError:
+            If ``dbref`` doesn't have the ``collection``
+            attribute.
         """
         try:
-            yield cls.coll.insert({'_id': _id})
-            self = yield cls(_id, **kwargs)
-            return self
+            if id_ and dbref:
+                raise ValueError(
+                    'Only one reference argument should be '
+                    'specified.')
 
-        except DuplicateKeyError:
-            msg.duplicate_object_in_db(cls.path + '.create',
-                                       _id)
-            raise
+            if dbref and dbref.collection != cls.coll:
+                raise ValueError(
+                    "dbref doesn't match this class's "
+                    "collection")
+
+            if id_:
+                data = yield cls.coll.find_one({'_id': id_})
+            elif dbref:
+                data = yield db.dereference(dbref)
+            else:
+                raise ValueError(
+                    'Either id_ or dbref should be '
+                    'specified.')
+
+            if not data:
+                raise NoObjectReturnedFromDB(cls)
+
+            return cls(data, **kwargs)
+
+        except AttributeError as ae:
+            if not hasattr(dbref, 'collection'):
+                e = AttributeError(
+                    "dbref doesn't have the collection "
+                    "attribute. Maybe dbref is not an "
+                    "instance of DBRef.")
+                raise e from ae
+            else:
+                raise
+
+        except TypeError as te:
+            if not isinstance(dbref, DBRef):
+                e = TypeError(
+                    'dbref has to be an instance of DBRef.')
+                raise e from te
+            else:
+                raise
+
+    @classmethod
+    @coroutine
+    def create(cls, id_, **kwargs):
+        """Create a new object in the database.
+
+        :param str id_:
+            Identifier of the document that will be fetched
+            from the database.
+
+        :param kwargs:
+            Keyword arguments to be passed to the class
+            constructor.
+
+        :return:
+            An instance of this class that represents the
+            newly created document.
+
+        :raises OperationFailure:
+            If an error occurred during insertion.
+        """
+        yield cls.coll.insert({'_id': id_})
+        self = yield cls.get(id_, **kwargs)
+        return self
+
+    def __init__(self, data, **kwargs):
+        if isinstance(data, dict):
+            self.setattr('_data', data)
+        else:
+            raise NotDictError(
+                'data',
+                'Found {}.'.format(
+                    type(data)
+                )
+            )
 
     def __getattr__(self, name):
         if name in self._data:
@@ -94,11 +161,50 @@ class DBObject(object):
                 self.store, name, value, update_data=False)
             self._data[name] = value
 
+    def __str__(self):
+        return self.id
+
+    def __repr__(self):
+        return "{classname}.get('{id}')".format(
+            classname=self.__class__.__name__, id=self.id)
+
+    @property
+    def id(self):
+        return self._data['_id']
+
     def setattr(self, name, value):
         super().__setattr__(name, value)
 
     @coroutine
     def store(self, name, value, update_data=True):
+        """Store a value in a field of this document.
+
+        :param str name:
+            The name of the field to be stored.
+
+        :param object value:
+            The value that will be stored in the field.
+
+        :param bool update_data:
+            If true, ``self._data`` will be updated locally
+            without reading from the database. If False,
+            ``self._data`` will not be updated even after
+            successfully writing to the database. This is
+            useful (but dangerous) when you want to call
+            this method using
+            ``IOLoop.current().spawn_callback()`` and you
+            update the local copy (``self._data``) manually.
+            This can happen when you have to call this
+            method, from a method that is not a coroutine.
+
+        :raises ConditionNotMetError:
+            If the document no longer exists in the
+            database.
+
+        :raises OperationFailure:
+            If an error occurred during the update
+            operation.
+        """
         yield self.store_dict({name: value}, update_data)
 
     @coroutine
@@ -230,6 +336,20 @@ class DBObject(object):
 
     @coroutine
     def modify(self, effect):
+        """Modify the document associated with this object.
+
+        :param dict effect:
+            Changes to be made to the document. This is
+            equivalent to ``collection.update()``s
+            ``update`` parameter.
+
+        :raises ConditionNotMetError:
+            If the document no longer exists in the
+            database.
+
+        :raises NotDictError:
+            If ``effect`` is not a dictionary.
+        """
         yield self.modify_if({}, effect)
 
     @coroutine
@@ -250,8 +370,8 @@ class DBObject(object):
 
         :param dict effect:
             Changes to be made to the document. This is
-            equivalent to "collection.update()" "update"
-            parameter.
+            equivalent to ``collection.update()``s
+            ``update`` parameter.
 
         :raises ConditionNotMetError:
             If the document associated with this object does
@@ -288,7 +408,7 @@ class DBObject(object):
     def reset(self, *fields, update_data=True):
         """Reset some fields to their default values.
 
-        :param list *fields:
+        :param list \*fields:
             A list of strings, containing the names of the
             attributes to be changed to their default
             values.
@@ -330,7 +450,7 @@ class DBObject(object):
             document. Here you can use all the MongoDB's
             query selectors.
 
-        :param list *fields:
+        :param list \*fields:
             A list of strings, containing the names of the
             attributes to be changed to their default
             values.
@@ -387,4 +507,7 @@ class DBObject(object):
         if not data:
             raise NoObjectReturnedFromDB(self.__class__)
 
-        self.setattr('_data', data)
+        if fields:
+            self._data.update(data)
+        else:
+            self.setattr('_data', data)

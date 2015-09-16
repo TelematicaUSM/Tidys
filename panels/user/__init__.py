@@ -20,10 +20,10 @@ from controller import MSGHandler
 from backend_modules import router
 from src import messages as msg
 from src.db import User, Code, NoObjectReturnedFromDB, \
-    ConditionNotMetError, CodeType, Course
-from src.wsclass import subscribe
+    ConditionNotMetError, CodeType, Course, Room
 from src.pub_sub import MalformedMessageError
 from src.utils import raise_if_all_attr_def
+from src.wsclass import subscribe
 
 _path = msg.join_path('panels', 'user')
 
@@ -72,15 +72,80 @@ class UserWSC(src.wsclass.WSClass):
 
     _path = msg.join_path(_path, 'UserWSC')
 
+    @staticmethod
+    def should_run_room_deassign_course(
+            has_course, was_none, was_student, was_teacher,
+            is_none, is_student, is_teacher, distinct_room):
+
+        return was_teacher and has_course and (
+            is_student or is_teacher and distinct_room)
+
+    @staticmethod
+    def should_run_user_deassign_course(
+            has_course, was_none, was_student, was_teacher,
+            is_none, is_student, is_teacher, distinct_room):
+
+        student_condition = \
+            was_student and (
+                not is_student or distinct_room)
+
+        teacher_condition = \
+            was_teacher and not is_none and (
+                not is_teacher or distinct_room)
+
+        return has_course and (
+            student_condition or
+            teacher_condition
+        )
+
+    @staticmethod
+    def should_run_use_seat(
+            has_course, was_none, was_student, was_teacher,
+            is_none, is_student, is_teacher, distinct_room):
+
+        return is_student
+
+    @staticmethod
+    def should_run_logout_other_instances(
+            has_course, was_none, was_student, was_teacher,
+            is_none, is_student, is_teacher, distinct_room):
+
+        return \
+            was_student or \
+            is_student or \
+            was_none and not is_none or \
+            is_teacher and distinct_room
+
+    @staticmethod
+    def should_run_load_course(
+            has_course, was_none, was_student, was_teacher,
+            is_none, is_student, is_teacher, distinct_room):
+
+        return \
+            has_course and not distinct_room and (
+                was_student and is_student or
+                was_teacher and is_teacher
+            )
+
+    @staticmethod
+    def should_run_redirect_to_teacher_view(
+            has_course, was_none, was_student, was_teacher,
+            is_none, is_student, is_teacher, distinct_room):
+
+        return was_teacher and is_none
+
     def __init__(self, handler):
         super().__init__(handler)
         self.session_start_ok = False
+        self.block_logout = False
+        self.user_state_at_exclusive_login = None
+        self.dont_leave_seat = False
 
     @coroutine
     def load_user(self, token):
         try:
             uid = jwt.decode(token, verify=False)['id']
-            user = yield User(uid)
+            user = yield User.get(uid)
             jwt.decode(token, user.secret)
             self.handler.user = user
 
@@ -94,13 +159,16 @@ class UserWSC(src.wsclass.WSClass):
     @subscribe('logout', channels={'l'})
     def logout(self, message):
         try:
-            blocked = \
-                hasattr(self.handler, 'block_logout') and \
-                self.handler.block_logout
-
-            if blocked:
-                self.handler.block_logout = False
+            if self.block_logout:
+                self.block_logout = False
             else:
+                self.user_state_at_exclusive_login = \
+                    message.get(
+                        'user_state_at_exclusive_login')
+
+                self.dont_leave_seat = message.get(
+                    'dont_leave_seat', False)
+
                 self.handler.logout_and_close(
                     message['reason'])
 
@@ -195,22 +263,28 @@ class UserWSC(src.wsclass.WSClass):
 
     @coroutine
     def load_room_code(self, room_code_str):
+        """Load the room code and room from the db.
+
+        ..todo::
+            * Write error handling.
+        """
         if room_code_str == 'none':
-            self.handler.room_code = None
-            self.handler.room = None
+            room_code = None
+            room = None
             code_type = 'none'
             room_name = None
+            seat_id = None
         else:
-            self.handler.room_code = \
-                yield Code(room_code_str)
-            self.handler.room = \
-                yield self.handler.room_code.room
+            room_code = yield Code.get(room_code_str)
+            room = yield room_code.room
+            code_type = room_code.code_type.value
+            room_name = room.name
+            seat_id = room_code.seat_id
 
-            code_type = \
-                self.handler.room_code.code_type.name
-            room_name = self.handler.room.name
+        self.handler.room_code = room_code
+        self.handler.room = room
 
-        return (code_type, room_name)
+        return (code_type, room_name, seat_id)
 
     def redirect_to_teacher_view(self, room_code, message):
         """Redirect the client to the current teacher view.
@@ -239,85 +313,113 @@ class UserWSC(src.wsclass.WSClass):
     @subscribe('session.start', 'w')
     @coroutine
     def startSession(self, message):
+        """Start a user session
+
+        .. todo::
+            *   Add a variable that indicates the last stage
+                that was executed successfully. So that the
+                finally clause can clean the mess properly.
+        """
         try:
             yield self.load_user(message['token'])
             self.sub_to_user_messages()
-            code_type, room_name = \
+            code_type, room_name, seat_id = \
                 yield self.load_room_code(
                     message['room_code'])
 
-            distinct_room = \
-                room_name is not None \
-                and \
-                self.handler.user.room_name is not None \
-                and \
-                room_name != self.handler.user.room_name
+            user = self.handler.user
+            room_code = self.handler.room_code
+            room = self.handler.room
 
-            was_none = self.handler.user.status == 'none'
-            was_student = self.handler.user.status == 'seat'
-            was_teacher = self.handler.user.status == 'room'
+            course_id = user.course_id
+            has_course = course_id is not None
 
-            is_none = code_type == 'none'
-            is_student = code_type == 'seat'
-            is_teacher = code_type == 'room'
+            was_none = (user.status == 'none')
+            was_student = (user.status == 'seat')
+            was_teacher = (user.status == 'room')
 
-            if distinct_room or was_student or \
-                    is_student or (was_none and is_teacher):
-                self.handler.block_logout = True
+            is_none = (code_type == 'none')
+            is_student = (code_type == 'seat')
+            is_teacher = (code_type == 'room')
+
+            distinct_room = not (
+                room_name is None or
+                user.room_name is None or
+                room_name == user.room_name
+            )
+
+            same_seat = (seat_id == user.seat_id) and \
+                not distinct_room
+
+            transition_data = (
+                has_course, was_none, was_student,
+                was_teacher, is_none, is_student,
+                is_teacher, distinct_room
+            )
+
+            # Redirect to Teacher View
+            if self.should_run_redirect_to_teacher_view(
+                    *transition_data):
+                self.redirect_to_teacher_view(
+                    user.room_code, message)
+                # The rest of the code is not executed.
+                return
+
+            # Room Deassign Course
+            '''This should always run before "User Deassign
+            Course"'''
+            if self.should_run_room_deassign_course(
+                    *transition_data):
+                if distinct_room:
+                    r = yield Room.get(user.room_name)
+                else:
+                    r = room
+
+                yield r.deassign_course(course_id)
+
+            # User Deassign Course
+            if self.should_run_user_deassign_course(
+                    *transition_data):
+                yield user.deassign_course()
+
+            # Logout Other Instances
+            if self.should_run_logout_other_instances(
+                    *transition_data):
+                self.block_logout = True
                 self.pub_subs['d'].send_message(
                     {
                         'type': self.handler.user_msg_type,
                         'content': {
                             'type': 'logout',
-                            'reason': 'exclusiveLogin'
+                            'reason': 'exclusiveLogin',
+                            'user_state_at_exclusive_login':
+                                user._data,
+                            'dont_leave_seat': same_seat,
                         }
                     }
                 )
 
-            course_id = self.handler.user.course_id
+            # Use Seat
+            if self.should_run_use_seat(*transition_data) \
+                    and (not same_seat or
+                         user.instances == 0):
+                yield room.use_seat(room_code.seat_id)
 
-            if was_teacher:
-                if is_none:
-                    self.redirect_to_teacher_view(
-                        self.handler.user.room_code,
-                        message
-                    )
-                    # The rest of the code is not executed.
-                    return
+            # Load Course
+            if self.should_run_load_course(
+                    *transition_data):
+                self.handler.course = yield Course.get(
+                    course_id)
 
-                elif course_id is not None:
-                    if is_teacher:
-                        self.handler.course = \
-                            yield Course(course_id)
-
-                    elif is_student:
-                        yield \
-                            self.handler.room.\
-                            deassign_course(course_id)
-
-                        yield self.handler.user.reset(
-                            'course_id')
+            # Increase Instances
+            yield self.handler.user.increase_instances()
 
             yield self.handler.user.store_dict(
                 {
-                    'room_name': room_name,
-                    'room_code': message['room_code'],
                     'status': code_type,
-                }
-            )
-
-            if is_student:
-                yield self.handler.room.use_seat(
-                    self.handler.room_code.seat_id)
-
-            yield self.handler.user.increase_instances()
-            self.session_start_ok = True
-
-            self.pub_subs['w'].send_message(
-                {
-                    'type': 'session.start.ok',
-                    'code_type': code_type,
-                    'course_id': course_id
+                    'room_code': message['room_code'],
+                    'room_name': room_name,
+                    'seat_id': seat_id,
                 }
             )
 
@@ -352,13 +454,28 @@ class UserWSC(src.wsclass.WSClass):
             else:
                 raise
 
+        else:
+            self.session_start_ok = True
+
+            self.pub_subs['w'].send_message(
+                {
+                    'type': 'session.start.ok',
+                    'code_type': code_type,
+                    'course_id': user.course_id
+                }
+            )
+
+        finally:
+            if not self.session_start_ok:
+                pass
+
     @subscribe('getUserName', 'w')
     def get_user_name(self, message):
         """Send the user's name to the client.
 
         .. todo::
-            *   Re-raise attribute error and review error
-                handling.
+            *   Re-raise attribute error
+            *   review error handling.
         """
         try:
             name = self.handler.user.name
@@ -369,31 +486,65 @@ class UserWSC(src.wsclass.WSClass):
             self.send_user_not_loaded_error(message)
 
     @coroutine
+    def end_room_usage(self, user, is_teacher, is_student):
+        try:
+            room_code = self.handler.room_code
+            room = yield room_code.room
+
+            # Room Deassign Course
+            if is_teacher and \
+                    user.course_id is not None and \
+                    user.instances == 1:
+                yield room.deassign_course(user.course_id)
+
+            # Leave seat
+            if is_student and not self.dont_leave_seat:
+                yield room.leave_seat(room_code.seat_id)
+
+        except AttributeError:
+            if not hasattr(self.handler, 'room_code') or \
+                    self.handler.room_code is None:
+                msg.code_warning(
+                    msg.join_path(
+                        __name__, self.end.__qualname__),
+                    "room_code wasn't initialized at "
+                    "{.__class__.__name__}'s "
+                    "end.".format(self)
+                )
+
+            else:
+                raise
+
+    @coroutine
     def end(self):
-        yield super().end()
-
         try:
-            if self.session_start_ok:
-                yield self.handler.user.decrease_instances()
-        except:
-            raise_if_all_attr_def(self.handler, 'user')
+            yield super().end()
 
-        try:
-            if self.handler.room_code.code_type is \
-                    CodeType.room and \
-                    self.handler.user.instances == 0:
-                yield self.handler.room.deassign_course(
-                    self.handler.course.id)
-        except:
-            raise_if_all_attr_def(
-                self.handler, 'room_code', 'user', 'room',
-                'course')
+            if not self.session_start_ok:
+                return
 
-        try:
-            if self.handler.room_code.code_type is \
-                    CodeType.seat:
-                yield self.handler.room.leave_seat(
-                    self.handler.room_code.seat_id)
+            if self.user_state_at_exclusive_login:
+                user = User(
+                    self.user_state_at_exclusive_login)
+            else:
+                user = self.handler.user
+                yield user.sync('instances')
+
+            is_teacher = (user.status == 'room')
+            is_student = (user.status == 'seat')
+
+            # Room Deassign Course
+            # Leave seat
+            yield self.end_room_usage(
+                user, is_teacher, is_student)
+
+            # User Deassign Course
+            yield user.deassign_course(
+                if_last_instance=is_teacher)
+
+            # Decrease Instances
+            # (can modify status and course_id)
+            yield user.decrease_instances()
+
         except:
-            raise_if_all_attr_def(
-                self.handler, 'room_code', 'room')
+            raise

@@ -4,8 +4,6 @@
 
 Users have a status (student or teacher) and location (room,
 seat).
-
-
 """
 
 from tornado.gen import coroutine
@@ -18,11 +16,12 @@ from .db_object import DBObject
 class User(DBObject):
     coll = db.users
     defaults = {
-        'status': 'none',       # current user status
-        'room_name': None,      # current room name
-        'room_code': 'none',    # last scanned room code
-        'course_id': None,      # user is teaching this
         'instances': 0,         # number of tabs opened
+        'status': 'none',       # current user status
+        'room_code': 'none',    # last scanned room code
+        'room_name': None,      # current room name
+        'course_id': None,      # current course ID
+        'seat_id': None,        # current seat ID
     }
 
     @classmethod
@@ -51,14 +50,11 @@ class User(DBObject):
                 '$set': {'google_userinfo': userinfo}
             },
             upsert=True)
-        self = yield cls(userinfo['sub'])
+        self = yield cls.get(userinfo['sub'])
         return self
 
     def __str__(self):
         return self.name
-
-    def __repr__(self):
-        return "User('%s')" % self.id
 
     @property
     def secret(self):
@@ -100,6 +96,56 @@ class User(DBObject):
             )
             yield self.reset_if(
                 {'instances': 0}, 'status', 'course_id')
+
+        except ConditionNotMetError:
+            pass
+
+    @coroutine
+    def assign_course(self, course_id):
+        """Assign a ``course_id`` to this user.
+
+        The default value of ``course_id`` is ``None``,
+        which indicates that this user has no associated
+        course.
+
+        :param str course_id:
+            The course ID to be associated with this user.
+
+        :raises ConditionNotMetError:
+            If the document no longer exists in the
+            database.
+
+        :raises OperationFailure:
+            If an error occurred during the update
+            operation.
+        """
+        yield self.store('course_id', course_id)
+
+    @coroutine
+    def deassign_course(self, if_last_instance=False):
+        """Set this user's ``course_id`` to ``None``.
+
+        The default value of ``course_id`` is ``None``,
+        which indicates that this user has no associated
+        course.
+
+        :param bool if_last_instance:
+            If ``True``, the course will only be deassigned
+            if this is the last instance of the user.
+
+        :raises ConditionNotMetError:
+            If the document no longer exists in the
+            database.
+
+        :raises OperationFailure:
+            If an error occurred during the update
+            operation.
+        """
+        try:
+            condition = \
+                {'instances': 1} if if_last_instance else {}
+
+            yield self.reset_if(condition, 'course_id')
 
         except ConditionNotMetError:
             pass

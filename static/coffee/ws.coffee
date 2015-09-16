@@ -45,7 +45,7 @@ ws.addMessageListener = (msg_type, func) ->
     listener = (evt) ->
         func evt.detail.message
     listener.msg_type = msg_type
-    
+
     ws.addEventListener ws.toEventName(msg_type), listener
     return listener
 
@@ -74,11 +74,11 @@ ws.addEventListener 'close', ->
 
 ws.addEventListener("message", (evt) ->
     message = JSON.parse evt.data
-    
+
     if "type" not of message
         console.log "Malformed message: " + evt.data
         return
-        
+
     ws.dispatchEvent new CustomEvent(
         ws.toEventName(message.type),
         {"detail": "message": message})

@@ -5,7 +5,6 @@ from tornado.escape import xhtml_escape
 from pymongo.errors import DuplicateKeyError
 
 import src
-import panels
 from src.db import Course, NoObjectReturnedFromDB
 from src.wsclass import subscribe
 
@@ -88,15 +87,26 @@ class LessonSetupWSC(src.wsclass.WSClass):
     @coroutine
     def assign_course_to_current_room(self, message):
         try:
-            self.handler.course = yield Course(
-                message['course_id'])
+            user = self.handler.user
 
+            if user.status != 'room':
+                return
+
+            # Load Course
+            course = yield Course.get(message['course_id'])
+            self.handler.course = course
+
+            # Room Deasign Course
+            if user.course_id is not None:
+                self.handler.room.deassign_course(
+                    user.course_id)
+
+            # Room Assign Course
             room = yield self.handler.room_code.room
+            yield room.assign_course(course.id)
 
-            yield room.assign_course(message['course_id'])
-
-            yield self.handler.user.store(
-                'course_id', self.handler.course.id)
+            # User Assign Course
+            yield user.assign_course(course.id)
 
             self.course_assignment_source = True
             """This variable identifies the source of the
@@ -111,15 +121,28 @@ class LessonSetupWSC(src.wsclass.WSClass):
                 }
             )
 
-        except (KeyError, NoObjectReturnedFromDB):
+        except KeyError:
+            if 'course_id' not in message:
+                self.handler.send_malformed_message_error(
+                    message)
+            else:
+                raise
+
+        except NoObjectReturnedFromDB:
             self.handler.send_malformed_message_error(
                 message)
 
         except AttributeError:
-            if not hasattr(self.handler, 'room_code'):
-                panels.user.UserWSC.\
-                    send_room_not_loaded_error(
-                        self.handler, message)
+            if not hasattr(self.handler, 'user'):
+                self.handler.send_user_not_loaded_error(
+                    message)
+
+            elif not hasattr(self.handler, 'room_code'):
+                self.handler.send_room_not_loaded_error(
+                    message)
+
+            else:
+                raise
 
     @subscribe('course.assignment.ok', 'l')
     @coroutine
@@ -131,7 +154,7 @@ class LessonSetupWSC(src.wsclass.WSClass):
             course_id = self.handler.user.course_id
 
             if course_id is not None:
-                self.handler.course = yield Course(
+                self.handler.course = yield Course.get(
                     course_id)
 
         self.pub_subs['w'].send_message(

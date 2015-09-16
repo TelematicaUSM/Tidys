@@ -78,11 +78,14 @@ class Room(DBObject):
     def __str__(self):
         return self.name
 
-    def __repr__(self):
-        return "Room('%s')" % self.id
-
     @coroutine
     def assign_course(self, course_id):
+        """Adds a course from the courses set.
+
+        :raises ConditionNotMetError:
+            If the document no longer exists in the
+            database.
+        """
         yield self.modify(
             {
                 '$addToSet': {'courses': course_id}
@@ -91,6 +94,12 @@ class Room(DBObject):
 
     @coroutine
     def deassign_course(self, course_id):
+        """Remove a course from the courses set.
+
+        :raises ConditionNotMetError:
+            If the document no longer exists in the
+            database.
+        """
         yield self.modify(
             {
                 '$pull': {'courses': course_id}
@@ -171,7 +180,11 @@ class Code(DBObject):
     @classmethod
     @coroutine
     def create(cls, room_id, code_type, seat_id=None):
-        """Create a new code."""
+        """Create a new code.
+
+        .. todo::
+            *   review error handling.
+        """
         _path = msg.join_path(cls._path, 'create')
 
         def creat_err_msg():
@@ -193,7 +206,7 @@ class Code(DBObject):
 
         try:
             # Throws NoObjectReturnedFromDB
-            room = yield Room(room_id)
+            room = yield Room.get(room_id)
 
             self, code = yield cls._gen_new_code()
             self.setattr('_room', room)
@@ -218,14 +231,11 @@ class Code(DBObject):
         return '<%s -> (%s, %s)>' % (self.id, self.room_id,
                                      self.seat_id)
 
-    def __repr__(self):
-        return "Code('%s')" % self.id
-
     @property
     @coroutine
     def room(self):
         if not hasattr(self, '_room'):
-            room = yield Room(self.room_id)
+            room = yield Room.get(self.room_id)
             self.setattr('_room', room)
         return self._room
 

@@ -2,7 +2,7 @@
 
 import conf
 from sys import exit
-from logging import info, debug, error, critical
+from logging import info, debug, warning, error, critical
 
 
 def join_path(*parts):
@@ -90,7 +90,8 @@ def try_new_id_after_dup_obj_in_db(code_path):
 
 
 def exhausted_tries(code_path):
-    code_critical(code_path,
+    code_critical(
+        code_path,
         'We exhausted all tries in an algorithm and '
         'didn\'t have luck. Try incrementing the maximum'
         'number of tries.'

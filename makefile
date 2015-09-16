@@ -5,6 +5,7 @@ dir_name = $${PWD\#\#*/}
 runenv = . env/bin/activate
 python = $(runenv) && python
 pip_install = $(runenv) && pip install
+unittest = $(python) -m unittest
 
 gempath = ./gems
 gembin = $(gempath)/bin
@@ -98,7 +99,7 @@ coffee-script bower: | dependencies
 
 normalize.css: | css bower
 	$(bowercmd) install $@
-	cd $(csspath) && ln -s ../../$(bowerpath)/$@/$@ $@
+	cd $(csspath) && ln -s ../../$(bowerpath)/normalize-css/$@ $@
 
 reconnecting-websocket.js: | bower js
 	$(bowercmd) install reconnectingWebsocket
@@ -109,7 +110,8 @@ js: coffee | coffee-script
 
 .PHONY: run python srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean panels notifications \
-	locking_panels qrmaster controls autodoc clean_doc
+	locking_panels qrmaster controls autodoc clean_doc test
+	vtest
 
 run_py_deps = tornado motor jwt httplib2 oauth2client
 run: $(run_py_deps) dependencies css js \
@@ -142,6 +144,12 @@ panels notifications locking_panels controls: coffee-script sass $(bbfoldername)
 
 testenv: env
 	$(python) -V
+
+test:
+	$(unittest)
+
+vtest:
+	$(unittest) -v
 
 attach:
 	screen -r $(dir_name)
