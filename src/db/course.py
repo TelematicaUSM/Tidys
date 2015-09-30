@@ -1,8 +1,11 @@
 # -*- coding: UTF-8 -*-
 
 from unicodedata import normalize
+
 from tornado.gen import coroutine
 from pymongo import ASCENDING
+
+from src.exceptions import NotDictError
 from .common import db
 from .db_object import DBObject
 
@@ -10,6 +13,13 @@ from .db_object import DBObject
 class Course(DBObject):
     coll = db.courses
     path = 'src.db.course.Course'
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def name(self):
+        return self._data['name']
 
     @classmethod
     @coroutine
@@ -26,25 +36,93 @@ class Course(DBObject):
 
     @classmethod
     @coroutine
+    def _get_courses(cls, spec, fields=None):
+        """Return a list of courses.
+
+        Returns a list of courses that meet the restrictions
+        set by the ``spec`` parameter.
+
+        :param dict spec:
+            This parameter is passed directly to the
+            ``MotorCollection.find`` method. The dictionary
+            can contain any valid MongoDB query operator.
+
+        :param fields:
+            This parameter is passed directly to the
+            ``MotorCollection.find`` method.
+
+        :type fields: dict or list
+
+        :return:
+            A future that resolves to a list.
+
+        :raises src.exceptions.NotDictError:
+            If ``spec`` is not a dictionary.
+        """
+        try:
+            cursor = cls.coll.find(
+                spec, fields, sort=[('_id', ASCENDING)])
+
+            courses = yield cursor.to_list(None)
+            return courses
+
+        except TypeError as te:
+            if not isinstance(spec, dict):
+                raise NotDictError('spec') from te
+
+            if not isinstance(fields, (dict, list)) and \
+                    fields is not None:
+                e = TypeError(
+                    'The fields parameter should be a '
+                    'dictionary or a list.'
+                )
+                raise e from te
+
+            else:
+                raise
+
+    @classmethod
+    @coroutine
     def get_user_courses(cls, user):
-        yield cls.coll.ensure_index(
-            [('user_id', ASCENDING),
-             ('_id', ASCENDING)])
+        """Get all curses created by ``user``.
 
-        cursor = cls.coll.find({'user_id': user.id},
-                               {'name': True},
-                               sort=[('_id', ASCENDING)])
+        :param User user:
+            The user who created the courses to be obtained.
 
-        courses = yield cursor.to_list(None)
-        return courses
+        :return:
+            A future that resolves to a list of couses.
+        """
+        try:
+            yield cls.coll.ensure_index(
+                [('user_id', ASCENDING), ('_id', ASCENDING)]
+            )
 
-    def __str__(self):
-        return self.name
+            courses = yield cls._get_courses(
+                spec={'user_id': user.id}, fields=['name'])
+            return courses
 
-    def __repr__(self):
-        return "{0.__class__.__name__}('{0.id}')".format(
-            self)
+        except:
+            raise
 
-    @property
-    def name(self):
-        return self._data['name']
+    @classmethod
+    @coroutine
+    def get_courses_from_ids(cls, ids):
+        """Get all courses specified by the ids parameter.
+
+        :param list ids:
+            A list of the IDs of the documents to be
+            fetched.
+
+        :return:
+            A future that resolves to a list of courses.
+        """
+        try:
+            courses = yield cls._get_courses(
+                {
+                    '_id': {'$in': ids}
+                }
+            )
+            return courses
+
+        except:
+            raise

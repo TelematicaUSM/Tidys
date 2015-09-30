@@ -5,7 +5,7 @@ from warnings import warn
 from tornado.ioloop import IOLoop
 
 from src import messages as msg
-from src.exeptions import NotDictError
+from src.exceptions import NotDictError
 
 _path = msg.join_path('src', 'pub_sub')
 

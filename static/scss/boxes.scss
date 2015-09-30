@@ -137,7 +137,7 @@ input[type="submit"][disabled] {
     color: lighten($c-control-font, 50%);
 }
 
-.button-list-item {
+.list-button {
     border-width: 1px 0px 0px;
     border-style: solid;
     border-color: $c-control-border;
@@ -146,15 +146,15 @@ input[type="submit"][disabled] {
     background-color: transparent;
 }
 
-.button-list-item:last-child {
+.list-button:last-child {
     border-width: 1px 0px;
 }
 
-.button-list-item:focus {
+.list-button:focus {
     border-color: $c-control-border;
     background-color: lighten(black, 90%);
 }
 
-.button-list-item:active {
+.list-button:active {
     background-color: $c-active-button;
 }

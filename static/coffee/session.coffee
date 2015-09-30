@@ -21,6 +21,10 @@ ws.getMessagePromise('session.start.ok').then (message) ->
     if message.code_type == 'room' and \
             message.course_id == null
         load_promise.then showLessonSetup
+
+    else if message.code_type == 'seat'
+        load_promise.then showStudentSetup
+
     else
         load_promise.then activatePanels
 

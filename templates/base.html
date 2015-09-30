@@ -11,7 +11,7 @@
                 <title>{{ conf.app_name }}</title>
             {% end %}
         {% end %}
-        
+
         <meta name="author" content="{{ conf.author }}">
         <meta http-equiv="content-type"
               content="text/html; charset=UTF-8">
@@ -37,14 +37,16 @@
                 "ws_scheme": "{{ conf.ws_scheme }}",
             }
         </script>
-        
+
         {{ add_ext_file('css/normalize.css') }}
         {{ add_ext_file('css/base.css') }}
         {{ add_ext_file('js/constants.js') }}
         {{ add_ext_file('js/utils.js') }}
     </head>
-    
+
     <body>
+        {% include global_templates.html %}
+
         {% block body %}
             {% if 'content' in globals() %}
                 {% if raw_content %}
@@ -54,7 +56,7 @@
                 {% end %}
             {% end %}
         {% end %}
-        
+
         {% module IncludeExtFiles() %}
     </body>
 </html>

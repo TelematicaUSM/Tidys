@@ -3,6 +3,7 @@ promise_num = 0
 @load_promise = null
 resolveLoadPromise = null
 
+#this could be just an assignment
 origHideLoadingFunction = ->
     activatePanels()
 
@@ -44,7 +45,7 @@ addPromise = (promise) ->
                 resolveLoadPromise = resolve
         )
         @load_promise.then(-> hideLoading())
-    
+
     addPromise promise if promise
     loading_text.innerHTML = message
 

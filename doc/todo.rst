@@ -26,5 +26,9 @@ General project tasks
             connection. But this works only in the client
             that originally registered the course. This
             should be done by all clients.
-
-    Done:
+        -   qrmaster's main html output should be named
+            index.html.
+        -   Describe the different panel classes.
+        -   Send updates from the courses being dictated in
+            each room to all students that are waiting to
+            attend to a course.

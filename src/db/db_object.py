@@ -4,7 +4,7 @@ from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
 from bson.dbref import DBRef
 
-from src.exeptions import NotDictError
+from src.exceptions import NotDictError
 from .common import ConditionNotMetError, \
     NoObjectReturnedFromDB, db
 

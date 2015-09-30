@@ -19,7 +19,7 @@ from tornado.websocket import WebSocketHandler, \
 import conf
 from src import ui_modules, ui_methods, messages as msg, db
 from src.boiler_ui_module import BoilerUIModule
-from src.exeptions import NotDictError
+from src.exceptions import NotDictError
 from src.pub_sub import OwnerPubSub, NoMessageTypeError, \
     NoActionForMsgTypeError
 

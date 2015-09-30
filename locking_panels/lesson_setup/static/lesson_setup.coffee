@@ -1,7 +1,8 @@
 #VARIABLES
 
-panel_id = 'lesson-setup-panel'
-template = document.getElementById 'course-button-template'
+template = document.getElementById 'list-button-template'
+tbutton = template.content.querySelector 'button'
+
 spinner = document.getElementById 'lsp-spinner'
 new_course_box = document.getElementById 'lsp-new-course'
 select_course_box = document.getElementById(
@@ -15,7 +16,7 @@ new_course_name = document.getElementById 'new-course-name'
 #FUNCTIONS
 
 @showLessonSetup = ->
-    switchToPanel(panel_id)
+    switchToPanel('lesson-setup-panel')
 
 assignCourseToCurrentRoom = (course_id) ->
     assign = ->
@@ -30,12 +31,22 @@ assignCourseToCurrentRoom = (course_id) ->
 
 ws.getMessagePromise('session.start.ok').then ->
     ws.sendSafeJSON
-        'type': 'getCourses'
+        'type': 'courses.user.get'
 
-ws.addMessageListener 'course.assignment.ok', activatePanels
+ws.getMessagePromise('course.assignment.ok').then ->
+    activatePanels()
 
 ws.getMessagePromise('courses').then (message) ->
-    spinner.style.display = 'none'
+    for course in message.courses
+        button = document.importNode(tbutton, true)
+        button.textContent = course.name
+        button.course_id = course._id
+        button.addEventListener 'click', (event) ->
+            assignCourseToCurrentRoom(
+                event.target.course_id)
+        select_course_box.appendChild button
+
+    hideElements spinner
 
     if message.courses.length is 0
         hideElements [new_course_button, select_course_box,
@@ -44,16 +55,6 @@ ws.getMessagePromise('courses').then (message) ->
     else
         hideElements new_course_box
         showElements [new_course_button, select_course_box]
-
-    tbutton = template.content.querySelector 'button'
-    for course in message.courses
-        button = document.importNode(tbutton, true)
-        button.textContent = course.name
-        button.course_id = course._id
-        button.addEventListener 'click', (event) ->
-            assignCourseToCurrentRoom(
-                event.target.course_id)
-        template.parentNode.appendChild button
 
 new_course_button.addEventListener 'click', ->
     hideElements new_course_button

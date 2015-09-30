@@ -53,6 +53,34 @@ class User(DBObject):
         self = yield cls.get(userinfo['sub'])
         return self
 
+    @classmethod
+    @coroutine
+    def get_name(cls, id_):
+        """Return the name of a user.
+
+        :param str id_:
+            The ID of the user.
+
+        :return:
+            A future that resolves to a string.
+
+        .. todo::
+            -   Generalize this method to obtain many names
+                at once.
+        """
+        try:
+            result = yield cls.coll.find_one(
+                id_,
+                fields={
+                    '_id': False,
+                    'google_userinfo.name': True,
+                }
+            )
+            return result['google_userinfo']['name']
+
+        except:
+            raise
+
     def __str__(self):
         return self.name
 

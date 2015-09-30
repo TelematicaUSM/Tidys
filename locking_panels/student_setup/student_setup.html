@@ -1,0 +1,11 @@
+<h1 class="panel-title">
+    Cursos en esta Sala
+</h1>
+
+<div id='ssp-select-course' class="box">
+    <h1>Seleccione el curso al que desee asistir:</h1>
+
+    {% from controls.spinner import SpinnerControl %}
+    {% module UIModuleLoader(SpinnerControl,
+                             'ssp-spinner') %}
+</div>

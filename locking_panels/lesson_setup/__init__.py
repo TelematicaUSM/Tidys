@@ -28,23 +28,6 @@ class LessonSetupLockingPanel(
 
 
 class LessonSetupWSC(src.wsclass.WSClass):
-    @subscribe('getCourses')
-    @coroutine
-    def send_course_names(self, message):
-        try:
-            courses = yield Course.get_user_courses(
-                self.handler.user)
-
-            self.pub_subs['w'].send_message(
-                {'type': 'courses',
-                 'courses': courses})
-
-        except AttributeError:
-            if not hasattr(self.handler, 'user'):
-                usr_wsc = self.handler.ws_objects[
-                    panels.user.UserWSC]
-                usr_wsc.send_user_not_loaded_error(message)
-
     @subscribe('createCourse')
     @coroutine
     def create_course(self, message):

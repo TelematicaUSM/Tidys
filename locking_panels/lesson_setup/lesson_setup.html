@@ -21,17 +21,12 @@
 
 <div id='lsp-select-course' class="box">
     <h1>Seleccione el curso que dictará:</h1>
-    
+
     {% from controls.spinner import SpinnerControl %}
     {% module UIModuleLoader(SpinnerControl,
                              'lsp-spinner') %}
-    
-    <template id='course-button-template'>
-        <button type='button' class='button-list-item'>
-        </button>
-    </template>
 </div>
-    
+
 {% from controls.add_button import AddButtonControl %}
 {% module UIModuleLoader(AddButtonControl,
                          'new-course-button') %}
