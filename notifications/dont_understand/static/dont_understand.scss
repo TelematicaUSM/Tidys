@@ -1,0 +1,51 @@
+@import "../../../static/scss/constants";
+@import "../../../static/scss/bourbon_files/bourbon";
+
+@include keyframes(hot-red) {
+    from {
+        fill: $c-primary;
+    }
+
+    to {
+        fill: $c-icon;
+    }
+}
+
+@include keyframes(gear) {
+    from {
+        @include transform(rotate(0deg));
+    }
+
+    50% {
+        @include transform(rotate(45deg));
+    }
+
+    to {
+        @include transform(rotate(90deg));
+    }
+}
+
+#dont-understand.animated {
+    g {
+        @include animation(
+            5*60s cubic-bezier(.95,.05,.8,.04) 0s normal
+            none 1 running hot-red);
+    }
+
+    #du-hexagon {
+        @include animation(
+            2s cubic-bezier(.77,0,.18,1) 0s normal none
+            150 running gear);
+    }
+}
+
+#dont-understand {
+    g {
+        fill: $c-icon;
+    }
+
+    #du-hexagon {
+        @include transform(rotate(0deg));
+        @include transform-origin(16px 16px);
+    }
+}

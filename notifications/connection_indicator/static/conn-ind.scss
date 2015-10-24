@@ -1,8 +1,6 @@
-#conn-ind {
-    background-color: transparent;
-}
+@import "../../../static/scss/constants";
 
 #conn-ind path {
-    fill: rgba(65, 65, 65, 0.15);
+    fill: $c-icon-faded;
     transition: fill 1s;
 }

@@ -2,8 +2,7 @@
 $font-alpha: 0.7;
 
 //SIZES
-$em-base: 10px;
-$header-height: rem(30);
+$header-height: 3rem;
 
 $panel-title-padding: 0.7rem;
 $panel-title-font-size: 1.3rem;
@@ -24,6 +23,8 @@ $c-white-font: rgba(white, $font-alpha);
 $c-footer-font: rgba(black, 0.5);
 $c-shade: rgba(black, 0.6);
 $c-active-button: lighten(black, 50%);
+$c-icon: #414141;
+$c-icon-faded: rgba($c-icon, 0.15);
 
     //app-header
     $c-control-face-light: lighten($c-control-face, 5%);
@@ -34,11 +35,11 @@ $c-active-button: lighten(black, 50%);
     //main-menu
     $c-main-menu: darken($c-control-face, 80%);
     $c-main-menu-font: rgba(white, $font-alpha);
-    
+
     //panels
     $c-panel: #EDECEA;
     $c-panel-title: #78a4d7;
-    
+
     //boxes
     $c-box: white;
     $c-box-shadow: #c9c9c9;

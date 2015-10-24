@@ -1,0 +1,19 @@
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" viewBox="0 0 32 32">
+ <defs>
+  <clipPath id="a" clipPathUnits="userSpaceOnUse">
+   <rect style="color-rendering:auto;color:black;isolation:auto;mix-blend-mode:normal;shape-rendering:auto;solid-color:black;image-rendering:auto" fill-rule="evenodd" height="7" width="32" y="25" x="0" fill="#00ec09"/>
+  </clipPath>
+ </defs>
+ <g>
+  <g fill="#414141">
+   <path d="m2 2v28h28v-28zm-2-2h32v32h-32z"/>
+   <path d="m14 4h4v17l-2 2.1111-2-2.1111z"/>
+   <rect height="4" width="4" y="24" x="14"/>
+  </g>
+  <g fill="#e21e3a" clip-path="url(#a)">
+   <path d="m2 2v28h28v-28zm-2-2h32v32h-32z"/>
+   <path d="m14 4h4v17l-2 2.1111-2-2.1111z"/>
+   <rect height="4" width="4" y="24" x="14"/>
+  </g>
+ </g>
+</svg>
