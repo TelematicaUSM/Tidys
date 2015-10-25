@@ -48,10 +48,8 @@ class CoursesWSC(src.wsclass.WSClass):
 
         except AttributeError:
             if not hasattr(self.handler, 'room'):
-                usr_wsc = self.handler.ws_objects[
-                    panels.user.UserWSC]
-
-                usr_wsc.send_room_not_loaded_error(message)
+                self.handler.send_room_not_loaded_error(
+                    message)
 
             else:
                 raise
@@ -77,10 +75,8 @@ class CoursesWSC(src.wsclass.WSClass):
 
         except AttributeError:
             if not hasattr(self.handler, 'user'):
-                usr_wsc = self.handler.ws_objects[
-                    panels.user.UserWSC]
-
-                usr_wsc.send_user_not_loaded_error(message)
+                self.handler.send_user_not_loaded_error(
+                    message)
 
             else:
                 raise

@@ -20,9 +20,8 @@ from controller import MSGHandler
 from backend_modules import router
 from src import messages as msg
 from src.db import User, Code, NoObjectReturnedFromDB, \
-    ConditionNotMetError, CodeType, Course, Room
+    ConditionNotMetError, Course, Room
 from src.pub_sub import MalformedMessageError
-from src.utils import raise_if_all_attr_def
 from src.wsclass import subscribe
 
 _path = msg.join_path('panels', 'user')
@@ -200,7 +199,8 @@ class UserWSC(src.wsclass.WSClass):
 
         except AttributeError:
             if not hasattr(self.handler, 'user'):
-                self.send_user_not_loaded_error(message)
+                self.handler.send_user_not_loaded_error(
+                    message)
             else:
                 raise
 
@@ -483,7 +483,7 @@ class UserWSC(src.wsclass.WSClass):
                 {'type': 'userName',
                  'name': name})
         except AttributeError:
-            self.send_user_not_loaded_error(message)
+            self.handler.send_user_not_loaded_error(message)
 
     @coroutine
     def end_room_usage(self, user, is_teacher, is_student):
