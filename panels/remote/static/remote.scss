@@ -1,0 +1,22 @@
+// Para importar bourbon desde el scss de un módulo (no se me ha ocurrido una manera mas limpia de hacer esto):
+@import "../../../static/scss/bourbon_files/bourbon";
+
+// La especificación de flexbox en bourbon está en: <http://bourbon.io/docs/#flexbox>
+
+//Estimo que tendrás que escribir algo así:
+#remote-panel > .box button {
+    text-align: center;
+    margin: 0.25rem;
+    @include flex(1);
+    svg, img {
+        vertical-align: middle;
+    }
+}
+
+#remote-panel > .box {
+    @include display(flex);
+    @include justify-content(space-around);
+    @include flex-wrap (wrap);
+    @include align-content(space-around);
+    @include flex-direction(row-reverse);
+}
