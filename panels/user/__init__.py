@@ -20,9 +20,8 @@ from controller import MSGHandler
 from backend_modules import router
 from src import messages as msg
 from src.db import User, Code, NoObjectReturnedFromDB, \
-    ConditionNotMetError, CodeType, Course, Room
+    ConditionNotMetError, Course, Room
 from src.pub_sub import MalformedMessageError
-from src.utils import raise_if_all_attr_def
 from src.wsclass import subscribe
 
 _path = msg.join_path('panels', 'user')

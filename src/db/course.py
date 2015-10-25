@@ -14,12 +14,12 @@ class Course(DBObject):
     coll = db.courses
     path = 'src.db.course.Course'
 
-    def __str__(self):
-        return self.name
-
     @property
     def name(self):
         return self._data['name']
+
+    def __str__(self):
+        return self.name
 
     @classmethod
     @coroutine

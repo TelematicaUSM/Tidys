@@ -56,7 +56,7 @@ dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
 	                     build-essential ruby npm curl \
-	                     screen nodejs-legacy
+	                     screen nodejs-legacy libjpeg-dev
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies

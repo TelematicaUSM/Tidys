@@ -28,14 +28,14 @@
 #dont-understand.animated {
     g {
         @include animation(
-            5*60s cubic-bezier(.95,.05,.8,.04) 0s normal
+            1*60s cubic-bezier(.95,.05,.8,.04) 0s normal
             none 1 running hot-red);
     }
 
     #du-hexagon {
         @include animation(
             2s cubic-bezier(.77,0,.18,1) 0s normal none
-            150 running gear);
+            1*60/2 running gear);
     }
 }
 
