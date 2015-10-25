@@ -199,7 +199,8 @@ class UserWSC(src.wsclass.WSClass):
 
         except AttributeError:
             if not hasattr(self.handler, 'user'):
-                self.send_user_not_loaded_error(message)
+                self.handler.send_user_not_loaded_error(
+                    message)
             else:
                 raise
 
@@ -482,7 +483,7 @@ class UserWSC(src.wsclass.WSClass):
                 {'type': 'userName',
                  'name': name})
         except AttributeError:
-            self.send_user_not_loaded_error(message)
+            self.handler.send_user_not_loaded_error(message)
 
     @coroutine
     def end_room_usage(self, user, is_teacher, is_student):
