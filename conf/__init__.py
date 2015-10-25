@@ -17,10 +17,11 @@ login_path = 'signin'
 # TORNADO
 autoreload = False
 debug = True
-port = 54001
+port = 52002
 
 proxy_scheme = 'http'
-proxy_host = 'dev.pip.aa.cganterh.net'
+proxy_host = 'mem.zoro.cganterh.net'
+# proxy_host = 'mem.robin.cganterh.net'
 proxy_port = None
 _netloc = proxy_host + (':' + str(proxy_port)
                         if proxy_port else '')
@@ -36,15 +37,20 @@ user_scalable_viewport = 'no'
 
 # SERVER SPECIFIC:
 root_path = environ.get('AA_PATH', '')
-_secrets_file = 'secrets/secrets.json'
-_google_secrets_file = 'secrets/' \
-    'client_secret_476255121881-8fdc3t0sv2id4pnfdl2htb663s'\
-    'dp6e4g.apps.googleusercontent.com.json'
+_z_secrets_file = 'secrets/secrets.json'
+_z_google_secrets_file = 'secrets/' \
+    'client_secret_157405624098-' \
+    'rfhsi6ovr7lugc0f1u84ntuoufpmsfjr.apps.' \
+    'googleusercontent.com.json'
+_r_secrets_file = 'secrets_robin/secrets.json'
+_r_google_secrets_file = 'secrets_robin/client_secret_'\
+    '574237562896-8fc1unhpaqr5idf7bamouqr7l4ruvik1.apps.' \
+    'googleusercontent.com.json'
 
-secrets_file = path.join(root_path, _secrets_file)
+secrets_file = path.join(root_path, _z_secrets_file)
 google_secrets_file = path.join(root_path,
-                                _google_secrets_file)
+                                _z_google_secrets_file)
 
-database_name = 'devpipaacganterhnet'
+database_name = 'artalan'
 short_account_exp = {'minutes': 5}
 long_account_exp = {'days': 30 if not debug else 1}
