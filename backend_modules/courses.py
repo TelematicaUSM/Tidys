@@ -4,7 +4,11 @@ from tornado.gen import coroutine
 
 import src
 from src.wsclass import subscribe
-from src.db import Course, User
+from src.db import Course, User, Room
+
+Room.defaults['courses'] = []
+"""This patches the ``Room`` class, so that it has a default
+attribute named ``courses``."""
 
 
 class CoursesWSC(src.wsclass.WSClass):
@@ -47,9 +51,14 @@ class CoursesWSC(src.wsclass.WSClass):
                  'courses': courses})
 
         except AttributeError:
-            if not hasattr(self.handler, 'room'):
+            if not hasattr(self.handler, 'room') or \
+                    self.handler.room is None:
                 self.handler.send_room_not_loaded_error(
                     message)
+
+            elif not hasattr(self.handler.room, 'courses'):
+                """This should never happen again :P."""
+                raise
 
             else:
                 raise
