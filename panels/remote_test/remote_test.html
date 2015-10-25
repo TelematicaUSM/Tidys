@@ -1,0 +1,25 @@
+<template id="remote-test-template">
+    <button type="button" class="remote-test-button">
+        Ejemplo !
+    </button>
+</template>
+
+<section class="box">
+    <button type="button" id="remote-test-agregar">
+        Agregar botón al control remoto
+    </button>
+</section>
+
+<script type="text/javascript">
+    // ### CAMBIAR AQUÍ EL NOMBRE DE LA FUNCION ###
+
+    var agregar = document.getElementById(
+        'remote-test-agregar');
+    var template = document.getElementById(
+        'remote-test-template');
+    var tbutton = template.content.querySelector('button');
+
+    agregar.addEventListener('click', function () {
+        addNodeToRemote(tbutton, 0);
+    });
+</script>
