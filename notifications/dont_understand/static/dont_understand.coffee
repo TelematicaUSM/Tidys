@@ -1,3 +1,5 @@
+DURATION = 1 * 60
+
 @d_understand = document.getElementById 'dont-understand'
 
 # FUNCTIONS
@@ -7,9 +9,9 @@ d_understand.start = ->
         this.classList.add 'animated'
         this.timeoutID = setTimeout(
             ->
-                d_understand.stop()
+                d_understand.classList.remove 'animated'
             ,
-            1*60*1000
+            DURATION*1000
         )
         ws.sendJSON
             type: 'dontUnderstand.start'
@@ -29,4 +31,8 @@ d_understand.toggle = ->
 
 # SETUP
 
-d_understand.addEventListener 'click', d_understand.toggle
+ws.addMessageListener 'course.assignment.ok', ->
+    d_understand.style.display = 'block'
+    if user.status == 'seat'
+        d_understand.addEventListener(
+            'click', d_understand.toggle)

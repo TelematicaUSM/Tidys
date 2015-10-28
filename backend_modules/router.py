@@ -14,10 +14,10 @@ class RouterWSC(src.wsclass.WSClass):
     def to_frontend(self, message):
         self.redirect_content_to('w', message)
 
-    @subscribe('toDatabase', channels={'l', 'w'})
+    @subscribe('toDatabase', channels={'l'})
     def to_database(self, message):
         self.redirect_content_to('d', message)
 
-    @subscribe('toLocal', channels={'d', 'w'})
+    @subscribe('toLocal', channels={'d'})
     def to_local(self, message):
         self.redirect_content_to('l', message)

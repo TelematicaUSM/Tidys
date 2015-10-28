@@ -18,6 +18,9 @@ ws.addMessageListener 'disconnect', disconnect
 ws.addMessageListener 'replaceLocation', replaceLocation
 
 ws.getMessagePromise('session.start.ok').then (message) ->
+    @user =
+        status: message.code_type
+
     if message.code_type == 'room' and \
             message.course_id == null
         load_promise.then showLessonSetup

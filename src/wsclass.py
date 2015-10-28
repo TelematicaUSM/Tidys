@@ -70,10 +70,10 @@ class WSClass(object):
             The message to be sent.
 
         :param bool content:
-            If ``True``, the whole message will be sent.
-            If ``False``, just the object corresponding to
+            If ``True``, just the object corresponding to
             the ``'content'`` key of ``message`` will be
             sent.
+            If ``False``, the whole message will be sent.
 
         :raises MalformedMessageError:
             If ``content`` is ``True``, but ``message``
