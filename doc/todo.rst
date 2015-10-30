@@ -32,3 +32,4 @@ General project tasks
         -   Send updates from the courses being dictated in
             each room to all students that are waiting to
             attend to a course.
+        -   Update the UI classes: teacher, student, common.

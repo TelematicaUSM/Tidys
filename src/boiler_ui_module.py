@@ -31,10 +31,15 @@ class BoilerUIModule(tornado.web.UIModule):
 
     def render_string(self, path, **kwargs):
         """Render a template and returns it as a string."""
-        add_ext_file(self.handler, self.conf['css_files'],
-                     self.make_static_url)
-        add_ext_file(self.handler, self.conf['js_files'],
-                     self.make_static_url)
+        if 'css_files' in self.conf:
+            add_ext_file(
+                self.handler, self.conf['css_files'],
+                self.make_static_url)
+
+        if 'js_files' in self.conf:
+            add_ext_file(
+                self.handler, self.conf['js_files'],
+                self.make_static_url)
 
         return self.handler.render_string(
             path, make_static_url=self.make_static_url,
