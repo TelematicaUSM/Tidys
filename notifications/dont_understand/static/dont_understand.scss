@@ -46,6 +46,7 @@ $gear_tic_d: 2s;
     display: none;
 
     g {
+        @include transition(fill 1s ease-in-out);
         fill: $c-icon;
     }
 

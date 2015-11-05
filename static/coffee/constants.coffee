@@ -3,3 +3,4 @@
 @CONTROL_FONT_COLOR = 'rgba(0, 0, 0, 0.7)'
 @WHITE_FONT_COLOR = 'rgba(255, 255, 255, 0.7)'
 @BUBBLE_ERROR_COLOR = 'rgba(226, 30, 58, 0.8)'
+@ICON_COLOR = '#414141';

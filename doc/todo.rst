@@ -47,3 +47,4 @@ General project tasks
                         }
                     }
                 )
+        -   Update the UI classes: teacher, student, common.

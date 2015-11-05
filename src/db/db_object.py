@@ -501,13 +501,18 @@ class DBObject(object):
 
     @coroutine
     def sync(self, *fields):
-        data = yield self.coll.find_one(
-            {'_id': self.id}, fields if fields else None)
+        try:
+            data = yield self.coll.find_one(
+                {'_id': self.id},
+                fields if fields else None
+            )
 
-        if not data:
-            raise NoObjectReturnedFromDB(self.__class__)
+            if not data:
+                raise NoObjectReturnedFromDB(self.__class__)
 
-        if fields:
-            self._data.update(data)
-        else:
-            self.setattr('_data', data)
+            if fields:
+                self._data.update(data)
+            else:
+                self.setattr('_data', data)
+        except:
+            raise

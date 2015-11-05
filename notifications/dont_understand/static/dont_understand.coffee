@@ -1,6 +1,7 @@
 DURATION = 1 * 60
 
 @d_understand = document.getElementById 'dont-understand'
+du_icon = document.querySelector '#dont-understand g'
 
 # FUNCTIONS
 
@@ -31,8 +32,19 @@ d_understand.toggle = ->
 
 # SETUP
 
-ws.addMessageListener 'course.assignment.ok', ->
+ws.getMessagePromise('course.assignment.ok').then ->
     d_understand.style.display = 'block'
-    if user.status == 'seat'
-        d_understand.addEventListener(
-            'click', d_understand.toggle)
+
+ws.getMessagePromise('studentSetup.course.set.ok').then ->
+    d_understand.style.display = 'block'
+    d_understand.addEventListener(
+        'click', d_understand.toggle)
+
+ws.addMessageListener(
+    'dontUnderstand.icon.state.set',
+    (message) ->
+        c = tinycolor.mix(
+            ICON_COLOR, PRIMARY_COLOR,
+            message.proportion*100)
+        du_icon.style.fill = c.toHexString()
+)

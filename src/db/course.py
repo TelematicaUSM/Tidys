@@ -126,3 +126,22 @@ class Course(DBObject):
 
         except:
             raise
+
+    @coroutine
+    def count_students(self):
+        try:
+            yield db.users.ensure_index(
+                [
+                    ('course_id', ASCENDING),
+                    ('status', ASCENDING)
+                ],
+                sparse=True
+            )
+
+            cursor = db.users.find(
+                {'course_id': self.id, 'status': 'seat'})
+            count = yield cursor.count()
+            return count
+
+        except:
+            raise ########################################

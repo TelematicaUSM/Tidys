@@ -30,8 +30,24 @@ class DontUnderstandWSC(src.wsclass.WSClass):
         self.timeout_handle = None
 
     @subscribe('dontUnderstand.counter.changed', 'l')
-    def hola(self, message):
-        pass
+    @coroutine
+    def update_teacher_icon(self, message):
+        try:
+            course = self.handler.course
+
+            yield course.sync('du_counter')
+            du = course.du_counter
+            total = yield course.count_students()
+            proportion = du/total if total > 0 else 0
+
+            self.pub_subs['w'].send_message(
+                {
+                    'type': 'dontUnderstand.icon.state.set',
+                    'proportion': proportion
+                }
+            )
+        except:
+            raise ##############################
 
     @coroutine
     def notify_teacher(self):

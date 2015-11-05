@@ -101,6 +101,10 @@ normalize.css: | css bower
 	$(bowercmd) install $@
 	cd $(csspath) && ln -s ../../$(bowerpath)/normalize-css/$@ $@
 
+tinycolor.js: | bower js
+	$(bowercmd) install tinycolor
+	cd $(jspath) && ln -s ../../$(bowerpath)/tinycolor/$@ $@
+
 reconnecting-websocket.js: | bower js
 	$(bowercmd) install reconnectingWebsocket
 	cd $(jspath) && ln -s ../../$(bowerpath)/reconnectingWebsocket/$@ $@
@@ -115,8 +119,8 @@ js: coffee | coffee-script
 
 run_py_deps = tornado motor jwt httplib2 oauth2client
 run: $(run_py_deps) dependencies css js \
-     reconnecting-websocket.js normalize.css panels \
-     notifications locking_panels controls qrmaster
+     reconnecting-websocket.js tinycolor.js normalize.css \
+	 panels notifications locking_panels controls qrmaster
 	$(python) -i $(program)
 
 python: dependencies
