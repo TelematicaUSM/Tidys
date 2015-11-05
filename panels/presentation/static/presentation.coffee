@@ -1,19 +1,27 @@
-#CODE
+#VARIABLES
+
+old_node = null
+
+#FUNCIONES
+
 @addNodeToPresentation = \
     (node_template, is_main_element = true) ->
-        old_node = document.importNode node_template, true
-        if old_node.className ?
-            if old_node.className == main-presentation-element
-                if is_main_element == true
-                    old_node.remove()
-                    # new_node =  revisar que pasa con el nuevo nodo que debe asignarse
-                else
-                    old_node.className = "alt-presentation-element" #revisar si se elimina o agrega
-            #else preguntar si llegara a darse esta situacion.
-                #if
+        new_node = document.importNode node_template, true
+
+        unless new_node.classList?
+            throw 'reemplazar una excepcion aqui'
+
+        if is_main_element == true
+            old_node.remove() if old_node?
+            new_node.classList.add(
+                'main-presentation-element')
+            old_node = new_node
         else
-            if is_main_element == ture
-                old_node.className = main-presentation-element
-            else
-                old_node.className = alt-presentation-element
-            document.appendChild(old_node)
+            new_node.classList.add(
+                'alt-presentation-element')
+        document.appendChild(new_node)
+
+#SETUP
+
+document.querySelector(
+    '#presentation-panel > h1:nth-child(1)').remove()
