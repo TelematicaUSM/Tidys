@@ -115,7 +115,7 @@ js: coffee | coffee-script
 .PHONY: run python srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean panels notifications \
 	locking_panels qrmaster controls autodoc clean_doc test
-	vtest
+	vtest showdocs
 
 run_py_deps = tornado motor jwt httplib2 oauth2client
 run: $(run_py_deps) dependencies css js \
@@ -184,6 +184,9 @@ autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
 	cd $(doc_path) && \
 	export AA_PATH=".." && \
 	$(MAKE) html
+
+showdocs: autodoc
+	xdg-open doc/_build/html/index.html
 
 clean_doc: sphinx
 	$(runenv) && cd $(doc_path) && $(MAKE) clean

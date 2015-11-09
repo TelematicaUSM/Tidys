@@ -10,7 +10,7 @@ t = None
 
 def start():
     global ioloop, t
-    import controller
+    import controller  # noqa
     from threading import Thread
     from tornado.ioloop import IOLoop
     from src import messages
@@ -40,7 +40,7 @@ def stop():
 
     messages.stopped()
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # noqa
     start()
 
     def q():

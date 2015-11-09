@@ -129,6 +129,17 @@ class Course(DBObject):
 
     @coroutine
     def count_students(self):
+        """Count the number of students in this course.
+
+        :return:
+            The number of students currently participating
+            in this course.
+        :rtype:
+            A future that resolves to ``int``.
+
+        :raises OperationFailure:
+            On a database error.
+        """
         try:
             yield db.users.ensure_index(
                 [
@@ -144,4 +155,4 @@ class Course(DBObject):
             return count
 
         except:
-            raise ########################################
+            raise

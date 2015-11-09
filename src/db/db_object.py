@@ -28,6 +28,19 @@ class DBObject(object):
     defaults = {}
 
     @classmethod
+    def _check_get_arguments(cls, id_, dbref):
+        if id_ is not None and dbref is not None:
+            raise ValueError(
+                'Only one reference argument should be '
+                'specified.')
+
+        if dbref is not None and \
+                dbref.collection != cls.coll:
+            raise ValueError(
+                "dbref doesn't match this class's "
+                "collection")
+
+    @classmethod
     @coroutine
     def get(cls, id_=None, dbref=None, **kwargs):
         """Get an instance from a document.
@@ -62,15 +75,7 @@ class DBObject(object):
             attribute.
         """
         try:
-            if id_ and dbref:
-                raise ValueError(
-                    'Only one reference argument should be '
-                    'specified.')
-
-            if dbref and dbref.collection != cls.coll:
-                raise ValueError(
-                    "dbref doesn't match this class's "
-                    "collection")
+            cls._check_get_arguments(id_, dbref)
 
             if id_:
                 data = yield cls.coll.find_one({'_id': id_})

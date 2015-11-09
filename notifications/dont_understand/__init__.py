@@ -4,6 +4,7 @@ from tornado.gen import coroutine
 import src
 from src.db import ConditionNotMetError
 from src.wsclass import subscribe
+from backend_modules.courses import CourseIsNotDefined
 
 DURATION = 1 * 60
 
@@ -25,13 +26,43 @@ class DontUnderstandIndicator(
 
 
 class DontUnderstandWSC(src.wsclass.WSClass):
+    """
+
+    .. todo::
+    *   Maybe the explicit database operations of this class
+        should be implemented as patches to the
+        corresponding database objects.
+    """
     def __init__(self, handler):
         super().__init__(handler)
+
         self.timeout_handle = None
+        """Handle for the
+        :meth:`~DontUnderstandWSC.decrease_du_counter`
+        callback."""
 
     @subscribe('dontUnderstand.counter.changed', 'l')
     @coroutine
     def update_teacher_icon(self, message):
+        """Send a message to update the icon's state.
+
+        This coroutine sends a message with the following
+        format:
+
+        .. code-block:: json
+
+            {
+                "type": "dontUnderstand.icon.state.set",
+                "proportion": 0.5
+            }
+
+        Where ``"proportion"`` is the ratio between the
+        students that dont understand and all the students
+        that are currently participating in this course.
+
+        :raises OperationFailure:
+            On a database error.
+        """
         try:
             course = self.handler.course
 
@@ -46,8 +77,26 @@ class DontUnderstandWSC(src.wsclass.WSClass):
                     'proportion': proportion
                 }
             )
+        except AttributeError as ae:
+            h = self.handler
+
+            if h.course is None:
+                raise CourseIsNotDefined from ae
+
+            elif not hasattr(h.course, 'du_counter'):
+                e = AttributeError(
+                    "The coroutine has attempted to access "
+                    "the attribute `du_counter` of the "
+                    "course, but the course didn't have "
+                    "the attribute. This should never "
+                    "happen.")
+                raise e from ae
+
+            else:
+                raise
+
         except:
-            raise ##############################
+            raise
 
     @coroutine
     def notify_teacher(self):
@@ -66,11 +115,22 @@ class DontUnderstandWSC(src.wsclass.WSClass):
                 }
             )
         except:
-            raise########################
+            raise
 
     @subscribe('dontUnderstand.start', 'w')
     @coroutine
     def increase_du_counter(self, message=None):
+        """Increase the don't understand counter.
+
+        :param message:
+            The message that triggered the execution of this
+            method.
+        :type message: dict or None
+
+        :raises ConditionNotMetError:
+            If the current course no longer exists in the
+            database. This should never happen!
+        """
         try:
             if self.timeout_handle is None:
                 yield self.handler.course.modify(
@@ -84,9 +144,21 @@ class DontUnderstandWSC(src.wsclass.WSClass):
                         DURATION, self.decrease_du_counter)
                 yield self.notify_teacher()
 
+        except AttributeError as ae:
+            if self.handler.course is None:
+                raise CourseIsNotDefined from ae
+
+            else:
+                raise
+
+        except ConditionNotMetError as cnme:
+            e = ConditionNotMetError(
+                'The current course no longer exist in the '
+                'database. This should never happen!')
+            raise e from cnme
+
         except:
-            raise###################
-            # couse can not be defined
+            raise
 
     @subscribe('dontUnderstand.stop', 'w')
     @coroutine
@@ -107,11 +179,15 @@ class DontUnderstandWSC(src.wsclass.WSClass):
                 self.timeout_handle = None
                 yield self.notify_teacher()
 
-        except ConditionNotMetError:
-            pass########################
+        except AttributeError as ae:
+            if self.handler.course is None:
+                raise CourseIsNotDefined from ae
 
-        except AttributeError:
-            if not hasattr(self.handler, 'course'):
-                pass
             else:
                 raise
+
+        except ConditionNotMetError:
+            pass
+
+        except:
+            raise

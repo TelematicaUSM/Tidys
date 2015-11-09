@@ -3,40 +3,8 @@
 from tornado.gen import coroutine
 
 import src
-from controller import MSGHandler
 from src.wsclass import subscribe
-from src.db import Course, User, Room
-from . import router
-
-
-def patches():
-    Room.defaults['courses'] = []
-    """This patches the ``Room`` class, so that it has a
-    default attribute named ``courses``."""
-
-    @property
-    def course(self):
-        """Current course asociated with this MSGHandler."""
-        return self._course
-
-    @course.setter
-    def course(self, new_course):
-        self._course = new_course
-        self.course_msg_type = \
-            'courseMessage({})'.format(new_course.id)
-
-        router_object = self.ws_objects[
-            router.RouterWSC]
-        courses_object = self.ws_objects[CoursesWSC]
-
-        courses_object.register_action_in(
-            self.course_msg_type,
-            action=router_object.to_local,
-            channels={'d'}
-        )
-
-    MSGHandler.course = course
-patches()
+from src.db import Course, User
 
 
 class CoursesWSC(src.wsclass.WSClass):
