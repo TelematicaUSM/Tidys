@@ -4,7 +4,7 @@
     {
         debug: conf.debug,
         timeoutInterval: 10000,
-        reconnectInterval: 22000,
+        reconnectInterval: 5000,
     }
 )
 

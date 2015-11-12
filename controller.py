@@ -25,6 +25,7 @@ from src.pub_sub import OwnerPubSub, NoMessageTypeError, \
     NoActionForMsgTypeError
 
 _path = 'controller'
+rtt_data = []
 
 
 class GUIHandler(RequestHandler):
@@ -300,6 +301,10 @@ class MSGHandler(WebSocketHandler):
             self.send_malformed_message_error(message)
             msg.malformed_message(_path, message)
 
+    def _timeout_close(self):
+        msg.debug('### TIMEOUT CLOSE ###')
+        self.close()
+
     @coroutine
     def on_pong(self, data):
         """Clear the timeout, sleep, and send a new ping.
@@ -310,15 +315,19 @@ class MSGHandler(WebSocketHandler):
                 XD.
         """
         try:
-            if self.ping_timeout_handle is not None:
-                IOLoop.current().remove_timeout(
-                    self.ping_timeout_handle)
-
-            yield sleep(8)
-
+            rtt_data.append(datetime.now())
             self.ping(b'1')
-            self.ping_timeout_handle = \
-                IOLoop.current().call_later(6, self.close)
+
+#            if self.ping_timeout_handle is not None:
+#                IOLoop.current().remove_timeout(
+#                    self.ping_timeout_handle)
+#
+#            yield sleep(0)
+#
+#            self.ping(b'1')
+#            self.ping_timeout_handle = \
+#                IOLoop.current().call_later(
+#                    27, self._timeout_close)
 
         except WebSocketClosedError:
             pass
