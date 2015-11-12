@@ -6,7 +6,7 @@ from os import environ, path
 
 from urllib.parse import urlunparse
 
-from . import log
+from . import log  # noqa
 
 app_name = 'ArtificialAlan'
 app_logo_path = './art/favicon/2logo.png'
@@ -17,11 +17,19 @@ login_path = 'signin'
 # TORNADO
 autoreload = False
 debug = True
-port = 52002
+port = print(
+    '### Change port in conf/__init__.py! ###') or 8000
 
 proxy_scheme = 'http'
-proxy_host = 'aka.aa.cganterh.net'
-proxy_port = None
+proxy_host = print(
+    '### Change proxy_host in conf/__init__.py! ###') or \
+    'localhost'
+proxy_port = print(
+    '### Change proxy_port in conf/__init__.py! ###') or \
+    port
+"""Should be ``int`` or None. This is the port you use to
+connect from the outside."""
+
 _netloc = proxy_host + (':' + str(proxy_port)
                         if proxy_port else '')
 proxy_url = urlunparse(
@@ -31,18 +39,38 @@ proxy_url = urlunparse(
 # CLIENT SPECIFIC:
 ws_scheme = 'ws'
 
-ws_reconnect_interval = 20
-"""In seconds. See """
+ws_reconnect_interval = 55
+"""In seconds. See
+`<https://github.com/joewalnes/reconnecting-websocket
+#reconnectinterval>`_."""
 
-# accepted values are 'yes' and 'no'
 user_scalable_viewport = 'no'
+"""Accepted values are ``'yes'`` and ``'no'``."""
 
 # SERVER SPECIFIC:
 root_path = environ.get('AA_PATH', '')
 
-secrets_file = path.join(root_path, _z_secrets_file)
-google_secrets_file = path.join(root_path,
-                                _z_google_secrets_file)
+secrets_file = path.join(
+    root_path,
+    print(
+        '### Change secrets_file in conf/__init__.py! ###')
+    or 'secrets/secrets.json'
+)
+
+google_secrets_file = path.join(
+    root_path,
+    print(
+        '### Change google_secrets_file in '
+        'conf/__init__.py! ###')
+    or 'secrets/client_secret_googleCodeThingy1234'
+    '.apps.googleusercontent.com.json'
+)
+
+ping_sleep = 10
+"""In seconds. See :meth:`~controller.MSGHandler.on_pong`"""
+
+ping_timeout = 20
+"""In seconds. See :meth:`~controller.MSGHandler.on_pong`"""
 
 database_name = 'artalan'
 short_account_exp = {'minutes': 5}

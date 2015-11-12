@@ -314,11 +314,12 @@ class MSGHandler(WebSocketHandler):
                 IOLoop.current().remove_timeout(
                     self.ping_timeout_handle)
 
-            yield sleep(8)
+            yield sleep(conf.ping_sleep)
 
             self.ping(b'1')
             self.ping_timeout_handle = \
-                IOLoop.current().call_later(6, self.close)
+                IOLoop.current().call_later(
+                    conf.ping_timeout, self.close)
 
         except WebSocketClosedError:
             pass
@@ -406,41 +407,42 @@ try:
     with open(conf.google_secrets_file, 'r') as f:
         google_secrets = json.load(f)
 
-    app = Application(
-        [('/ws$', MSGHandler),
-         ('/{.login_path}$'.format(conf), LoginHandler),
-         ('/([0-9a-z]{5})?$', GUIHandler), ],
-        debug=conf.debug,
-        autoreload=conf.autoreload,
-        static_path='./static',
-        template_path='./templates',
-        ui_modules=[ui_modules],
-        ui_methods=[ui_methods],
-    )
-
-    app.listen(conf.port)
-
-    # Import the modules which register actions in the
-    # MSGHandler
-    import backend_modules  # noqa
-    import locking_panels   # noqa
-    import notifications    # noqa
-    import panels           # noqa
-
-    # BoilerUIModules that aren't automatically loaded from
-    # a package, must add their handlers to the app.
-    for module in app.ui_modules.values():
-        if issubclass(module, BoilerUIModule):
-            module.add_handler(app)
-
 except FileNotFoundError as e:
     if e.filename in (conf.secrets_file,
                       conf.google_secrets_file):
-        desc = "Couldn't find the secrets file: " \
-            "{.filename}. Change your configuration in " \
-            "conf/__init__.py or create the file. " \
-            "For more information, see the " \
-            "documentation.".format(e)
-        raise FileNotFoundError(e.errno, desc) from e
+        if not conf.debug:
+            desc = "Couldn't find the secrets file: " \
+                "{.filename}. Change your configuration " \
+                "in conf/__init__.py or create the file. " \
+                "For more information, see the " \
+                "documentation.".format(e)
+            raise FileNotFoundError(e.errno, desc) from e
     else:
         raise
+
+app = Application(
+    [('/ws$', MSGHandler),
+     ('/{.login_path}$'.format(conf), LoginHandler),
+     ('/([0-9a-z]{5})?$', GUIHandler), ],
+    debug=conf.debug,
+    autoreload=conf.autoreload,
+    static_path='./static',
+    template_path='./templates',
+    ui_modules=[ui_modules],
+    ui_methods=[ui_methods],
+)
+
+app.listen(conf.port)
+
+# Import the modules which register actions in the
+# MSGHandler
+import backend_modules  # noqa
+import locking_panels   # noqa
+import notifications    # noqa
+import panels           # noqa
+
+# BoilerUIModules that aren't automatically loaded from
+# a package, must add their handlers to the app.
+for module in app.ui_modules.values():
+    if issubclass(module, BoilerUIModule):
+        module.add_handler(app)

@@ -29,9 +29,9 @@ class DontUnderstandWSC(src.wsclass.WSClass):
     """
 
     .. todo::
-    *   Maybe the explicit database operations of this class
-        should be implemented as patches to the
-        corresponding database objects.
+        *   Maybe the explicit database operations of this
+            class should be implemented as patches to the
+            corresponding database objects.
     """
     def __init__(self, handler):
         super().__init__(handler)
