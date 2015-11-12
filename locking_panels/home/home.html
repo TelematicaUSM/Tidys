@@ -1,14 +1,26 @@
 {% from urllib.parse import urlunparse %}
 {% from conf import app_name, login_path%}
 
-<section class="box">
+<section id="home-content" class="box">
     <h1 class="box-ulined-title">{{ app_name }}</h1>
     <p>
-        Aqui va la descripción de la aplicación. Me dió lata
-        hacerla XD.
+        {{ app_name }} es una plataforma para la interacción
+        en tiempo real dentro de las salas. Nuestra misión
+        es apoyar al desarrollo de clases activas utilizando
+        los teléfonos móviles de los alumnos.
+    </p>
+    <p>
+        Esta es una versión de prueba orientada a probar el
+        rendimiento de la aplicación en una sala real.
+    </p>
+    <p>
+        <strong>
+            Por favor ingresa con tu cuenta de la
+            universidad utilizando el botón de más abajo.
+        </strong>
     </p>
     <form action="{{ login_path }}" method="GET">
-        <div>
+        <div id="home-remember-me">
             <input type="checkbox" id="remember"
                    name="remember" value="True">
             <label for="remember">Recordarme</label>

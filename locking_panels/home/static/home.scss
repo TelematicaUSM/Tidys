@@ -2,13 +2,21 @@
 @import "../../../static/scss/bourbon_files/bourbon";
 
 #home-footer {
-    @include position(fixed, auto 0px 0px 0px);
+    //@include position(fixed, auto 0px 0px 0px);
     margin: 0.25rem;
     text-align: center;
     font-size: 0.5rem;
     color: $c-footer-font;
-    
+
     :hover, :active, :link, :visited {
         color: $c-footer-font;
     }
+}
+
+#home-remember-me {
+    margin: 0.5rem 0.5rem 0.5rem 0rem;
+}
+
+#home-content p {
+    margin-bottom: 0.5rem;
 }
