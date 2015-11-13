@@ -8,7 +8,7 @@ from urllib.parse import urlunparse
 
 from . import log  # noqa
 
-app_name = 'ArtificialAlan'
+app_name = 'EduRT'
 app_logo_path = './art/favicon/2logo.png'
 author = 'Cristóbal Ganter'
 author_email = 'cganterh@gmail.com'
