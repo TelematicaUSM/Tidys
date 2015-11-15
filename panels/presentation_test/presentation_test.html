@@ -1,24 +1,24 @@
 <template id="presentation-test-template">
-    <button type="button" class="presentation-test-button">
-        Ejemplo !
-    </button>
+    <iframe src="https://en.wikipedia.org/wiki/Vector_field">
+    </iframe>
 </template>
 
 <section class="box">
-    <img src = >
-</img>
+    <button type="button" id="presentation-test-agregar">
+        Agregar trasnparencia al panel de presentacion
+    </button>
 </section>
 
 <script type="text/javascript">
     // ### CAMBIAR AQUÍ EL NOMBRE DE LA FUNCION ###
 
-    var agregar = document.getElementById(
-        'panel-test-agregar');
-    var template = document.getElementById(
-        'panel-test-template');
-    var tbutton = template.content.querySelector('button');
+    var agregar_presentation = document.getElementById(
+        'presentation-test-agregar');
+    var template_presentation = document.getElementById(
+        'presentation-test-template');
+    var tbutton_presentation = template_presentation.content.querySelector('iframe');
 
-    agregar.addEventListener('click', function () {
-        addNodeToPresentation(tbutton, true);
+    agregar_presentation.addEventListener('click', function () {
+        addNodeToPresentation(tbutton_presentation, true);
     });
 </script>
