@@ -19,7 +19,8 @@ old_node = null
         else
             new_node.classList.add(
                 'alt-presentation-element')
-        document.appendChild(new_node)
+        panel= document.getElementById('presentation-panel')
+        panel.appendChild(new_node)
 
 #SETUP
 
