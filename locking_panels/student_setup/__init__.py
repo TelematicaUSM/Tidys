@@ -1,7 +1,7 @@
 from tornado.gen import coroutine
 
 import src
-from src.db import Course
+from src.db import Course, NoObjectReturnedFromDB
 from src.wsclass import subscribe
 
 

@@ -21,8 +21,12 @@
     background-color: transparent;
     background-image: none;
 
+    &:active {
+        background-color: transparent;
+    }
+
     img, svg {
-        @include size($header-height*0.7);
+        @include size($header-height*2/3);
         vertical-align: middle;
     }
 }
@@ -33,7 +37,10 @@
 }
 
 .notification {
-    @extend .header-button
+    @extend .header-button;
+    width: $header-height*2/3;
+    padding: 0.5rem 0rem;
+    margin-left: 0.5rem;
 }
 
 #main-menu {

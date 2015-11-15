@@ -47,11 +47,14 @@ class CoursesWSC(src.wsclass.WSClass):
                  'courses': courses})
 
         except AttributeError:
-            if not hasattr(self.handler, 'room'):
-                usr_wsc = self.handler.ws_objects[
-                    panels.user.UserWSC]
+            if not hasattr(self.handler, 'room') or \
+                    self.handler.room is None:
+                self.handler.send_room_not_loaded_error(
+                    message)
 
-                usr_wsc.send_room_not_loaded_error(message)
+            elif not hasattr(self.handler.room, 'courses'):
+                """This should never happen again :P."""
+                raise
 
             else:
                 raise
@@ -77,10 +80,8 @@ class CoursesWSC(src.wsclass.WSClass):
 
         except AttributeError:
             if not hasattr(self.handler, 'user'):
-                usr_wsc = self.handler.ws_objects[
-                    panels.user.UserWSC]
-
-                usr_wsc.send_user_not_loaded_error(message)
+                self.handler.send_user_not_loaded_error(
+                    message)
 
             else:
                 raise

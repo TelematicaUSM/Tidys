@@ -14,12 +14,12 @@ class Course(DBObject):
     coll = db.courses
     path = 'src.db.course.Course'
 
-    def __str__(self):
-        return self.name
-
     @property
     def name(self):
         return self._data['name']
+
+    def __str__(self):
+        return self.name
 
     @classmethod
     @coroutine
@@ -123,6 +123,36 @@ class Course(DBObject):
                 }
             )
             return courses
+
+        except:
+            raise
+
+    @coroutine
+    def count_students(self):
+        """Count the number of students in this course.
+
+        :return:
+            The number of students currently participating
+            in this course.
+        :rtype:
+            A future that resolves to ``int``.
+
+        :raises OperationFailure:
+            On a database error.
+        """
+        try:
+            yield db.users.ensure_index(
+                [
+                    ('course_id', ASCENDING),
+                    ('status', ASCENDING)
+                ],
+                sparse=True
+            )
+
+            cursor = db.users.find(
+                {'course_id': self.id, 'status': 'seat'})
+            count = yield cursor.count()
+            return count
 
         except:
             raise

@@ -57,9 +57,8 @@ class LessonSetupWSC(src.wsclass.WSClass):
 
         except AttributeError:
             if not hasattr(self.handler, 'user'):
-                panels.user.UserWSC.\
-                    send_user_not_loaded_error(
-                        self.handler, message)
+                self.handler.send_user_not_loaded_error(
+                    message)
 
         except DuplicateKeyError:
             self.pub_subs['w'].send_message(
@@ -120,7 +119,8 @@ class LessonSetupWSC(src.wsclass.WSClass):
                 self.handler.send_user_not_loaded_error(
                     message)
 
-            elif not hasattr(self.handler, 'room_code'):
+            elif not hasattr(self.handler, 'room_code') or \
+                    self.handler.room_code is None:
                 self.handler.send_room_not_loaded_error(
                     message)
 

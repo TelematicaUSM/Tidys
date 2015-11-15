@@ -11,7 +11,8 @@ from urllib.parse import urlunparse
 import jwt
 import httplib2
 from oauth2client import client as oa2_client
-from tornado.gen import coroutine
+from tornado.gen import coroutine, sleep
+from tornado.ioloop import IOLoop
 from tornado.web import Application, RequestHandler
 from tornado.websocket import WebSocketHandler, \
     WebSocketClosedError
@@ -258,6 +259,10 @@ class MSGHandler(WebSocketHandler):
         self.__class__.client_count += 1
 
         self.clean_closed = False
+        self.ping_timeout_handle = None
+
+    def open(self):
+        IOLoop.current().spawn_callback(self.on_pong, b'1')
 
     @classmethod
     def add_class(cls, wsclass):
@@ -294,6 +299,33 @@ class MSGHandler(WebSocketHandler):
                 ValueError):
             self.send_malformed_message_error(message)
             msg.malformed_message(_path, message)
+
+    @coroutine
+    def on_pong(self, data):
+        """Clear the timeout, sleep, and send a new ping.
+
+        .. todo::
+            *   Document the times used in this method.
+                The calculations are in my black notebook
+                XD.
+        """
+        try:
+            if self.ping_timeout_handle is not None:
+                IOLoop.current().remove_timeout(
+                    self.ping_timeout_handle)
+
+            yield sleep(conf.ping_sleep)
+
+            self.ping(b'1')
+            self.ping_timeout_handle = \
+                IOLoop.current().call_later(
+                    conf.ping_timeout, self.close)
+
+        except WebSocketClosedError:
+            pass
+
+        except:
+            raise
 
     def send_error(self, critical_type, message,
                    description):
@@ -375,41 +407,42 @@ try:
     with open(conf.google_secrets_file, 'r') as f:
         google_secrets = json.load(f)
 
-    app = Application(
-        [('/ws$', MSGHandler),
-         ('/{.login_path}$'.format(conf), LoginHandler),
-         ('/([0-9a-z]{5})?$', GUIHandler), ],
-        debug=conf.debug,
-        autoreload=conf.autoreload,
-        static_path='./static',
-        template_path='./templates',
-        ui_modules=[ui_modules],
-        ui_methods=[ui_methods],
-    )
-
-    app.listen(conf.port)
-
-    # Import the modules which register actions in the
-    # MSGHandler
-    import backend_modules
-    import locking_panels
-    import notifications
-    import panels
-
-    # BoilerUIModules that aren't automatically loaded from
-    # a package, must add their handlers to the app.
-    for module in app.ui_modules.values():
-        if issubclass(module, BoilerUIModule):
-            module.add_handler(app)
-
 except FileNotFoundError as e:
     if e.filename in (conf.secrets_file,
                       conf.google_secrets_file):
-        desc = "Couldn't find the secrets file: " \
-            "{.filename}. Change your configuration in " \
-            "conf/__init__.py or create the file. " \
-            "For more information, see the " \
-            "documentation.".format(e)
-        raise FileNotFoundError(e.errno, desc) from e
+        if not conf.debug:
+            desc = "Couldn't find the secrets file: " \
+                "{.filename}. Change your configuration " \
+                "in conf/__init__.py or create the file. " \
+                "For more information, see the " \
+                "documentation.".format(e)
+            raise FileNotFoundError(e.errno, desc) from e
     else:
         raise
+
+app = Application(
+    [('/ws$', MSGHandler),
+     ('/{.login_path}$'.format(conf), LoginHandler),
+     ('/([0-9a-z]{5})?$', GUIHandler), ],
+    debug=conf.debug,
+    autoreload=conf.autoreload,
+    static_path='./static',
+    template_path='./templates',
+    ui_modules=[ui_modules],
+    ui_methods=[ui_methods],
+)
+
+app.listen(conf.port)
+
+# Import the modules which register actions in the
+# MSGHandler
+import backend_modules  # noqa
+import locking_panels   # noqa
+import notifications    # noqa
+import panels           # noqa
+
+# BoilerUIModules that aren't automatically loaded from
+# a package, must add their handlers to the app.
+for module in app.ui_modules.values():
+    if issubclass(module, BoilerUIModule):
+        module.add_handler(app)

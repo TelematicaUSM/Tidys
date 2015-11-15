@@ -39,9 +39,9 @@ remove_owner = _ps.remove_owner
 
 
 @coroutine
-def _tailable_iteration(function: 'callable' = None,
-                        stop: bool = True,
-                        sleep: int = 0):
+def _tailable_iteration(function: 'callable'=None,
+                        stop: bool=True,
+                        sleep: int=0):
     """Iterates through a tailable cursor.
 
     .. todo::

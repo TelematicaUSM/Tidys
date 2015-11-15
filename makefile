@@ -56,7 +56,7 @@ dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
 	                     build-essential ruby npm curl \
-	                     screen nodejs-legacy
+	                     screen nodejs-legacy libjpeg-dev
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
@@ -101,6 +101,10 @@ normalize.css: | css bower
 	$(bowercmd) install $@
 	cd $(csspath) && ln -s ../../$(bowerpath)/normalize-css/$@ $@
 
+tinycolor.js: | bower js
+	$(bowercmd) install tinycolor
+	cd $(jspath) && ln -s ../../$(bowerpath)/tinycolor/$@ $@
+
 reconnecting-websocket.js: | bower js
 	$(bowercmd) install reconnectingWebsocket
 	cd $(jspath) && ln -s ../../$(bowerpath)/reconnectingWebsocket/$@ $@
@@ -111,12 +115,12 @@ js: coffee | coffee-script
 .PHONY: run python srun drun testenv attach csswatch dcsswatch \
 	jswatch djswatch clean panels notifications \
 	locking_panels qrmaster controls autodoc clean_doc test
-	vtest
+	vtest showdocs
 
 run_py_deps = tornado motor jwt httplib2 oauth2client
 run: $(run_py_deps) dependencies css js \
-     reconnecting-websocket.js normalize.css panels \
-     notifications locking_panels controls qrmaster
+     reconnecting-websocket.js tinycolor.js normalize.css \
+	 panels notifications locking_panels controls qrmaster
 	$(python) -i $(program)
 
 python: dependencies
@@ -180,6 +184,9 @@ autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
 	cd $(doc_path) && \
 	export AA_PATH=".." && \
 	$(MAKE) html
+
+showdocs: autodoc
+	xdg-open doc/_build/html/index.html
 
 clean_doc: sphinx
 	$(runenv) && cd $(doc_path) && $(MAKE) clean

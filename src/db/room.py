@@ -20,6 +20,7 @@ _path = 'src.db.room'
 class Room(DBObject):
     coll = db.rooms
     _path = msg.join_path(_path, 'Room')
+    defaults = {}
 
     @classmethod
     @coroutine

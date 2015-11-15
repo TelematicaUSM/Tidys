@@ -20,9 +20,8 @@ from controller import MSGHandler
 from backend_modules import router
 from src import messages as msg
 from src.db import User, Code, NoObjectReturnedFromDB, \
-    ConditionNotMetError, CodeType, Course, Room
+    ConditionNotMetError, Course, Room
 from src.pub_sub import MalformedMessageError
-from src.utils import raise_if_all_attr_def
 from src.wsclass import subscribe
 
 _path = msg.join_path('panels', 'user')
@@ -156,7 +155,53 @@ class UserWSC(src.wsclass.WSClass):
             )
             raise ite from norfdb
 
-    @subscribe('logout', channels={'l'})
+    @subscribe('teacherMessage', 'l')
+    @coroutine
+    def redirect_message_if_user_is_teacher(
+            self, message, content=True):
+        """Redirects a message if the user is a teacher.
+
+        This coroutine redirects a message to the local
+        channel only if the current user is a teacher.
+
+        :param dict message:
+            The message that should be redirected if the
+            user is a teacher.
+
+        :param bool content:
+            If ``True``, just the object corresponding to
+            the ``'content'`` key of ``message`` will be
+            sent.
+            If ``False``, the whole message will be sent.
+
+        :raises MalformedMessageError:
+            If ``content`` is ``True``, but ``message``
+            doesn't have the ``'content'`` key.
+
+        :raises NotDictError:
+            If ``message`` is not a dictionary.
+
+        :raises NoMessageTypeError:
+            If the message or it's content doesn't have the
+            ``'type'`` key.
+
+        :raises NoActionForMsgTypeError:
+            If ``send_function`` of the ``PubSub`` object
+            wasn't specified during object creation and
+            there's no registered action for this message
+            type.
+
+        :raises AttributeError:
+            If the user is not yet loaded or if the user is
+            ``None``.
+        """
+        try:
+            if self.handler.user.status == 'room':
+                self.redirect_to('l', message, content)
+        except:
+            raise
+
+    @subscribe('logout', 'l')
     def logout(self, message):
         try:
             if self.block_logout:
@@ -200,7 +245,8 @@ class UserWSC(src.wsclass.WSClass):
 
         except AttributeError:
             if not hasattr(self.handler, 'user'):
-                self.send_user_not_loaded_error(message)
+                self.handler.send_user_not_loaded_error(
+                    message)
             else:
                 raise
 
@@ -483,7 +529,7 @@ class UserWSC(src.wsclass.WSClass):
                 {'type': 'userName',
                  'name': name})
         except AttributeError:
-            self.send_user_not_loaded_error(message)
+            self.handler.send_user_not_loaded_error(message)
 
     @coroutine
     def end_room_usage(self, user, is_teacher, is_student):

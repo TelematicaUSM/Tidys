@@ -31,7 +31,7 @@ ws.getMessagePromise('studentSetup.course.set.ok').then ->
 
 ws.getMessagePromise('courses').then (message) ->
     for course in message.courses
-        button = document.importNode(tbutton, true)
+        button = document.importNode tbutton, true
         button.textContent =
             "#{ course.name } (#{ course.owner })"
         button.course_id = course._id

@@ -32,3 +32,19 @@ General project tasks
         -   Send updates from the courses being dictated in
             each room to all students that are waiting to
             attend to a course.
+        -   Add libjpeg-dev to dependencies in the makefile.
+        -   This is not a good idea::
+
+                ws.sendJSON(
+                    {
+                        'type': 'toDatabase',
+                        'content': {
+                            'type': 'courseMessage(117984339433749478236hola!!)',
+                            'content': {
+                                'type': 'logout',
+                                'reason': 'hack'
+                            }
+                        }
+                    }
+                )
+        -   Update the UI classes: teacher, student, common.

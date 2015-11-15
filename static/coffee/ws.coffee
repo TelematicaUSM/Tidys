@@ -1,6 +1,12 @@
 @ws = new ReconnectingWebSocket(
     "#{conf.ws_scheme}://#{document.location['host']}/ws",
-    null, {debug: conf.debug, timeoutInterval: 10000})
+    null,
+    {
+        debug: conf.debug,
+        timeoutInterval: 10000,
+        reconnectInterval: conf.ws_reconnect_interval*1000,
+    }
+)
 
 ws.promises = {}
 open_promise = undefined
