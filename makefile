@@ -109,6 +109,10 @@ reconnecting-websocket.js: | bower js
 	$(bowercmd) install reconnectingWebsocket
 	cd $(jspath) && ln -s ../../$(bowerpath)/reconnectingWebsocket/$@ $@
 
+unibabel.js: | bower js
+	$(bowercmd) install unibabel
+	cd $(jspath) && ln -s ../../$(bowerpath)/unibabel/index.js $@
+
 js: coffee | coffee-script
 	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
 
@@ -119,8 +123,9 @@ js: coffee | coffee-script
 
 run_py_deps = tornado motor jwt httplib2 oauth2client
 run: $(run_py_deps) dependencies css js \
-     reconnecting-websocket.js tinycolor.js normalize.css \
-	 panels notifications locking_panels controls qrmaster
+     reconnecting-websocket.js tinycolor.js unibabel.js \
+	 normalize.css panels notifications locking_panels \
+	 controls qrmaster
 	$(python) -i $(program)
 
 python: dependencies

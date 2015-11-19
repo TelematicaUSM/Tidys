@@ -1,7 +1,13 @@
-<div class="box">
-
+<div id="select-slide-box" class="box">
+    {% from controls.spinner import SpinnerControl %}
+    {% module UIModuleLoader(SpinnerControl,
+                             'select-slide-spinner') %}
 </div>
+
+<input id="slide-file-input" class="add-button" type="file"
+       name="slide-file" required
+       accept=".json,application/json">
 
 {% from controls.add_button import AddButtonControl %}
 {% module UIModuleLoader(
-    AddButtonControl, 'new-slideshow-button') %}
+    AddButtonControl, 'new-slide-button') %}

@@ -30,7 +30,7 @@ assignCourseToCurrentRoom = (course_id) ->
 #SETUP
 
 ws.getMessagePromise('session.start.ok').then ->
-    ws.sendSafeJSON
+    ws.sendJSON
         'type': 'courses.user.get'
 
 ws.getMessagePromise('course.assignment.ok').then ->

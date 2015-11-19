@@ -2,6 +2,7 @@
 
 from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
+from pymongo import ASCENDING
 from bson.dbref import DBRef
 
 from src.exceptions import NotDictError
@@ -129,9 +130,61 @@ class DBObject(object):
         :raises OperationFailure:
             If an error occurred during insertion.
         """
-        yield cls.coll.insert({'_id': id_})
-        self = yield cls.get(id_, **kwargs)
-        return self
+        try:
+            yield cls.coll.insert({'_id': id_})
+            self = yield cls.get(id_, **kwargs)
+            return self
+
+        except:
+            raise
+
+    @classmethod
+    @coroutine
+    def get_list(cls, spec, fields=None):
+        """Return a list of documents.
+
+        Returns a list of documents that meet the
+        restrictions set by the ``spec`` parameter.
+
+        :param dict spec:
+            This parameter is passed directly to the
+            :meth:`motor.MotorCollection.find` method. The
+            dictionary can contain any valid MongoDB query
+            operator.
+
+        :param fields:
+            This parameter is passed directly to the
+            :meth:`motor.MotorCollection.find` method.
+
+        :type fields: dict or list
+
+        :return:
+            A future that resolves to a list of documents.
+
+        :raises src.exceptions.NotDictError:
+            If ``spec`` is not a dictionary.
+        """
+        try:
+            cursor = cls.coll.find(
+                spec, fields, sort=[('_id', ASCENDING)])
+
+            documents = yield cursor.to_list(None)
+            return documents
+
+        except TypeError as te:
+            if not isinstance(spec, dict):
+                raise NotDictError('spec') from te
+
+            elif not isinstance(fields, (dict, list)) and \
+                    fields is not None:
+                e = TypeError(
+                    'The fields parameter should be a '
+                    'dictionary or a list.'
+                )
+                raise e from te
+
+            else:
+                raise
 
     def __init__(self, data, **kwargs):
         if isinstance(data, dict):

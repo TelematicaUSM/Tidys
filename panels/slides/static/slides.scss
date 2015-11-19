@@ -1,0 +1,7 @@
+@import "../../../static/scss/bourbon_files/bourbon";
+@import "../../../static/scss/constants";
+
+#slide-file-input {
+	z-index: $zi-panels + 1;
+	opacity: 0;
+}

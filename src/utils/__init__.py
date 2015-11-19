@@ -1,10 +1,8 @@
 # -*- coding: UTF-8 -*-
 
 from string import ascii_letters, digits, punctuation
-from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor
 
-from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
 
 
@@ -70,3 +68,45 @@ def raise_if_all_attr_def(obj, *attributes):
             'An exception was suppressed. '
             '{}, {}.'.format(obj, attributes)
         )
+
+
+def standard_name(name):
+    """Standardise a name string.
+
+    This function transforms a string, eliminating white
+    space, normalizing it and case folding it. This makes it
+    possible to use the string as an identifier, preventing
+    the use of similar string keys at the same time.
+
+    :param str name:
+        A name to be standardised.
+
+    :return:
+        The standard version of `name`.
+    :rtype: str
+
+    :raises TypeError:
+        If ``name`` is not a string.
+    """
+    from collections import Iterable, Callable
+    from unicodedata import normalize
+
+    try:
+        splitted = name.split()
+        compacted = ''.join(splitted)
+        normalized = normalize('NFKC', compacted)
+        return normalized.casefold()
+
+    except (AttributeError, TypeError) as e:
+        if not hasattr(name, 'split') or \
+                not isinstance(name.split, Callable) or \
+                not isinstance(splitted, Iterable) or \
+                not all(
+                    isinstance(e, str) for e in splitted):
+            te = TypeError(
+                "The name parameter doesn't seem to be a "
+                "string.")
+            raise te from e
+
+        else:
+            raise
