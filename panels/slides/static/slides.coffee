@@ -9,6 +9,14 @@ file_input = document.getElementById 'slide-file-input'
 
 #FUNCIONES
 
+addButton = (slide_name, slide_id) ->
+    button = document.importNode(tbutton, true)
+    button.textContent = slide_name
+    button.slide_id = slide_id
+    button.addEventListener 'click', (event) ->
+        launchSlideShow(event.target.slide_id)
+    select_slide_box.appendChild button
+
 launchSlideShow = ->
     throw new Error('Not implemented!')
 
@@ -27,13 +35,7 @@ ws.addMessageListener 'slides', (message) ->
     button.remove() for button in document.querySelectorAll(
         '#select-slide-box>.list-button')
 
-    for slide in message.slides
-        button = document.importNode(tbutton, true)
-        button.textContent = slide.name
-        button.slide_id = slide._id
-        button.addEventListener 'click', (event) ->
-            launchSlideShow(event.target.slide_id)
-        select_slide_box.appendChild button
+    addButton s.name, s._id for s in message.slides
 
     hideElements spinner
 
@@ -57,5 +59,6 @@ file_input.addEventListener 'change', ->
         )
 
     fr.onerror = loadError
-
     fr.readAsArrayBuffer file
+
+ws.addMessageListener 'slides.add.ok', (message) ->

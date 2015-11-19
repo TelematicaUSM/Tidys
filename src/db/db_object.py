@@ -127,8 +127,15 @@ class DBObject(object):
             An instance of this class that represents the
             newly created document.
 
-        :raises OperationFailure:
+        :raises pymongo.errors.OperationFailure:
             If an error occurred during insertion.
+
+        :raises pymongo.errors.DuplicateKeyError:
+            If an object with the same id alredy exists in
+            the database.
+            :class:`~pymongo.errors.DuplicateKeyError` is a
+            subclass of
+            :class:`~pymongo.errors.OperationFailure`.
         """
         try:
             yield cls.coll.insert({'_id': id_})

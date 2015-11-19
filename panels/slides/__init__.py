@@ -103,6 +103,13 @@ class Slide(DBObject):
         :raises pymongo.errors.OperationFailure:
             If an database error occurred during creation.
 
+        :raises pymongo.errors.DuplicateKeyError:
+            If an object with the same id alredy exists in
+            the database.
+            :class:`~pymongo.errors.DuplicateKeyError` is a
+            subclass of
+            :class:`~pymongo.errors.OperationFailure`.
+
         :raises ConditionNotMetError:
             If the just created slide document no longer
             exists in the database. This should never

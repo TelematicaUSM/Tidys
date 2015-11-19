@@ -11,6 +11,7 @@
                     "It's good enough.",
                     "Marvellous *.*!"
                 ],
+                "correct_answer": 0,
                 "type": "alternatives"
             }
         },
@@ -23,6 +24,7 @@
                     "No.",
                     "It depends."
                 ],
+                "correct_answer": 2,
                 "type": "alternatives"
             }
         },
