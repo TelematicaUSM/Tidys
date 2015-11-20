@@ -11,9 +11,17 @@
         @include size(100%);
         overflow: hidden;
     }
+    .alt-presentation-element {
+        @include position(absolute);
+        z-index: $zi-panels +1;
+    }
 }
 
 #presentation-box-fullscreen {
+    @include transform-origin(center);
+    animation-duration: 60s;
+    animation-iteration-count: infinite;
+    animation-name: blink;
     @include position(
         absolute, null 0px 0px null);
     background: none;
@@ -26,5 +34,26 @@
 
     path {
         fill: $c-icon;
+    }
+}
+
+@keyframes blink{
+    from{
+        @include transform(scale(1));
+    }
+    0.5% {
+        @include transform(scale(1.5));
+    }
+    1% {
+        @include transform(scale(1));
+    }
+    1.5% {
+        @include transform(scale(1.5));
+    }
+    2% {
+        @include transform(scale(1));
+    }
+    to {
+        @include transform(scale(1));
     }
 }

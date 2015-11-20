@@ -3,14 +3,22 @@
     </iframe>
 </template>
 
+<template id="alt-test-template">
+    <button type="button" id="boton-alt-prueba">
+        Prueba
+    </button>
+</template>
+
 <section class="box">
     <button type="button" id="presentation-test-agregar">
-        Agregar trasnparencia al panel de presentacion
+        Agregar trasnparencia al panel de presentación
+    </button>
+    <button type="button" id="alt-test-agregar">
+        Agregar boton extra
     </button>
 </section>
 
 <script type="text/javascript">
-    // ### CAMBIAR AQUÍ EL NOMBRE DE LA FUNCION ###
 
     var agregar_presentation = document.getElementById(
         'presentation-test-agregar');
@@ -18,7 +26,15 @@
         'presentation-test-template');
     var tbutton_presentation = template_presentation.content.querySelector('iframe');
 
+    var agregar_boton = document.getElementById(
+        'alt-test-agregar');
+    var template_alt = document.getElementById(
+        'alt-test-template');
+    var tbutton_alt = template_alt.content.querySelector('button');
+
     agregar_presentation.addEventListener('click', function () {
-        addNodeToPresentation(tbutton_presentation, true);
+        addNodeToPresentation(tbutton_presentation, true)});
+    agregar_boton.addEventListener('click', function () {
+        addNodeToPresentation(tbutton_alt, 'alt');
     });
 </script>

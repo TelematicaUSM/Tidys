@@ -22,6 +22,8 @@ presentation_box = document.getElementById "presentation-box"
         presentation_box.appendChild(new_node)
         fs_button.style.display = "block"
 
+
+
 fullscreenClick = () ->
     if current_node?.requestFullscreen?
         current_node.requestFullscreen()
