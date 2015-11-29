@@ -6,7 +6,7 @@ from base64 import b64decode
 from tornado.gen import coroutine
 
 import src
-from src.db import DBObject, db
+from src.db import DBObject, db, NoObjectReturnedFromDB
 from src.exceptions import NotDictError, NotStringError, \
     MissingFieldError
 from src.utils import standard_name
@@ -158,6 +158,11 @@ class Slide(DBObject):
     @classmethod
     @coroutine
     def get_user_slide_list(cls, user):
+        """
+        .. todo::
+            *   Review the error handling and documentation
+                of this funcion.
+        """
         try:
             yield db.users.ensure_index('user_id')
             slides = yield cls.get_list(
@@ -167,7 +172,7 @@ class Slide(DBObject):
             return slides
 
         except:
-            raise  ###################################
+            raise
 
 
 class SlidesWSC(src.wsclass.WSClass):
@@ -191,23 +196,68 @@ class SlidesWSC(src.wsclass.WSClass):
             self.parses.parser_names.items()
         }
 
+    @subscribe('slides.get')
+    @coroutine
+    def send_slide_data(self, message):
+        try:
+            data = yield Slide.get_one_document(
+                message['_id'])
+
+        except TypeError:
+            if not isinstance(message, dict):
+                self.handler.send_malformed_message_error(
+                    message)
+            else:
+                raise
+
+        except KeyError:
+            if '_id' not in message:
+                self.handler.send_malformed_message_error(
+                    message)
+            else:
+                raise
+
+        except NoObjectReturnedFromDB:
+            self.handler.send_malformed_message_error(
+                message)
+        except:
+            raise
+
+        else:
+            self.pub_subs['w'].send_message(
+                {'type': 'slides.get.ok', 'slide': data})
+
     @subscribe('slides.list.get')
     @coroutine
     def send_slide_list(self, message=None):
+        """
+        .. todo::
+            *   Review the error handling and documentation
+                of this funcion.
+        """
         try:
             slides = yield Slide.get_user_slide_list(
                 self.handler.user)
 
         except:
-            raise  ########################
+            raise
 
         else:
             self.pub_subs['w'].send_message(
-                {'type': 'slides', 'slides': slides})
+                {
+                    'type': 'slides.list.get.ok',
+                    'slides': slides
+                }
+            )
 
     @subscribe('slides.add')
     @coroutine
     def add_slides(self, message):
+        """
+        .. todo::
+            *   Review the error handling and documentation
+                of this funcion.
+        """
         try:
             mime_type = message['mime']
             data = self.parsers[mime_type](message['data'])
@@ -225,16 +275,60 @@ class SlidesWSC(src.wsclass.WSClass):
                         'creación de la nueva presentación.'
                 }
             )
-            ##############################
 
         else:
             self.pub_subs['w'].send_message(
                 {
                     'type': 'slides.add.ok',
-                    'id': slide.id,
+                    '_id': slide.id,
                     'name': slide.name,
                 }
             )
+
+    def change_slide(self, previous=False):
+        """
+        .. todo::
+            *   Review the error handling and documentation
+                of this funcion.
+        """
+        try:
+            instruction = 'prev' if previous else 'next'
+            msg_type = 'slides.{}'.format(instruction)
+
+            self.pub_subs['l'].send_message(
+                {
+                    'type': 'user.message.frontend.send',
+                    'content': {
+                        'type': msg_type
+                    }
+                }
+            )
+        except:
+            raise
+
+    @subscribe('slides.prev', 'w')
+    def show_prev_slide(self, message=None):
+        """
+        .. todo::
+            *   Review the error handling and documentation
+                of this funcion.
+        """
+        try:
+            self.change_slide(previous=True)
+        except:
+            raise
+
+    @subscribe('slides.next', 'w')
+    def show_next_slide(self, message=None):
+        """
+        .. todo::
+            *   Review the error handling and documentation
+                of this funcion.
+        """
+        try:
+            self.change_slide()
+        except:
+            raise
 
     @parses('application/json')
     def json_parser(self, data):

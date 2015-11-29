@@ -87,7 +87,7 @@ class DBObject(object):
                     'Either id_ or dbref should be '
                     'specified.')
 
-            if not data:
+            if data is None:
                 raise NoObjectReturnedFromDB(cls)
 
             return cls(data, **kwargs)
@@ -192,6 +192,39 @@ class DBObject(object):
 
             else:
                 raise
+
+    @classmethod
+    @coroutine
+    def get_one_document(cls, id_, fields=None):
+        """Get a raw document from the database.
+
+        :param id_:
+            The ID of the object to be fetched from the
+            database.
+
+        :param fields:
+            The fields to be included in the document.
+        :type fields: list of names or dict ({names: bool})
+
+        :return:
+            The specified document.
+        :rtype: dict
+
+        :raises NoObjectReturnedFromDB:
+            If there is no document with the specified ID in
+            the database.
+        """
+        try:
+            document = yield cls.coll.find_one(
+                id_, fields=fields)
+
+            if document is None:
+                raise NoObjectReturnedFromDB(cls)
+
+            else:
+                return document
+        except:
+            raise
 
     def __init__(self, data, **kwargs):
         if isinstance(data, dict):

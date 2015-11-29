@@ -25,7 +25,8 @@ bowerpath = ./bower_components
 bowercmd = $(nmodulespath)/bower/bin/bower
 
 jspath = static/js
-coffeepaths = $(jspath) static/coffee
+coffeepath = static/coffee
+coffeepaths = $(jspath) $(coffeepath)
 coffeeoptions = --map --compile --output
 coffeecmd = $(nmodulespath)/coffee-script/bin/coffee
 
@@ -56,7 +57,8 @@ dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
 	                     build-essential ruby npm curl \
-	                     screen nodejs-legacy libjpeg-dev
+	                     screen nodejs-legacy libjpeg-dev \
+						 mongodb
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
@@ -91,7 +93,7 @@ $(bbfoldername): bourbon
 	                                    --path=$(scsspath)
 	mv $(scsspath)/bourbon $(bbpath)
 
-css: scss | $(bbfoldername) sass
+css: $(scsspath)/*.scss | $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
 coffee-script bower: | dependencies
@@ -113,7 +115,7 @@ unibabel.js: | bower js
 	$(bowercmd) install unibabel
 	cd $(jspath) && ln -s ../../$(bowerpath)/unibabel/index.js $@
 
-js: coffee | coffee-script
+js: $(coffeepath)/*.coffee | coffee-script
 	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run python srun drun testenv attach csswatch dcsswatch \
@@ -193,7 +195,7 @@ autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
 showdocs: autodoc
 	xdg-open doc/_build/html/index.html
 
-clean_doc: sphinx
+clean_doc: | sphinx
 	$(runenv) && cd $(doc_path) && $(MAKE) clean
 	cd $(doc_path) && \
 	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|todo.rst\|conf.py\|[mM]akefile\)' -delete

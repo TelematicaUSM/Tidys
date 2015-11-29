@@ -1,54 +1,58 @@
-@import "bourbon_files/bourbon";
-@import "constants";
+@import 'bourbon_files/bourbon';
+@import 'constants';
+
+// scss-lint:disable IdSelector
 
 #app-header {
-    @include display(flex);
-    @include position(fixed, 0px 0px auto 0px);
-    z-index: $zi-header;
-    height: $header-height;
-    border-bottom: 1px solid $c-control-border;
-    @include linear-gradient($c-control-face-light,
-                             $c-control-face-dark);
-    padding-right: 0.5rem;
-    @include align-items(center);
-    @include justify-content(space-between);
-    box-shadow: 0rem -0.9rem 0.3rem 1rem $c-header-shadow;
+  @include align-items(center);
+  @include display(flex);
+  @include justify-content(space-between);
+  @include linear-gradient($c-control-face-light,
+                           $c-control-face-dark);
+  @include position(fixed, 0 0 auto 0);
+
+  border-bottom: 1px solid $c-control-border;
+  box-shadow: 0 -.9rem .3rem 1rem $c-header-shadow;
+  height: $header-height;
+  padding-right: .5rem;
+  z-index: $zi-header;
 }
 
 #header-title {
-    @include flex-grow(1);
-    margin: 0rem;
-    text-align: center;
-    font-size: 1rem;
+  @include flex-grow(1);
+  font-size: 1rem;
+  margin: 0;
+  text-align: center;
 }
 
 .panel {
-    display: none;
-    z-index: $zi-panels;
-    background-color: transparent;
+  background-color: transparent;
+  display: none;
+  z-index: $zi-panels;
 }
 
 .panel:not(:first-of-type) {
-    display: none;
+  display: none;
 }
 
 .panel-title {
-    margin: 0rem;
-    width: 100%;
-    background-color: $c-panel-title;
-    padding: $panel-title-padding;
-    font-size: $panel-title-font-size;
-    line-height: $panel-title-font-size;
-    color: $c-white-font;
+  background-color: $c-panel-title;
+  color: $c-white-font;
+  font-size: $panel-title-font-size;
+  line-height: $panel-title-font-size;
+  margin: 0;
+  padding: $panel-title-padding;
+  width: 100%;
 }
 
 .scrolling-panel {
-    @extend .panel;
-    @include position(absolute, $header-height 0px null
-                      0px);
+  // scss-lint:disable PlaceholderInExtend
+  @extend .panel;
+  @include position(absolute, $header-height 0 null 0);
 }
 
 .fixed-panel {
-    @extend .panel;
-    @include position(fixed, $header-height 0px 0px 0px);
+  // scss-lint:disable PlaceholderInExtend
+  @extend .panel;
+  @include position(fixed, $header-height 0 0 0);
 }

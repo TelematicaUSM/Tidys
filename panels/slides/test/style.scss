@@ -1,0 +1,110 @@
+@import "../../../static/scss/bourbon_files/bourbon";
+
+//DEBUG---------------------
+// %b {
+//     border: 1px solid;
+// }
+// section {
+//     @extend %b;
+//     border-color: black;
+// }
+// figure {
+//     @extend %b;
+//     border-color: red;
+// }
+// img {
+//     @extend %b;
+//     border-color: lime;
+// }
+//---------------------------
+
+html {
+  box-sizing: border-box;
+}
+
+html, body {
+    font-family: $verdana;
+    margin: 0px;
+    padding: 0px;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit;
+    text-align: justify;
+}
+
+h1 {
+    margin: 0rem 0rem 1rem;
+    padding: 0rem;
+    font-size: 1.5rem;
+    text-align: left;
+}
+
+ul, ol {
+    padding: 0rem 2rem;
+}
+
+figcaption {
+    text-align: center;
+}
+
+section {
+    position: relative;
+    padding: 3.5rem 2rem 1rem;
+    @include size(100% 100vh);
+    overflow: hidden;
+
+    &>h1:first-child {
+        @include position(absolute, 0rem auto auto 0rem);
+        margin: 1rem 1rem 0rem;
+    }
+
+    &>figure {
+        @include display(flex);
+        margin: 0rem 1rem;
+        height: 100%;
+        @include flex-direction(column);
+        @include align-content(center);
+        @include justify-content(space-around);
+        @include align-items(center);
+
+        &>img {
+            object-fit: contain;
+            @include size(100%);
+        }
+    }
+}
+
+%flex {
+    @include display(flex);
+    @include align-content(center);
+    @include justify-content(center);
+
+    &>figure{
+        @include flex-grow(1);
+    }
+}
+
+section.hflex {
+    @extend %flex;
+    @include align-items(center);
+
+    &>p {
+        @include flex-grow(1);
+        text-align: left;
+    }
+}
+
+section.vflex {
+    @extend %flex;
+    @include flex-direction(column);
+    @include align-items(stretch);
+}
+
+.no-title {
+    padding: 1rem;
+
+    &>h1 {
+        display: none;
+    }
+}

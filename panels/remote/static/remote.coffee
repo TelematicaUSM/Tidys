@@ -1,6 +1,9 @@
 #VARIABLES
+
 remote_box = document.getElementById 'remote-control'
+
 #FUNCION
+
 @addNodeToRemote = (node, priority = null) ->
     new_node = document.importNode node, true
     #ver que pasa con priority null

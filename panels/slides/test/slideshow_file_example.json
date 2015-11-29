@@ -2,7 +2,7 @@
     "name": "First Slideshow Test",
     "slides": [
         {
-            "url": "cganterh.net",
+            "url": "http://cganterh.net",
             "question": {
                 "wording": "Do you like this page?",
                 "answers": [

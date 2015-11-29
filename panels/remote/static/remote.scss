@@ -1,18 +1,26 @@
-@import "../../../static/scss/bourbon_files/bourbon";
+@import '../../../static/scss/bourbon_files/bourbon';
+@import '../../../static/scss/constants';
 
-#remote-panel > .box button {
+.remote.box {
+  @include display(flex);
+  @include flex-wrap(wrap);
+  @include justify-content(space-around);
+  @include align-content(space-around);
+
+  > * {
+    @include flex-grow(1);
+
+    margin: .25rem;
     text-align: center;
-    margin: 0.25rem;
-    @include flex(1);
-    svg, img {
-        vertical-align: middle;
-    }
-}
 
-#remote-panel > .box {
-    @include display(flex);
-    @include justify-content(space-around);
-    @include flex-wrap (wrap);
-    @include align-content(space-around);
-    @include flex-direction(row-reverse);
+    svg,
+    img {
+      @include size(2rem);
+      vertical-align: middle;
+    }
+
+    path {
+      fill: $c-icon;
+    }
+  }
 }
