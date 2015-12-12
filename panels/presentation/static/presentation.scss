@@ -17,7 +17,28 @@
     }
 }
 
+
 #presentation-box-fullscreen {
+    @include transform-origin(center);
+    animation-duration: 60s;
+    animation-iteration-count: infinite;
+    animation-name: blink;
+    @include position(
+        absolute, null 0px 0px null);
+    background: none;
+    border: none;
+    display: none;
+    @include size(2.5rem);
+    padding: 0rem;
+    margin: 1rem;
+    z-index: $zi-panels + 1;
+
+    path {
+        fill: $c-icon;
+    }
+}
+
+#presentation-box-unfullscreen {
     @include transform-origin(center);
     animation-duration: 60s;
     animation-iteration-count: infinite;
