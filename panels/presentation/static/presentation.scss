@@ -1,0 +1,80 @@
+@import "../../../static/scss/bourbon_files/bourbon";
+@import "../../../static/scss/_constants.scss";
+
+#presentation-box {
+    @include position(
+        absolute, $panel-title-height 0px 0px 0px);
+
+    .main-presentation-element {
+        @include position(absolute, 0px 0px 0px 0px);
+        border: none;
+        @include size(100%);
+        overflow: hidden;
+    }
+    .alt-presentation-element {
+        @include position(absolute);
+        z-index: $zi-panels +1;
+    }
+}
+
+
+#presentation-box-fullscreen {
+    @include transform-origin(center);
+    animation-duration: 60s;
+    animation-iteration-count: infinite;
+    animation-name: blink;
+    @include position(
+        absolute, null 0px 0px null);
+    background: none;
+    border: none;
+    display: none;
+    @include size(2.5rem);
+    padding: 0rem;
+    margin: 1rem;
+    z-index: $zi-panels + 1;
+
+    path {
+        fill: $c-icon;
+    }
+}
+
+#presentation-box-unfullscreen {
+    @include transform-origin(center);
+    animation-duration: 60s;
+    animation-iteration-count: infinite;
+    animation-name: blink;
+    @include position(
+        absolute, null 0px 0px null);
+    background: none;
+    border: none;
+    display: none;
+    @include size(2.5rem);
+    padding: 0rem;
+    margin: 1rem;
+    z-index: $zi-panels + 1;
+
+    path {
+        fill: $c-icon;
+    }
+}
+
+@keyframes blink{
+    from{
+        @include transform(scale(1));
+    }
+    0.5% {
+        @include transform(scale(1.5));
+    }
+    1% {
+        @include transform(scale(1));
+    }
+    1.5% {
+        @include transform(scale(1.5));
+    }
+    2% {
+        @include transform(scale(1));
+    }
+    to {
+        @include transform(scale(1));
+    }
+}

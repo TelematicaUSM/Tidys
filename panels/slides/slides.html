@@ -37,23 +37,22 @@
     </button>
 </template>
 
+<template class="slides display">
+    <iframe class="slides display" src="" height="100%"
+            width="100%" scrolling="no">
+    </iframe>
+</template>
+
 <div id="slides-select" class="box">
     {% from controls.spinner import SpinnerControl %}
     {% module UIModuleLoader(SpinnerControl,
                              'slides-select-spinner') %}
 </div>
 
+{% from controls.add_button import AddButtonControl %}
+{% module UIModuleLoader(
+    AddButtonControl, 'slides-new-button') %}
 <input id="slides-new-input"
        class="slides new-input add-button" type="file"
        name="slides-new-input" required
        accept=".json,application/json">
-{% from controls.add_button import AddButtonControl %}
-{% module UIModuleLoader(
-    AddButtonControl, 'slides-new-button') %}
-
-<div class="box" style="height:30rem;padding:0rem">
-    <iframe id="slides-display" class="slides display"
-            src="" height="100%" width="100%"
-            scrolling="no">
-    </iframe>
-</div>

@@ -9,7 +9,9 @@ select_slide_box = document.getElementById(
   'slides-select')
 spinner = document.getElementById 'slides-select-spinner'
 file_input = document.getElementById 'slides-new-input'
-display = document.getElementById 'slides-display'
+display_template = document.querySelector(
+  'template.slides.display')
+display = null
 
 current_slideshow = null
 current_slide = 0
@@ -289,7 +291,10 @@ ws.addMessageListener 'slides.add.ok', (message) ->
 
 ws.addMessageListener 'slides.get.ok', (message) ->
   current_slideshow = message.slide
+  display = addNodeToPresentation(
+    display_template.content.children[0])
   showSlide(0)
+  switchToPanel 'presentation-panel'
 
 ws.addMessageListener 'slides.prev', (message) ->
   prevSlide(silent=true)
