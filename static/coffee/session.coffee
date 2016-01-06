@@ -5,11 +5,11 @@
     showHome()
 
 @logout = ->
-    delete localStorage.sessionToken
-    disconnect()
+  delete localStorage.sessionToken
+  disconnect()
 
 @replaceLocation = (message) ->
-    document.location.replace message.url
+  document.location.replace message.url
 
 #SETUP
 
@@ -18,28 +18,28 @@ ws.addMessageListener 'disconnect', disconnect
 ws.addMessageListener 'replaceLocation', replaceLocation
 
 ws.getMessagePromise('session.start.ok').then (message) ->
-    @user =
-        status: message.code_type
+  @user =
+      status: message.code_type
 
-    if message.code_type == 'room' and \
-            message.course_id == null
-        load_promise.then showLessonSetup
+  if message.code_type == 'room' and \
+      message.course_id == null
+    load_promise.then showLessonSetup
 
-    else if message.code_type == 'seat'
-        load_promise.then showStudentSetup
+  else if message.code_type == 'seat'
+    load_promise.then showStudentSetup
 
-    else
-        load_promise.then activatePanels
+  else
+    load_promise.then activatePanels
 
 unless localStorage.sessionToken?
-    disconnect()
+  disconnect()
 
 else
-    setHideLoadingFunction ->
-    showLoading 'Preparando sesión ...'
+  setHideLoadingFunction ->
+  showLoading 'Preparando sesión ...'
 
-    ws.sendJSONOnOpen
-        'type': 'session.start',
-        'token': localStorage.sessionToken
-        'room_code': if room_code? then room_code \
-                     else 'none'
+  ws.sendJSONOnOpen
+    'type': 'session.start',
+    'token': localStorage.sessionToken
+    'room_code': if room_code? then room_code \
+                 else 'none'
