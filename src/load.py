@@ -3,7 +3,6 @@ from importlib import import_module
 from inspect import isclass
 from os.path import dirname
 from pkgutil import iter_modules
-from src import messages
 from types import ModuleType
 
 from .boiler_ui_module import BoilerUIModule
@@ -75,6 +74,15 @@ def load_boiler_ui_modules(package, app):
         :class:`~src.boiler_ui_module.BoilerUIModule`
         classes will be registered.
     :type app: :class:`tornado.web.Application`
+
+    :return:
+        A list containing all
+        :class:`~src.boiler_ui_module.BoilerUIModule`
+        classes in ``package``.
+    :rtype:
+        list of
+        :class:`~src.boiler_ui_module.BoilerUIModule`
+        classes
     """
     package = get_module(package)
     python_modules = load_python_modules(package)
@@ -89,9 +97,20 @@ def load_boiler_ui_modules(package, app):
     for module in package.boiler_ui_modules:
         module.add_handler(app)
 
+    return package.boiler_ui_modules
+
 
 def load_wsclasses(package, handler):
     """Register all WSClasses of ``package`` in ``handler``.
+
+    First, all the classes of type
+    :class:`~src.wsclass.WSClass`, in all submodules of
+    ``package``, are loaded and appended to a list.
+
+    After the list is created, the method
+    :meth:`~controller.MSGHandler.add_class`
+    is called for all the :class:`~src.wsclass.WSClass`
+    classes in the list.
 
     :param package:
         The package from which you want to register all of
@@ -103,16 +122,26 @@ def load_wsclasses(package, handler):
         to register all :class:`~src.wsclass.WSClass`
         classes of ``package``.
     :type handler: :class:`~controller.MSGHandler`
+
+    :return:
+        A list containing all
+        :class:`~src.wsclass.WSClass` classes in
+        ``package``.
+    :rtype:
+        list of :class:`~src.wsclass.WSClass` classes
     """
     package = get_module(package)
     python_modules = load_python_modules(package)
 
-    for module in python_modules:
-        for member in module.__dict__.values():
-            if isclass(member) and \
-               issubclass(member, WSClass):
-                messages.code_debug(
-                    'src.load.load_wsclasses',
-                    'Adding WSClass {}.'.format(member)
-                )
-                handler.add_class(member)
+    wsclasses = [
+        member
+        for module in python_modules
+        for member in module.__dict__.values()
+        if isclass(member)
+        if issubclass(member, WSClass)
+    ]
+
+    for wsc in wsclasses:
+        handler.add_class(wsc)
+
+    return wsclasses
