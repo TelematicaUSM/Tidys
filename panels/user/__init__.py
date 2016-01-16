@@ -51,7 +51,7 @@ MSGHandler.logout_and_close = _logout_and_close
 
 class UserPanel(src.boiler_ui_module.BoilerUIModule):
     id_ = 'user-panel'
-    classes = {'scrolling-panel', 'system-panel'}
+    classes = {'scrolling-panel', 'system'}
     name = 'Usuario'
     conf = {
         'static_url_prefix': '/user/',

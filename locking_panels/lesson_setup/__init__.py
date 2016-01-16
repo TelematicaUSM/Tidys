@@ -12,7 +12,7 @@ from src.wsclass import subscribe
 class LessonSetupLockingPanel(
         src.boiler_ui_module.BoilerUIModule):
     id_ = 'lesson-setup-panel'
-    classes = {'scrolling-panel', 'room-code-panel'}
+    classes = {'scrolling-panel', 'teacher'}
     conf = {
         'static_url_prefix': '/lesson_setup/',
         'static_path':

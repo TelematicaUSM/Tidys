@@ -8,7 +8,7 @@ from src.wsclass import subscribe
 class StudentSetupLockingPanel(
         src.boiler_ui_module.BoilerUIModule):
     id_ = 'student-setup-panel'
-    classes = {'scrolling-panel', 'seat-code-panel'}
+    classes = {'scrolling-panel', 'student'}
     conf = {
         'static_url_prefix': '/student_setup/',
         'static_path':
