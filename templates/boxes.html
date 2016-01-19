@@ -6,7 +6,9 @@
     {{ add_ext_file('js/boxes.js') }}
     {{ add_ext_file('js/ws.js') }}
     {{ add_ext_file('js/session.js') }}
-    
+    {{ add_ext_file('js/tinycolor.js') }}
+    {{ add_ext_file('js/unibabel.js') }}
+
     {% from notifications import boiler_ui_modules as \
        notifications %}
 
@@ -73,7 +75,7 @@
         {% if 'critical' in globals() and critical %}
             var backend_critical = '{{ critical }}';
         {% end %}
-        
+
         {% if hasattr(handler, 'room_code') and \
               handler.room_code %}
             var room_code = '{{ handler.room_code }}';

@@ -17,21 +17,24 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-@import "bourbon_files/bourbon";
-@import "constants";
+@import 'bourbon_files/bourbon';
+@import 'constants';
 
 html {
   box-sizing: border-box;
 }
 
-html, body {
-    background-color: $c-background;
-    font-family: $verdana;
-    color: $c-control-font;
+html,
+body {
+  background-color: $c-background;
+  color: $c-control-font;
+  font-family: $verdana;
 }
 
-*, *:before, *:after {
-    box-sizing: inherit;
-    margin: 0rem;
-    padding: 0rem;
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
 }

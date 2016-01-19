@@ -31,20 +31,22 @@ presentation_box = document.getElementById 'presentation-box'
       new_node = document.importNode node_template, true
 
       if is_main_element == true
-        current_node.remove() if current_node?
+        current_node?.remove()
         new_node.classList.add 'main-presentation-element'
         current_node = new_node
 
       else
-        new_node.classList.add('alt-presentation-element')
-      presentation_box.appendChild(new_node)
+        new_node.classList.add 'alt-presentation-element'
+      presentation_box.appendChild new_node
       fs_button.style.display = "block"
+      return new_node
 
     catch error
       unless node_template instanceof Node
         e = TypeError(
           'La variable node_template no es un Nodo HTML.')
         e.from = error
+        throw e
 
       else
         throw error

@@ -44,7 +44,8 @@ bowerpath = ./bower_components
 bowercmd = $(nmodulespath)/bower/bin/bower
 
 jspath = static/js
-coffeepaths = $(jspath) static/coffee
+coffeepath = static/coffee
+coffeepaths = $(jspath) $(coffeepath)
 coffeeoptions = --map --compile --output
 coffeecmd = $(nmodulespath)/coffee-script/bin/coffee
 
@@ -75,7 +76,8 @@ dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
 	                     build-essential ruby npm curl \
-	                     screen nodejs-legacy libjpeg-dev
+	                     screen nodejs-legacy libjpeg-dev \
+						 mongodb
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
@@ -110,7 +112,7 @@ $(bbfoldername): bourbon
 	                                    --path=$(scsspath)
 	mv $(scsspath)/bourbon $(bbpath)
 
-css: scss | $(bbfoldername) sass
+css: $(scsspath)/*.scss | $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
 coffee-script bower: | dependencies
@@ -128,7 +130,11 @@ reconnecting-websocket.js: | bower js
 	$(bowercmd) install reconnectingWebsocket
 	cd $(jspath) && ln -s ../../$(bowerpath)/reconnectingWebsocket/$@ $@
 
-js: coffee | coffee-script
+unibabel.js: | bower js
+	$(bowercmd) install unibabel
+	cd $(jspath) && ln -s ../../$(bowerpath)/unibabel/index.js $@
+
+js: $(coffeepath)/*.coffee | coffee-script
 	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run python srun drun testenv attach csswatch dcsswatch \
@@ -138,8 +144,9 @@ js: coffee | coffee-script
 
 run_py_deps = tornado motor jwt httplib2 oauth2client
 run: $(run_py_deps) dependencies css js \
-     reconnecting-websocket.js tinycolor.js normalize.css \
-	 panels notifications locking_panels controls qrmaster
+     reconnecting-websocket.js tinycolor.js unibabel.js \
+	 normalize.css panels notifications locking_panels \
+	 controls qrmaster
 	$(python) -i $(program)
 
 python: dependencies
@@ -207,7 +214,7 @@ autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
 showdocs: autodoc
 	xdg-open doc/_build/html/index.html
 
-clean_doc: sphinx
+clean_doc: | sphinx
 	$(runenv) && cd $(doc_path) && $(MAKE) clean
 	cd $(doc_path) && \
 	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|todo.rst\|conf.py\|[mM]akefile\)' -delete

@@ -19,12 +19,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from unicodedata import normalize
-
 from tornado.gen import coroutine
 from pymongo import ASCENDING
 
-from src.exceptions import NotDictError
+from src.utils import standard_name
 from .common import db
 from .db_object import DBObject
 
@@ -43,62 +41,12 @@ class Course(DBObject):
     @classmethod
     @coroutine
     def create(cls, user, name):
-        compacted_name = name.replace(' ', '')
-        norm_name = normalize('NFKC', compacted_name)
-        casefolded_name = norm_name.casefold()
-        id_ = str(user.id) + casefolded_name
+        id_ = str(user.id) + standard_name(name)
 
         self = yield super().create(id_)
         yield self.store_dict(
             {'name': name, 'user_id': user.id})
         return self
-
-    @classmethod
-    @coroutine
-    def _get_courses(cls, spec, fields=None):
-        """Return a list of courses.
-
-        Returns a list of courses that meet the restrictions
-        set by the ``spec`` parameter.
-
-        :param dict spec:
-            This parameter is passed directly to the
-            ``MotorCollection.find`` method. The dictionary
-            can contain any valid MongoDB query operator.
-
-        :param fields:
-            This parameter is passed directly to the
-            ``MotorCollection.find`` method.
-
-        :type fields: dict or list
-
-        :return:
-            A future that resolves to a list.
-
-        :raises src.exceptions.NotDictError:
-            If ``spec`` is not a dictionary.
-        """
-        try:
-            cursor = cls.coll.find(
-                spec, fields, sort=[('_id', ASCENDING)])
-
-            courses = yield cursor.to_list(None)
-            return courses
-
-        except TypeError as te:
-            if not isinstance(spec, dict):
-                raise NotDictError('spec') from te
-
-            if not isinstance(fields, (dict, list)) and \
-                    fields is not None:
-                e = TypeError(
-                    'The fields parameter should be a '
-                    'dictionary or a list.'
-                )
-                raise e from te
-
-            else:
-                raise
 
     @classmethod
     @coroutine
@@ -116,7 +64,7 @@ class Course(DBObject):
                 [('user_id', ASCENDING), ('_id', ASCENDING)]
             )
 
-            courses = yield cls._get_courses(
+            courses = yield cls.get_list(
                 spec={'user_id': user.id}, fields=['name'])
             return courses
 
@@ -136,7 +84,7 @@ class Course(DBObject):
             A future that resolves to a list of courses.
         """
         try:
-            courses = yield cls._get_courses(
+            courses = yield cls.get_list(
                 {
                     '_id': {'$in': ids}
                 }

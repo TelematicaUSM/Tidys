@@ -17,170 +17,182 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-@import "bourbon_files/bourbon";
-@import "constants";
+@import 'bourbon_files/bourbon';
+@import 'constants';
 
-#content-shade {
-    display: block;
-    @include position(fixed, 0px 0px 0px 0px);
-    z-index: $zi-panels - 1;
-    background-color: transparent;
-/*    @include transition(background-color 0.2s);*/
-}
+// scss-lint:disable IdSelector
 
-#notifications {
-    @include display(flex);
-    @include size(auto $header-height);
-    @include align-items(center);
+button,
+[type="button"],
+[type="reset"],
+[type="submit"] {
+  background: {
+    color: $c-button;
+    image: none;
+  }
+
+  border: 1px solid $c-button-border {
+    radius: $button-radius;
+  }
+
+  padding: $button-padding;
+
+  &:active {
+    background-color: $c-active-button;
+  }
+
+  &:focus {
+    border-color: $c-button-focus-border;
+  }
+
+  &[disabled] {
+    background-color: $c-button-disabled;
+    color: $c-button-disabled-text;
+  }
 }
 
 .header-button {
-    @include size($header-height);
-    border: none;
+  @include size($header-height);
+  background: {
+    color: transparent;
+    image: none;
+  }
+  border: 0;
+
+  &:active {
     background-color: transparent;
-    background-image: none;
+  }
 
-    &:active {
-        background-color: transparent;
-    }
-
-    img, svg {
-        @include size($header-height*2/3);
-        vertical-align: middle;
-    }
+  img,
+  svg {
+    @include size($header-height*2/3);
+    vertical-align: middle;
+  }
 }
 
 #main-menu-button {
-    @extend .header-button;
-    display: none;
+  // scss-lint:disable PlaceholderInExtend
+  @extend .header-button;
+  display: none;
+}
+
+#notifications {
+  @include align-items(center);
+  @include display(flex);
+  @include size(auto $header-height);
 }
 
 .notification {
-    @extend .header-button;
-    width: $header-height*2/3;
-    padding: 0.5rem 0rem;
-    margin-left: 0.5rem;
+  // scss-lint:disable PlaceholderInExtend
+  @extend .header-button;
+  margin-left: .5rem;
+  padding: .5rem 0;
+  width: $header-height*2/3;
 }
 
 #main-menu {
-    display: block;
-    @include position(fixed, 0px null 0px
-                      -200vw/3);
-    z-index: $zi-main-menu;
-    padding: $header-height 0.5rem 0rem;
-    width: (200vw/3);
-    background-color: $c-main-menu;
-    color: $c-main-menu-font;
-/*    @include transition(left 0.2s);*/
+  @include position(fixed, 0 null 0 -200vw/3);
+  // @include transition(left 0.2s);*/
+  background-color: $c-main-menu;
+  color: $c-main-menu-font;
+  display: block;
+  padding: $header-height .5rem 0;
+  width: (200vw/3);
+  z-index: $zi-main-menu;
 }
 
 .main-menu-item {
-    display: block;
-    margin: 0rem;
-    border: none;
-    padding: 1rem;
-    width: 100%;
-    background-color: transparent;
-    text-align: left;
-    font-size: 1rem;
-    color: $c-main-menu-font;
-    border-bottom: 1px solid $c-main-menu-font;
-    border-radius: 0rem;
+  background-color: transparent;
+
+  border: 0 {
+    bottom: 1px solid $c-main-menu-font;
+    radius: 0;
+  }
+
+  color: $c-main-menu-font;
+  display: block;
+  font-size: 1rem;
+  margin: 0;
+  padding: 1rem;
+  text-align: left;
+  width: 100%;
+
+  &:active {
+    background-color: rgba($c-control-face, .2);
+  }
 }
 
-.main-menu-item:active {
-    background-color: rgba($c-control-face, 0.2);
+#content-shade {
+  @include position(fixed, 0 0 0 0);
+  // @include transition(background-color 0.2s);
+  background-color: transparent;
+  display: block;
+  z-index: $zi-panels - 1;
 }
 
 .box {
-    display: block;
-    margin: $box-margin;
-    border: none;
-    border-radius: $box-border-radius;
-    box-shadow: $box-shadow-dimensions $c-box-shadow;
-    background-color: $c-box;
-    padding: $box-padding;
-    text-align: justify;
-}
+  background-color: $c-box;
+  border: 0 {
+    radius: $box-border-radius;
+  }
+  box-shadow: $box-shadow-dimensions $c-box-shadow;
+  display: block;
+  margin: $box-margin;
+  padding: $box-padding;
+  text-align: justify;
 
-.box-title {
-    margin: 0rem 0rem 1rem;
+  &-title {
     font-size: 1rem;
-}
+    margin: 0 0 1rem;
+  }
 
-.box-ulined-title {
+  > h1:first-child {
+    // scss-lint:disable PlaceholderInExtend
+    @extend .box-title;
+  }
+
+  &-ulined-title {
+    // scss-lint:disable PlaceholderInExtend
     @extend .box-title;
     border-bottom: 1px solid $c-control-border;
-    padding: 0rem 0rem 0.5rem;
-}
-
-.box > h1:first-child {
-    @extend .box-title;
+    padding: 0 0 .5rem;
+  }
 }
 
 #message-bubble {
-    @include position(fixed, $header-height 0px auto auto);
-    z-index: $zi-panels - 1;
-    margin: 0.5rem;
-    border-radius: 0.2rem;
-    max-width: 50vw;
-    background-color: rgba($c-main-menu, 0.8);
-    padding: 0.5rem;
-    color: $c-white-font;
-    opacity: 0;
-}
-
-button,
-input[type="button"],
-input[type="reset"],
-input[type="submit"] {
-    border: 1px solid $c-control-border;
-    border-radius: 2 * $box-border-radius;
-    padding: 0.5rem;
-    background-color: lighten($c-secondary, 25%);
-    background-image: none;
-}
-
-button:active,
-input[type="button"]:active,
-input[type="reset"]:active,
-input[type="submit"]:active {
-    background-color: $c-active-button;
-}
-
-button:focus,
-input[type="button"]:focus,
-input[type="reset"]:focus,
-input[type="submit"]:focus {
-    border-color: lighten($c-primary, 25%);
-}
-
-button[disabled],
-input[type="button"][disabled],
-input[type="reset"][disabled],
-input[type="submit"][disabled] {
-    background-color: lighten($c-secondary, 32%);
-    color: lighten($c-control-font, 50%);
+  @include position(fixed, $header-height 0 auto auto);
+  background-color: rgba($c-main-menu, .8);
+  border-radius: .2rem;
+  color: $c-white-font;
+  margin: .5rem;
+  max-width: 50vw;
+  opacity: 0;
+  padding: .5rem;
+  z-index: $zi-panels - 1;
 }
 
 .list-button {
-    border-width: 1px 0px 0px;
-    border-style: solid;
-    border-color: $c-control-border;
-    border-radius: 0rem;
-    width: 100%;
-    background-color: transparent;
-}
+  background-color: transparent;
 
-.list-button:last-child {
-    border-width: 1px 0px;
-}
+  border: {
+    radius: 0;
+    style: solid;
+    width: 1px 0 0;
+  }
 
-.list-button:focus {
-    border-color: $c-control-border;
-    background-color: lighten(black, 90%);
-}
+  width: 100%;
 
-.list-button:active {
+  &:last-child {
+    border-width: 1px 0;
+  }
+
+  &:focus {
+    background-color: $c-list-button-focus-color;
+    border-color: $c-button-border;
+  }
+
+  &:active {
     background-color: $c-active-button;
+    border-color: $c-button-border;
+  }
 }

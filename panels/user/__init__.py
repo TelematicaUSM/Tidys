@@ -250,6 +250,12 @@ class UserWSC(src.wsclass.WSClass):
 
         The user id is appended to the message type and
         ``message`` is sent through the database.
+
+        .. todo::
+            *   Change the message type of the subscription
+                to be organised by namespace.
+            *   Change this method so that it uses
+                self.handler.user_msg_type.
         """
         try:
             message['type'] = '{}({})'.format(
@@ -268,6 +274,29 @@ class UserWSC(src.wsclass.WSClass):
                     message)
             else:
                 raise
+
+    @subscribe(
+        'user.message.frontend.send', channels={'w', 'l'})
+    def send_frontend_user_message(self, message):
+        """Send a message to all clients of a single user.
+
+        .. todo::
+            *   Review the error handling and documentation
+                of this funcion.
+        """
+        try:
+            self.pub_subs['d'].send_message(
+                {
+                    'type': self.handler.user_msg_type,
+                    'content': {
+                        'type': 'toFrontend',
+                        'content': message['content']
+                    }
+                }
+            )
+
+        except:
+            raise
 
     def sub_to_user_messages(self):
         """Route messages of the same user to the local PS.

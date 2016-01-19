@@ -21,6 +21,7 @@
 
 import src
 
+
 class PresentationPanel(
         src.boiler_ui_module.BoilerUIModule):
     id_ = 'presentation-panel'

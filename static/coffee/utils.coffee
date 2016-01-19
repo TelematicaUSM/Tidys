@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-@getEventPromise = (target, type, pre_check=false) ->
+@getEventPromise = (target, type, pre_check = false) ->
     listener = undefined
 
     promise = new Promise (resolve, reject) ->
@@ -41,11 +41,13 @@
     elements = ensureArray elements
     element.style.display = 'none' for element in elements
 
-@showElements = (elements, display='block') ->
+@showElements = (elements, display = 'block') ->
     elements = ensureArray elements
     element.style.display = display for element in elements
 
-@switchElements_visibility = (elements, display='block') ->
+# This name should be changed to switchElementsVisibility
+@switchElements_visibility = \
+        (elements, display = 'block') ->
     elements = ensureArray elements
     for element in elements
         if element.style.display is 'none'

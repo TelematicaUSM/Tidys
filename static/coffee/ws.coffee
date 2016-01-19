@@ -23,7 +23,8 @@
     {
         debug: conf.debug,
         timeoutInterval: 10000,
-        reconnectInterval: conf.ws_reconnect_interval*1000,
+        reconnectInterval: \
+            conf.ws_reconnect_interval * 1000,
     }
 )
 
@@ -49,7 +50,7 @@ ws.toEventName = (msg_type) ->
 ws.sendJSON = (json_message) ->
     ws.send JSON.stringify json_message
 
-ws.sendJSONIfOpen = (json_message, else_func=->) ->
+ws.sendJSONIfOpen = (json_message, else_func = ->) ->
     if ws.isOpen()
         ws.sendJSON json_message
     else
@@ -101,8 +102,7 @@ ws.addEventListener("message", (evt) ->
     message = JSON.parse evt.data
 
     if "type" not of message
-        console.log "Malformed message: " + evt.data
-        return
+        throw new Error "Malformed message: " + evt.data
 
     ws.dispatchEvent new CustomEvent(
         ws.toEventName(message.type),
