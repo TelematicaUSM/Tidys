@@ -1,7 +1,27 @@
 # -*- coding: UTF-8 -*-
 
+# COPYRIGHT (c) 2016 Cristóbal Ganter
+#
+# GNU AFFERO GENERAL PUBLIC LICENSE
+#    Version 3, 19 November 2007
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from tornado.ioloop import IOLoop
 from tornado.gen import coroutine
+from pymongo import ASCENDING
 from bson.dbref import DBRef
 
 from src.exceptions import NotDictError
@@ -86,7 +106,7 @@ class DBObject(object):
                     'Either id_ or dbref should be '
                     'specified.')
 
-            if not data:
+            if data is None:
                 raise NoObjectReturnedFromDB(cls)
 
             return cls(data, **kwargs)
@@ -126,12 +146,104 @@ class DBObject(object):
             An instance of this class that represents the
             newly created document.
 
-        :raises OperationFailure:
+        :raises pymongo.errors.OperationFailure:
             If an error occurred during insertion.
+
+        :raises pymongo.errors.DuplicateKeyError:
+            If an object with the same id alredy exists in
+            the database.
+            :class:`~pymongo.errors.DuplicateKeyError` is a
+            subclass of
+            :class:`~pymongo.errors.OperationFailure`.
         """
-        yield cls.coll.insert({'_id': id_})
-        self = yield cls.get(id_, **kwargs)
-        return self
+        try:
+            yield cls.coll.insert({'_id': id_})
+            self = yield cls.get(id_, **kwargs)
+            return self
+
+        except:
+            raise
+
+    @classmethod
+    @coroutine
+    def get_list(cls, spec, fields=None):
+        """Return a list of documents.
+
+        Returns a list of documents that meet the
+        restrictions set by the ``spec`` parameter.
+
+        :param dict spec:
+            This parameter is passed directly to the
+            :meth:`motor.MotorCollection.find` method. The
+            dictionary can contain any valid MongoDB query
+            operator.
+
+        :param fields:
+            This parameter is passed directly to the
+            :meth:`motor.MotorCollection.find` method.
+
+        :type fields: dict or list
+
+        :return:
+            A future that resolves to a list of documents.
+
+        :raises src.exceptions.NotDictError:
+            If ``spec`` is not a dictionary.
+        """
+        try:
+            cursor = cls.coll.find(
+                spec, fields, sort=[('_id', ASCENDING)])
+
+            documents = yield cursor.to_list(None)
+            return documents
+
+        except TypeError as te:
+            if not isinstance(spec, dict):
+                raise NotDictError('spec') from te
+
+            elif not isinstance(fields, (dict, list)) and \
+                    fields is not None:
+                e = TypeError(
+                    'The fields parameter should be a '
+                    'dictionary or a list.'
+                )
+                raise e from te
+
+            else:
+                raise
+
+    @classmethod
+    @coroutine
+    def get_one_document(cls, id_, fields=None):
+        """Get a raw document from the database.
+
+        :param id_:
+            The ID of the object to be fetched from the
+            database.
+
+        :param fields:
+            The fields to be included in the document.
+        :type fields: list of names or dict ({names: bool})
+
+        :return:
+            The specified document.
+        :rtype: dict
+
+        :raises NoObjectReturnedFromDB:
+            If there is no document with the specified ID in
+            the database.
+        """
+        try:
+            document = yield cls.coll.find_one(
+                id_, fields=fields)
+
+            if document is None:
+                raise NoObjectReturnedFromDB(cls)
+
+            else:
+                return document
+        except:
+            raise
 
     def __init__(self, data, **kwargs):
         if isinstance(data, dict):

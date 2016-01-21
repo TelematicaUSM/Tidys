@@ -32,3 +32,5 @@ __pycache__/
 /doc/*.rst
 !/doc/index.rst
 !/doc/todo.rst
+/conf/__init__.py
+

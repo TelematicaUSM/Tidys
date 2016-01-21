@@ -1,0 +1,36 @@
+{
+    "name": "First Slideshow Test",
+    "slides": [
+        {
+            "url": "http://cganterh.net",
+            "question": {
+                "wording": "Do you like this page?",
+                "answers": [
+                    "It's horrible!",
+                    "You should hire a designer!",
+                    "It's good enough.",
+                    "Marvellous *.*!"
+                ],
+                "correct_answer": 0,
+                "type": "alternatives"
+            }
+        },
+        {
+            "url": "youtube.com",
+            "question": {
+                "wording": "Is this page too overloaded?",
+                "answers": [
+                    "Yes.",
+                    "No.",
+                    "It depends."
+                ],
+                "correct_answer": 2,
+                "type": "alternatives"
+            }
+        },
+        {
+            "url": "wikipedia.com",
+            "question": null
+        }
+    ]
+}

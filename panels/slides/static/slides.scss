@@ -1,0 +1,26 @@
+@import '../../../static/scss/bourbon_files/bourbon';
+@import '../../../static/scss/constants';
+
+.slides {
+  &.new-input {
+    opacity: 0;
+  }
+
+  &.display {
+    border: 0;
+    overflow: hidden;
+  }
+
+  &.dir-buttons {
+    @include display(flex);
+
+    > * {
+      @include flex-grow(1);
+      margin-right: .25rem;
+    }
+
+    > *:last-child {
+      margin-right: 0;
+    }
+  }
+}

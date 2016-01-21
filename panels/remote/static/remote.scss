@@ -1,22 +1,43 @@
-// Para importar bourbon desde el scss de un módulo (no se me ha ocurrido una manera mas limpia de hacer esto):
-@import "../../../static/scss/bourbon_files/bourbon";
+// COPYRIGHT (c) 2016 Cristóbal Ganter
+//
+// GNU AFFERO GENERAL PUBLIC LICENSE
+//    Version 3, 19 November 2007
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+@import '../../../static/scss/bourbon_files/bourbon';
+@import '../../../static/scss/constants';
 
-// La especificación de flexbox en bourbon está en: <http://bourbon.io/docs/#flexbox>
+.remote.box {
+  @include display(flex);
+  @include flex-wrap(wrap);
+  @include justify-content(space-around);
+  @include align-content(space-around);
 
-//Estimo que tendrás que escribir algo así:
-#remote-panel > .box button {
+  > * {
+    @include flex-grow(1);
+
+    margin: .25rem;
     text-align: center;
-    margin: 0.25rem;
-    @include flex(1);
-    svg, img {
-        vertical-align: middle;
-    }
-}
 
-#remote-panel > .box {
-    @include display(flex);
-    @include justify-content(space-around);
-    @include flex-wrap (wrap);
-    @include align-content(space-around);
-    @include flex-direction(row-reverse);
+    svg,
+    img {
+      @include size(2rem);
+      vertical-align: middle;
+    }
+
+    path {
+      fill: $c-icon;
+    }
+  }
 }

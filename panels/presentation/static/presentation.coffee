@@ -1,3 +1,22 @@
+# COPYRIGHT (c) 2016 Cristóbal Ganter
+#
+# GNU AFFERO GENERAL PUBLIC LICENSE
+#    Version 3, 19 November 2007
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 #VARIABLES
 
 current_node = null
@@ -12,20 +31,22 @@ presentation_box = document.getElementById 'presentation-box'
       new_node = document.importNode node_template, true
 
       if is_main_element == true
-        current_node.remove() if current_node?
+        current_node?.remove()
         new_node.classList.add 'main-presentation-element'
         current_node = new_node
 
       else
-        new_node.classList.add('alt-presentation-element')
-      presentation_box.appendChild(new_node)
+        new_node.classList.add 'alt-presentation-element'
+      presentation_box.appendChild new_node
       fs_button.style.display = "block"
+      return new_node
 
     catch error
       unless node_template instanceof Node
         e = TypeError(
           'La variable node_template no es un Nodo HTML.')
         e.from = error
+        throw e
 
       else
         throw error

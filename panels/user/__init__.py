@@ -1,5 +1,24 @@
 # -*- coding: UTF-8 -*-
 
+# COPYRIGHT (c) 2016 Cristóbal Ganter
+#
+# GNU AFFERO GENERAL PUBLIC LICENSE
+#    Version 3, 19 November 2007
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 """Render the user panel and process all user messages.
 
 This module patches the :class:`controller.MSGHandler`
@@ -231,6 +250,12 @@ class UserWSC(src.wsclass.WSClass):
 
         The user id is appended to the message type and
         ``message`` is sent through the database.
+
+        .. todo::
+            *   Change the message type of the subscription
+                to be organised by namespace.
+            *   Change this method so that it uses
+                self.handler.user_msg_type.
         """
         try:
             message['type'] = '{}({})'.format(
@@ -249,6 +274,29 @@ class UserWSC(src.wsclass.WSClass):
                     message)
             else:
                 raise
+
+    @subscribe(
+        'user.message.frontend.send', channels={'w', 'l'})
+    def send_frontend_user_message(self, message):
+        """Send a message to all clients of a single user.
+
+        .. todo::
+            *   Review the error handling and documentation
+                of this funcion.
+        """
+        try:
+            self.pub_subs['d'].send_message(
+                {
+                    'type': self.handler.user_msg_type,
+                    'content': {
+                        'type': 'toFrontend',
+                        'content': message['content']
+                    }
+                }
+            )
+
+        except:
+            raise
 
     def sub_to_user_messages(self):
         """Route messages of the same user to the local PS.

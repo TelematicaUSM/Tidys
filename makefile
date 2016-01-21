@@ -1,3 +1,22 @@
+# COPYRIGHT (c) 2016 Cristóbal Ganter
+#
+# GNU AFFERO GENERAL PUBLIC LICENSE
+#    Version 3, 19 November 2007
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 .DEFAULT_GOAL = run
 program = run.py
 dir_name = $${PWD\#\#*/}
@@ -25,7 +44,8 @@ bowerpath = ./bower_components
 bowercmd = $(nmodulespath)/bower/bin/bower
 
 jspath = static/js
-coffeepaths = $(jspath) static/coffee
+coffeepath = static/coffee
+coffeepaths = $(jspath) $(coffeepath)
 coffeeoptions = --map --compile --output
 coffeecmd = $(nmodulespath)/coffee-script/bin/coffee
 
@@ -56,7 +76,8 @@ dependencies: | make_empty_targets
 	sudo apt-get update
 	sudo apt-get install python3 python3-dev \
 	                     build-essential ruby npm curl \
-	                     screen nodejs-legacy libjpeg-dev
+	                     screen nodejs-legacy libjpeg-dev \
+						 mongodb
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
@@ -91,7 +112,7 @@ $(bbfoldername): bourbon
 	                                    --path=$(scsspath)
 	mv $(scsspath)/bourbon $(bbpath)
 
-css: scss | $(bbfoldername) sass
+css: $(scsspath)/*.scss | $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
 coffee-script bower: | dependencies
@@ -109,7 +130,11 @@ reconnecting-websocket.js: | bower js
 	$(bowercmd) install reconnectingWebsocket
 	cd $(jspath) && ln -s ../../$(bowerpath)/reconnectingWebsocket/$@ $@
 
-js: coffee | coffee-script
+unibabel.js: | bower js
+	$(bowercmd) install unibabel
+	cd $(jspath) && ln -s ../../$(bowerpath)/unibabel/index.js $@
+
+js: $(coffeepath)/*.coffee | coffee-script
 	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
 
 .PHONY: run python srun drun testenv attach csswatch dcsswatch \
@@ -119,8 +144,9 @@ js: coffee | coffee-script
 
 run_py_deps = tornado motor jwt httplib2 oauth2client
 run: $(run_py_deps) dependencies css js \
-     reconnecting-websocket.js tinycolor.js normalize.css \
-	 panels notifications locking_panels controls qrmaster
+     reconnecting-websocket.js tinycolor.js unibabel.js \
+	 normalize.css panels notifications locking_panels \
+	 controls qrmaster
 	$(python) -i $(program)
 
 python: dependencies
@@ -188,7 +214,7 @@ autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
 showdocs: autodoc
 	xdg-open doc/_build/html/index.html
 
-clean_doc: sphinx
+clean_doc: | sphinx
 	$(runenv) && cd $(doc_path) && $(MAKE) clean
 	cd $(doc_path) && \
 	find . -maxdepth 1 -type f ! -regex '.*\(index.rst\|todo.rst\|conf.py\|[mM]akefile\)' -delete

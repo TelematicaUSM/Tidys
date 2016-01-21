@@ -1,0 +1,68 @@
+{
+    "name": "Mediciones (1)",
+    "slides": [
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#fis-100-introducción-a-la-física",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#objetivos-de-la-clase",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#actividad-1-primera-medición",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#cómo-medir",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#figura-1",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#figura-2",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#cm",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#actividad-2-segunda-medición",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#cuento-del-lechero",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#cuento-del-lechero-1",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#cuento-del-lechero-2",
+            "question": null
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#pregunta-1",
+            "question": {
+                "wording": "¿Cuál de las siguientes longitudes fue medida con una regla de lechero de acuerdo a nuestro convenio?",
+                "answers": [
+                    "54 [cm]",
+                    "54,3 [cm]",
+                    "54,33 [cm]",
+                    "54,333 [cm]",
+                    "54,3337 [cm]"
+                ],
+                "correct_answer": 2,
+                "type": "alternatives"
+            }
+        },
+        {
+            "url": "http://cganterh.net/ptest/presentation.html#probando-mathjax",
+            "question": null
+        }
+    ]
+}

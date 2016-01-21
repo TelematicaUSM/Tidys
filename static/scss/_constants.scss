@@ -1,53 +1,82 @@
+// COPYRIGHT (c) 2016 Cristóbal Ganter
+//
+// GNU AFFERO GENERAL PUBLIC LICENSE
+//    Version 3, 19 November 2007
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
 //NUMBERS
-$font-alpha: 0.7;
+$font-alpha: .7;
 
 //SIZES
 $header-height: 3rem;
 
-$panel-title-padding: 0.7rem;
+$panel-title-padding: .7rem;
 $panel-title-font-size: 1.3rem;
 $panel-title-height: 2*$panel-title-padding +
                      $panel-title-font-size;
 $box-margin: 1rem;
-$box-border-radius: 0.1rem;
-$box-shadow-dimensions: 0rem 0.1rem 0rem 0rem;
+$box-border-radius: .1rem;
+$box-shadow-dimensions: 0 .1rem 0 0;
 $box-padding: 1rem;
 
 //COLORS
 $c-primary: #e21e3a;
 $c-secondary: #7878d7;
-$c-background: #EDECEA;
-$c-control-face: lighten(#dfdfdf, 10%);
-$c-control-font: rgba(black, $font-alpha);
-$c-white-font: rgba(white, $font-alpha);
-$c-footer-font: rgba(black, 0.5);
-$c-shade: rgba(black, 0.6);
-$c-active-button: lighten(black, 50%);
+$c-background: #edecea;
+$c-control-face: #f9f9f9;
+$c-control-font: rgba(#000, $font-alpha);
+$c-white-font: rgba(#fff, $font-alpha);
+$c-footer-font: rgba(#000, .5);
+$c-shade: rgba(#000, .6);
 $c-icon: #414141;
-$c-icon-faded: rgba($c-icon, 0.15);
+$c-icon-faded: rgba($c-icon, .15);
 
-    //app-header
-    $c-control-face-light: lighten($c-control-face, 5%);
-    $c-control-face-dark: darken($c-control-face, 5%);
-    $c-control-border: darken($c-control-face, 20%);
-    $c-header-shadow: #4B4B4B;
+//app-header
+$c-control-face-light: lighten($c-control-face, 5%);
+$c-control-face-dark: darken($c-control-face, 5%);
+$c-control-border: darken($c-control-face, 20%);
+$c-header-shadow: #4b4b4b;
 
-    //main-menu
-    $c-main-menu: darken($c-control-face, 80%);
-    $c-main-menu-font: rgba(white, $font-alpha);
+//main-menu
+$c-main-menu: darken($c-control-face, 80%);
+$c-main-menu-font: rgba(#fff, $font-alpha);
 
-    //panels
-    $c-panel: #EDECEA;
-    $c-panel-title: #78a4d7;
+//panels
+$c-panel: #edecea;
+$c-panel-title: #78a4d7;
 
-    //boxes
-    $c-box: white;
-    $c-box-shadow: #c9c9c9;
+//boxes
+$c-box: #fff;
+$c-box-shadow: #c9c9c9;
 
-    //panels
-    $c-panel-title: #78a4d7;
+//panels
+$c-panel-title: #78a4d7;
 
 //Z INDEXES
 $zi-header: 5000;
 $zi-main-menu: 4000;
 $zi-panels: 3000;
+
+//BUTTONS
+$c-button: lighten($c-secondary, 25%);
+$c-active-button: #808080;
+$c-button-border: $c-control-border;
+$c-button-focus-border: lighten($c-primary, 25%);
+$c-button-disabled: lighten($c-secondary, 32%);
+$c-button-disabled-text: lighten($c-control-font, 50%);
+$c-list-button-focus-color: #e6e6e6;
+$button-radius: 2 * $box-border-radius;
+$button-padding: .5rem;
