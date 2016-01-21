@@ -6,6 +6,11 @@ General project tasks
         -   Modulo de alternativas. (pip)
         -   Create a room message type. (craguila)
         -   Parser HTML. (cganterh)
+        -   Creación de grupos (juntar a dos personas).
+        -   Boton para ir a la diapo n.
+        -   Boton para cambiar de diapo desde las diapos.
+        -   En home crear un box de login aparte de la
+            descripción.
         -   Agregar botones para eliminar cursos y
             presentaciones.
         -   Parser PDF.

@@ -32,6 +32,8 @@ main_menu_items = document.querySelectorAll(
 content_shade.origZIndex = parseInt(
   window.getComputedStyle(content_shade)['zIndex'])
 
+@active_panel = null
+
 #FUNCTIONS
 
 @activateMainMenu = ->
@@ -74,6 +76,7 @@ content_shade.origZIndex = parseInt(
   for panel in document.querySelectorAll(
     ".panel, .scrolling-panel, .fixed-panel")
     panel.style.display = "none"
+  @active_panel = null
 
 @switchToPanel = (panel_id) ->
   return if lock_panels
@@ -90,6 +93,7 @@ content_shade.origZIndex = parseInt(
   panel.style.display = "block"
   document.body.scrollTop = 0
   document.documentElement.scrollTop = 0
+  @active_panel = panel_id
 
 @getPanelSwitch = (panel_id) -> ->
   switchToPanel panel_id
