@@ -34,12 +34,10 @@
     {% from locking_panels import boiler_ui_modules as \
        locking_panels %}
 
-    {% if 'classes' in globals() and classes %}
-        {% set panels = filter_classes(panels, classes) %}
+    {% set panels = filter_classes(panels, classes) %}
 
-        {% set locking_panels = \
-            filter_classes(locking_panels, classes) %}
-    {% end %}
+    {% set locking_panels = \
+        filter_classes(locking_panels, classes) %}
 
     {{ add_ext_file('js/bubble.js') }}
     <div id="message-bubble">Message Bubble</div>

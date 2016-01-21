@@ -25,7 +25,7 @@ import src
 class HomeLockingPanel(
         src.boiler_ui_module.BoilerUIModule):
     id_ = 'home-panel'
-    classes = {'scrolling-panel', 'system-panel'}
+    classes = {'scrolling-panel', 'system'}
     conf = {
         'static_url_prefix': '/home/',
         'static_path': './locking_panels/home/static',

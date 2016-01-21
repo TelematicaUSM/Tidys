@@ -51,26 +51,21 @@ class GUIHandler(RequestHandler):
     def get(self, room_code):
         """Render the application."""
         try:
-            classes = {'system-panel'}
+            classes = {'system'}
             # room_code must be passed to the template as a
             # handler's attribute, because it is used in the
             # home panel.
             self.room_code = room_code
 
-            if room_code:
+            if room_code is None:
+                classes.update({'desktop'})
+            else:
                 c = yield db.Code.get(room_code)
 
                 if c.code_type is db.CodeType.room:
-                    classes.update(
-                        {'teacher-panel', 'room-code-panel'}
-                    )
+                    classes.update({'teacher'})
                 else:
-                    classes.update(
-                        {'student-panel',
-                         'seat-code-panel'})
-            else:
-                classes.update({'teacher-panel',
-                                'student-panel'})
+                    classes.update({'student'})
 
             msg.code_debug('controller.GUIHandler.get',
                            'Rendering boxes.html ...')
@@ -154,7 +149,7 @@ class LoginHandler(RequestHandler):
 
         except oa2_client.FlowExchangeError:
             self.render('boxes.html',
-                        classes={'system-panel'},
+                        classes={'system'},
                         critical='Error de autenticación!')
 
     def get_scheme(self):

@@ -24,7 +24,7 @@ import src
 
 class RemotePanel(src.boiler_ui_module.BoilerUIModule):
     id_ = 'remote-panel'
-    classes = {'scrolling-panel', 'teacher-panel'}
+    classes = {'scrolling-panel', 'teacher'}
     name = 'Control Remoto'
     conf = {
         'static_url_prefix': '/remote/',
