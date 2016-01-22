@@ -15,7 +15,7 @@ from src.wsclass import subscribe
 
 class SlidesPanel(src.boiler_ui_module.BoilerUIModule):
     id_ = 'slides-panel'
-    classes = {'scrolling-panel', 'teacher-panel'}
+    classes = {'desktop', 'scrolling-panel', 'teacher'}
     name = 'Diapositivas'
     conf = {
         'static_url_prefix': '/slides/',
