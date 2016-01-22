@@ -242,16 +242,16 @@ window.addEventListener 'load', ->
     'slides-templates')
   templates = template_container.content.querySelectorAll(
     '.template')
-  addNodeToRemote(t) for t in templates
+  addNodeToRemote?(t) for t in templates
 
   prev_button = document.getElementById 'slides-prev'
   next_button = document.getElementById 'slides-next'
 
-  prev_button.addEventListener 'click', ->
+  prev_button?.addEventListener 'click', ->
     ws.sendJSON
       'type': 'slides.prev'
 
-  next_button.addEventListener 'click', ->
+  next_button?.addEventListener 'click', ->
     ws.sendJSON
       'type': 'slides.next'
 

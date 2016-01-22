@@ -25,7 +25,7 @@ import src
 class PresentationPanel(
         src.boiler_ui_module.BoilerUIModule):
     id_ = 'presentation-panel'
-    classes = {'fixed-panel', 'teacher'}
+    classes = {'desktop', 'fixed-panel', 'teacher'}
     name = 'Panel de Presentacion'
     conf = {
         'static_url_prefix': '/presentation/',
