@@ -89,7 +89,7 @@ env: | dependencies virtualenv
 	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
-tornado motor oauth2client qrcode termcolor: | env
+tornado motor oauth2client qrcode: | env
 	$(pip_install) $@
 
 jwt: | env

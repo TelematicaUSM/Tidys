@@ -18,5 +18,5 @@
 
 
 @showHome = ->
-    switchToPanel('home-panel')
-    lockPanels()
+  switchToPanel 'home-panel'
+  lockPanels()

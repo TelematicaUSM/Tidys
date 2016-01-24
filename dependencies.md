@@ -1,10 +1,14 @@
 *   Tornado Boxes
+    -   httplib2
     -   pip
         -   tornado
         -   motor
         -   oauth2client
         -   PyJWT
         -   httplib2
+        -   qrcode
+        -   pillow
+        -   Sphinx
     -   gem
         -   sass
         -   bourbon
@@ -13,3 +17,5 @@
         -   bower
             -   reconnectingWebsocket
             -   normalize.css
+            -   tinycolor.js
+            -   unibabel.js
