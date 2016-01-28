@@ -215,7 +215,6 @@ class UserWSC(src.wsclass.WSClass):
             ``None``.
         """
         try:
-            print (self.handler.user.status)
             if self.handler.user.status == 'seat':
                 self.redirect_to('l', message, content)
         except:
