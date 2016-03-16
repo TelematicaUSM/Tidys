@@ -28,7 +28,7 @@ _path = 'backend_modules.router'
 class RouterWSC(src.wsclass.WSClass):
     _path = msg.join_path(_path, 'RouterWSC')
 
-    @subscribe('toFrontend', channels={'l', 'd'})
+    @subscribe('toFrontend', channels={'d', 'l', 'w'})
     def to_frontend(self, message):
         self.redirect_content_to('w', message)
 
