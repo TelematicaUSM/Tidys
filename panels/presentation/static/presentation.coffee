@@ -20,9 +20,16 @@
 #VARIABLES
 
 current_node = null
-fs_button = document.getElementById 'presentation-box-fullscreen'
-ufs_button = document.getElementById 'presentation-box-unfullscreen'
-presentation_box = document.getElementById 'presentation-box'
+
+fs_button =
+  document.getElementById 'presentation-box-fullscreen'
+
+ufs_button =
+  document.getElementById 'presentation-box-unfullscreen'
+  
+presentation_box =
+  document.getElementById 'presentation-box'
+
 #FUNCIONES
 
 @addNodeToPresentation = \

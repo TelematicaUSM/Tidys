@@ -115,7 +115,7 @@ $(bbfoldername): bourbon
 css: $(scsspath)/*.scss | $(bbfoldername) sass
 	$(use_gempath) && $(sasscmd) --update $(sasspaths)
 
-coffee-script bower: | dependencies
+coffee-script bower es6-error: | dependencies
 	npm install $@
 
 normalize.css: | css bower
@@ -134,6 +134,9 @@ unibabel.js: | bower js
 	$(bowercmd) install unibabel
 	cd $(jspath) && ln -s ../../$(bowerpath)/unibabel/index.js $@
 
+es6-error.js: | es6-error js
+	cd $(jspath) && ln -s ../../$(nmodulespath)/es6-error/dist/index.js $@
+
 js: $(coffeepath)/*.coffee | coffee-script
 	$(coffeecmd) $(coffeeoptions) $(coffeepaths)
 
@@ -145,8 +148,8 @@ js: $(coffeepath)/*.coffee | coffee-script
 run_py_deps = tornado motor jwt httplib2 oauth2client
 run: $(run_py_deps) dependencies css js \
      reconnecting-websocket.js tinycolor.js unibabel.js \
-	 normalize.css panels notifications locking_panels \
-	 controls qrmaster
+	 normalize.css es6-error.js panels notifications \
+	 locking_panels controls qrmaster
 	$(python) -i $(program)
 
 python: dependencies

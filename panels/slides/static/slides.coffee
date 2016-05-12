@@ -35,6 +35,8 @@ loadError = ->
 @showSlide = (number, silent=false) ->
   ###
   Show the slide specified by `number`.
+  If the current slide has a question, the assignment button
+  gets enabled.
 
   <dl>
     <dt>Parameters</dt>
@@ -76,7 +78,13 @@ loadError = ->
   </dl>
   ###
   try
-    display.src = current_slideshow.slides[number].url
+    slide = current_slideshow.slides[number]
+    assignment_button =
+      document.getElementById 'slides-assignment'
+
+    display.src = slide.url
+    assignment_button?.disabled = not slide.question?
+
     current_slide = number
 
   catch error
@@ -235,6 +243,12 @@ loadError = ->
   ###
   moveSlides(1, silent)
 
+#OBJECTS
+
+class @NoActiveSlideshowError extends ReferenceError
+  constructor: (args...) ->
+    super args...
+
 #SETUP
 
 window.addEventListener 'load', ->
@@ -244,8 +258,14 @@ window.addEventListener 'load', ->
     '.template')
   addNodeToRemote?(t) for t in templates
 
-  prev_button = document.getElementById 'slides-prev'
-  next_button = document.getElementById 'slides-next'
+  prev_button =
+    document.getElementById 'slides-prev'
+
+  next_button =
+    document.getElementById 'slides-next'
+
+  assignment_button =
+    document.getElementById 'slides-assignment'
 
   prev_button?.addEventListener 'click', ->
     ws.sendJSON
@@ -254,6 +274,17 @@ window.addEventListener 'load', ->
   next_button?.addEventListener 'click', ->
     ws.sendJSON
       'type': 'slides.next'
+
+  assignment_button?.addEventListener 'click', ->
+    try
+      ws.sendJSON
+        'type': 'alternatives.launch'
+        'question_data':
+          current_slideshow.slides[current_slide].question
+
+    catch error
+      if not current_slideshow?
+        null ##############################################
 
 ws.getMessagePromise('session.start.ok').then ->
   ws.sendJSON
