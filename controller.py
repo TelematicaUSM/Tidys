@@ -74,6 +74,7 @@ class GUIHandler(RequestHandler):
         except db.NoObjectReturnedFromDB:
             self.render(
                 'boxes.html',
+                classes=classes,
                 critical='El código escaneado no está '
                          'registrado!'
             )
@@ -106,7 +107,8 @@ class LoginHandler(RequestHandler):
                 google_secrets['web']['client_secret'],
                 scope='openid profile',
                 redirect_uri=redirect_uri,
-                state=state)
+                state=state
+            )
 
             auth_code = self.get_argument('code', False)
 
@@ -143,14 +145,16 @@ class LoginHandler(RequestHandler):
                 token = jwt.encode({'id': user.id,
                                     'exp': self.get_exp()},
                                    user.secret)
-                msg.code_debug(_path,
-                               'Rendering login.html ...')
+                msg.code_debug(
+                    _path, 'Rendering login.html ...')
                 self.render('login.html', token=token)
 
         except oa2_client.FlowExchangeError:
-            self.render('boxes.html',
-                        classes={'system'},
-                        critical='Error de autenticación!')
+            self.render(
+                'boxes.html',
+                classes={'system'},
+                critical='Error de autenticación!'
+            )
 
     def get_scheme(self):
         if 'Scheme' in self.request.headers:
