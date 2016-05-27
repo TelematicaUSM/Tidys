@@ -18,7 +18,11 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-""".. todo:: Describe secret files origin and format."""
+"""
+    .. todo::
+        *   Describe secret files origin and format.
+        *   Change references to EduRT and AA
+"""
 
 from os import environ, path
 

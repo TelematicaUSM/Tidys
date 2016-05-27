@@ -77,7 +77,7 @@ dependencies: | make_empty_targets
 	sudo apt-get install python3 python3-dev \
 	                     build-essential ruby npm curl \
 	                     screen nodejs-legacy libjpeg-dev \
-						 mongodb
+	                     mongodb
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
