@@ -80,7 +80,7 @@ dependencies: | make_empty_targets
 	sudo apt-get install python3 python3-dev \
 	                     build-essential ruby npm curl \
 	                     screen nodejs-legacy libjpeg-dev \
-						 mongodb
+	                     mongodb
 	touch make_empty_targets/dependencies
 
 virtualenv: | dependencies
@@ -92,7 +92,7 @@ env: | dependencies virtualenv
 	cd virtualenv && \
 	python3 virtualenv.py --python=python3 ../env
 
-tornado motor oauth2client qrcode: | env
+tornado motor oauth2client qrcode sphinx_rtd_theme: | env
 	$(pip_install) $@
 
 jwt: | env
@@ -207,7 +207,8 @@ jswatch:
 djswatch:
 	screen -d -m -S $(dir_name)_coffee $(MAKE) jswatch
 
-autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
+autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx \
+	       sphinx_rtd_theme
 	$(runenv) && \
 	dir_name=$(dir_name) && \
 	cd .. && \
@@ -215,7 +216,7 @@ autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
 
 	$(runenv) && \
 	cd $(doc_path) && \
-	export AA_PATH=".." && \
+	export TIDYS_PATH=".." && \
 	$(MAKE) html
 
 showdocs: autodoc

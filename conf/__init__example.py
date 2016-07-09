@@ -29,7 +29,7 @@ from urllib.parse import urlunparse
 
 from . import log  # noqa
 
-app_name = 'EduRT'
+app_name = 'Tidys'
 app_logo_path = './art/favicon/2logo.png'
 author = 'Cristóbal Ganter'
 author_email = 'cganterh@gmail.com'
@@ -69,22 +69,24 @@ user_scalable_viewport = 'no'
 """Accepted values are ``'yes'`` and ``'no'``."""
 
 # SERVER SPECIFIC:
-root_path = environ.get('AA_PATH', '')
+root_path = environ.get('TIDYS_PATH', '')
 
 secrets_file = path.join(
     root_path,
     print(
-        '### Change secrets_file in conf/__init__.py! ###')
-    or 'secrets/secrets.json'
+        '### Change secrets_file in conf/__init__.py! ###'
+    ) or
+    'secrets/secrets.json'
 )
 
 google_secrets_file = path.join(
     root_path,
     print(
         '### Change google_secrets_file in '
-        'conf/__init__.py! ###')
-    or 'secrets/client_secret_googleCodeThingy1234'
-    '.apps.googleusercontent.com.json'
+        'conf/__init__.py! ###'
+    ) or
+    'secrets/client_secret_googleCodeThingy1234.apps.'
+    'googleusercontent.com.json'
 )
 
 ping_sleep = 10
