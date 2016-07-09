@@ -95,6 +95,6 @@ ping_sleep = 10
 ping_timeout = 20
 """In seconds. See :meth:`~controller.MSGHandler.on_pong`"""
 
-database_name = 'artalan'
+database_name = 'tidys'
 short_account_exp = {'minutes': 5}
 long_account_exp = {'days': 30 if not debug else 1}
